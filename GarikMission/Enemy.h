@@ -16,4 +16,7 @@ private:
     
     sf::Texture enemyTexture;
     sf::Sprite enemySprite;
+
+    // Нужен для тестирование коллизий, удалить после тестов
+    sf::RectangleShape enemyShapeCollision;
 };

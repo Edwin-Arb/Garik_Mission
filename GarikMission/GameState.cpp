@@ -1,9 +1,8 @@
 ﻿#include "GameState.h"
 
 AGameState::AGameState()
-{
-    screenRect = {{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}};
-}
+    : screenRect{{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}}
+{}
 
 // AGameState::~AGameState()
 // {
@@ -45,10 +44,10 @@ void AGameState::InitGame()
 //
 // }
 
-void AGameState::UpdateGameplay(float deltaTime)
+void AGameState::UpdateGameplay(const sf::Event &event, float deltaTime)
 {
     // Обновлять состояние передвижения персонажа
-    player.UpdatePlayerMove(deltaTime);
+    player.UpdatePlayerMove(event, deltaTime);
         
     // if(!AGameEngine::DoShapeCollide(player.GetPlayerCollider(), screenRect))
     // {

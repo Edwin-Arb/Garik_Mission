@@ -131,7 +131,7 @@ int main()
         }
 
         // Update Game State
-        game.UpdateGameplay(deltaTime);
+        game.UpdateGameplay(event, deltaTime);
         
         // Draw Game
         window.clear();

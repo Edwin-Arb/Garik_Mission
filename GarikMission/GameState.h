@@ -11,7 +11,7 @@ public:
     //~AGameState();
     
     void InitGame();
-    void UpdateGameplay(float deltaTime);
+    void UpdateGameplay(const sf::Event& event, float deltaTime);
     void DrawGame(sf::RenderWindow &window);
 
 private:
