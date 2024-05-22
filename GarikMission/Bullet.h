@@ -1,21 +1,27 @@
 ﻿#pragma once
 #include "Constants.h"
 
+
 class ABullet
 {
 public:
-    ABullet();
-    ~ABullet();
+    ABullet(const sf::Vector2f& start_position);
 
-    ABullet(float deltaTime);
-    void SetPosition(float posX, float posY);
-    void SetVelocity(float deltaTime);
+    bool CheckPositionBulletWithScreen() const;
+    bool CheckBulletCollisionWithEnemy(const sf::FloatRect& enemy) const;
+    void UpdateBulletPosition(float deltaTime);
+    
+    sf::FloatRect GetBulletCollider() const;
+    
     void DrawBullet(sf::RenderWindow& window);
 
 private:
+    // Направление и коллизия
     sf::Vector2f bulletVelocity;
     sf::FloatRect bulletRect;
 
+    // Текстура пули
     sf::Texture bulletTexture;
     sf::Sprite bulletSprite;
 };
+

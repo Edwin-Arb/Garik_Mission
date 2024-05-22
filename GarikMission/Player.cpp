@@ -2,11 +2,12 @@
 
 APlayer::APlayer()
     : isPlayerOnGround(false),
-      playerSpeed(SPEED_PAWN),
+      playerSpeed(PAWN_SPEED),
       playerJumpSpeed(1000.f),
-      bulletPtr(nullptr),
       playerVelocity({0.f, 0.f}),
-      playerRect({100.f, 400.f, PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y}),
+      playerRect({100.f, 400.f,
+                   PLAYER_SIZE.x * DRAW_SCALE.x,
+                   PLAYER_SIZE.y * DRAW_SCALE.y}),
       playerShapeCollision(sf::Vector2f(PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y))
 {
 }
@@ -14,7 +15,7 @@ APlayer::APlayer()
 void APlayer::InitPlayer()
 {
     // Подгрузить текстуру из папки для персонажа
-    playerTexture.loadFromFile(RESOURCES_PATH + "MainTiles/player.png");
+    assert(playerTexture.loadFromFile(RESOURCES_PATH + "MainTiles/player.png"));
 
     // Создать спрайт персонажа и положение на карте
     playerSprite.setTexture(playerTexture);
@@ -24,28 +25,16 @@ void APlayer::InitPlayer()
     playerSprite.setScale(DRAW_SCALE);
 }
 
-void APlayer::UpdatePlayerMove(const sf::Event& event, float deltaTime)
+void APlayer::UpdatePlayerMove(const sf::Event& event, float delta_time)
 {
-    // if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-    // {
-    //     playerVelocity.y = -playerSpeed * deltaTime;
-    // }
-    // else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    // {
-    //     if(isPlayerOnGround)
-    //     {
-    //         playerVelocity.y = playerSpeed * deltaTime;
-    //     }
-    // }
-
     // Передвижение
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        playerVelocity.x = -playerSpeed * deltaTime;
+        playerVelocity.x = -playerSpeed * delta_time;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        playerVelocity.x = playerSpeed * deltaTime;
+        playerVelocity.x = playerSpeed * delta_time;
     }
 
     // Прыжок
@@ -54,79 +43,46 @@ void APlayer::UpdatePlayerMove(const sf::Event& event, float deltaTime)
         if (isPlayerOnGround)
         {
             isPlayerOnGround = false;
-            playerVelocity.y = playerJumpSpeed * deltaTime;
+            playerVelocity.y = playerJumpSpeed * delta_time;
         }
     }
 
-    // Рисовать пулю 
-    PlayerShoot(event, deltaTime);
-    
+    // Гравитация необходима для приземления персонажа на землю
+    playerVelocity.y += GRAVITY * delta_time;
+
+    playerRect.left += playerVelocity.x;
+    playerRect.top -= playerVelocity.y;
+
+    // Проверка коллизии с землёй карты
+    const float playerRectBottom = playerRect.top + playerRect.height;
+    if (playerRectBottom > MAP_SURFACE)
     {
-        // Гравитация необходима для приземления персонажа на землю
-        playerVelocity.y += GRAVITY * deltaTime;
+        isPlayerOnGround = true;
+        playerVelocity.y = 0.f;
+        playerRect.top = MAP_SURFACE - playerRect.height;
+    }
 
-        playerRect.left += playerVelocity.x;
-        playerRect.top -= playerVelocity.y;
-
-        // Проверка коллизии с землёй карты
-        const float playerRectBottom = playerRect.top + playerRect.height;
-        if (playerRectBottom > MAP_SURFACE)
-        {
-            isPlayerOnGround = true;
-            playerVelocity.y = 0.f;
-            playerRect.top = MAP_SURFACE - playerRect.height;
-        }
-
-        // Проверка коллизии с правой частью экрана
-        const float playerRectTop = playerRect.left + playerRect.width;
-        if (playerRectTop > SCREEN_WIDTH)
-        {
-            playerVelocity.x = 0.f;
-            playerRect.left = SCREEN_WIDTH - playerRect.width;
-        }
-
-        // Проверка коллизии с левой частью экрана
-        if (playerRect.left < 0.f)
-        {
-            playerVelocity.x = 0.f;
-            playerRect.left = 0.f;
-        }
-
+    // Проверка коллизии с правой частью экрана
+    const float playerRectTop = playerRect.left + playerRect.width;
+    if (playerRectTop > SCREEN_WIDTH)
+    {
         playerVelocity.x = 0.f;
+        playerRect.left = SCREEN_WIDTH - playerRect.width;
     }
-}
 
-void APlayer::PlayerShoot(const sf::Event &event, float deltaTime)
-{
-    // Выстрел из оружия
-    if (event.type == sf::Event::MouseButtonPressed)
+    // Проверка коллизии с левой частью экрана
+    if (playerRect.left < 0.f)
     {
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        {
-            bulletPtr = new ABullet(deltaTime);
-            TEST_BULLET = true;
-            bulletPtr->SetVelocity(deltaTime);
-            //bulletPtr->SetPosition(playerRect.left + 100.f, playerRect.top + 70.f);
-        }
+        playerVelocity.x = 0.f;
+        playerRect.left = 0.f;
     }
-}
-// void APlayer::SetPlayerDirection(EPawnDirection newDirection)
-// {
-//     // Установить направление
-//     direction = newDirection;
-// }
 
-void APlayer::SetPlayerVelocity(sf::Vector2f newVelocity)
-{
-    // Установить позицию
-    playerVelocity = newVelocity;
+    playerVelocity.x = 0.f;    
 }
 
-void APlayer::SetPlayerSpeed(float newSpeed)
-{
-    // Установить скорость
-    playerVelocity.x = newSpeed;
-    playerVelocity.y = newSpeed;
+sf::FloatRect APlayer::GetPlayerRect() const
+{// Получаем коллизию персонажа
+    return playerRect;
 }
 
 void APlayer::DrawPlayer(sf::RenderWindow& window)
@@ -138,22 +94,4 @@ void APlayer::DrawPlayer(sf::RenderWindow& window)
     // Рисовать персонажа и его коллизию
     window.draw(playerShapeCollision);
     window.draw(playerSprite);
-
-    if (TEST_BULLET == true)
-    {
-        bulletPtr->DrawBullet(window);
-        TEST_BULLET = false;
-    }
 }
-
-// Rectangle APlayer::GetPlayerCollider() const
-// {
-//     // Координаты верхнего левого угла спрайта персонажа
-//     sf::Vector2f topLeft(playerRect.left, playerRect.top);
-//     
-//     // Координаты нижнего правого угла спрайта персонажа
-//     sf::Vector2f bottomRight(playerRect.width + PLAYER_SIZE.x * DRAW_SCALE.x, 
-//                              playerRect.height + PLAYER_SIZE.y * DRAW_SCALE.x);
-//     
-//     return { {topLeft.x, topLeft.y}, {bottomRight.x, bottomRight.y} };
-// }

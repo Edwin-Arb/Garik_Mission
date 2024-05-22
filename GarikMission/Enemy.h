@@ -8,6 +8,7 @@ public:
     AEnemy();
 
     void InitEnemy();
+    sf::FloatRect GetEnemyRect() const;
     void DrawEnemy(sf::RenderWindow& window);
 
 private:

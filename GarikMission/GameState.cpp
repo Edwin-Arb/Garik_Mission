@@ -1,4 +1,5 @@
 ﻿#include "GameState.h"
+#include "GameEngine.h"
 
 AGameState::AGameState()
     : screenRect{{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}}
@@ -44,15 +45,23 @@ void AGameState::InitGame()
 //
 // }
 
-void AGameState::UpdateGameplay(const sf::Event &event, float deltaTime)
+void AGameState::UpdateGameplay(const sf::Event &event, float delta_time)
 {
     // Обновлять состояние передвижения персонажа
-    player.UpdatePlayerMove(event, deltaTime);
-        
-    // if(!AGameEngine::DoShapeCollide(player.GetPlayerCollider(), screenRect))
-    // {
-    //     player.SetPlayerVelocity({0.f, 0.f});
-    // }
+    player.UpdatePlayerMove(event, delta_time);
+
+    // Сделать зарежку между каждый выстрелом
+    float elapsedSeconds = delayShootTime.getElapsedTime().asSeconds();
+    if (elapsedSeconds >= 0.5f)
+    {
+        // Делаем выстрел, если нажали левую кнопку мыши
+        AGameEngine::PlayerShoot(bulletsVector, player.GetPlayerRect());
+        delayShootTime.restart();
+    }
+
+    // Проверяем с чем сталкиваются пули
+    AGameEngine::CheckBulletCollision(bulletsVector, enemy, delta_time);
+    
 }
 
 void AGameState::DrawGame(sf::RenderWindow& window)
@@ -60,4 +69,10 @@ void AGameState::DrawGame(sf::RenderWindow& window)
     // Draw everything
     enemy.DrawEnemy(window);
     player.DrawPlayer(window);
+    
+    // Рисовать пули
+    for (ABullet& bullet : bulletsVector)
+    {
+        bullet.DrawBullet(window);
+    }
 }

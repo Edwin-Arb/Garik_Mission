@@ -3,14 +3,15 @@
 AEnemy::AEnemy()
     : enemyVelocity{0.f, 0.f},
       enemyRect{650.f, 400.f,
-             ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y},
-      enemyShapeCollision(sf::Vector2f{-ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y})
+               650.f + ENEMY_SIZE.x,
+               400.f + ENEMY_SIZE.y},
+      enemyShapeCollision(sf::Vector2f{ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y})
 {}
 
 void AEnemy::InitEnemy()
 {
     // Подгрузить текстуру из папки для персонажа
-    enemyTexture.loadFromFile(RESOURCES_PATH + "MainTiles/enemy.png");
+    assert(enemyTexture.loadFromFile(RESOURCES_PATH + "MainTiles/enemy.png"));
     
     // Создать спрайт персонажа и положение на карте
     enemySprite.setTexture(enemyTexture);
@@ -20,6 +21,11 @@ void AEnemy::InitEnemy()
 
     // Установить масштаб персонажа
     enemySprite.setScale(-DRAW_SCALE.x, DRAW_SCALE.y);
+}
+
+sf::FloatRect AEnemy::GetEnemyRect() const
+{
+    return enemyRect;
 }
 
 void AEnemy::DrawEnemy(sf::RenderWindow &window)
