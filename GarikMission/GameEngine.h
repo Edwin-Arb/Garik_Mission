@@ -1,24 +1,20 @@
 ﻿#pragma once
 #include "Constants.h"
-#include "Bullet.h"
-#include "Enemy.h"
+#include "GameState.h"
 
 
 class AGameEngine
 {
 public:
-    // AGameEngine();
-    // ~AGameEngine();
+       
+    static void PlayerShoot(std::vector<ABullet*>& BulletsVectorPtr, const sf::FloatRect& PlayerRect);
+    static void CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPrt, const AEnemy& EnemyCollision, float DeltaTime);
+    
+    static void SetSpriteSize(sf::Sprite& Sprite, float DesiredWidth, float DesiredHeight);
+    static void SetShapeSize(sf::Shape& Shape, float DesiredWidth, float DesiredHeight);
 
-    
-    
-    static bool DoShapeCollide(const Rectangle& rect1, const Rectangle& rect2);
-    static void PlayerShoot(std::vector<ABullet>& bullets_vector, const sf::FloatRect& player_rect);
-    static void CheckBulletCollision(std::vector<ABullet>& bullets_vector, const AEnemy& enemy_collision, float delta_time);
+    static void SetSpriteRelativeOrigin(sf::Sprite& Sprite, float OriginX, float OriginY);
+    static void SetShapeRelativeOrigin(sf::Shape& Shape, float OriginX, float OriginY);
     //void DrawGame(sf::RenderWindow& window);
-
-private:
-    //AGameState gamePtr;
-    // AGameState game;
-    // APlayer *player = new APlayer;
+    
 };

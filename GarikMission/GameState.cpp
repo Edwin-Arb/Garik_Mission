@@ -2,18 +2,28 @@
 #include "GameEngine.h"
 
 AGameState::AGameState()
-    : screenRect{{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}}
+    : ScreenRect{{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}},
+      Enemy(new AEnemy),
+      Player(new APlayer)
 {}
 
-// AGameState::~AGameState()
-// {
-//     //delete player;
-// }
-
-void AGameState::InitGame()
+AGameState::~AGameState()
 {
-    enemy.InitEnemy();
-    player.InitPlayer();
+    delete Enemy;
+    delete Player;
+    
+    for (const ABullet *bullet : BulletsVectorPtr)
+    {
+        delete bullet;
+    }
+    
+    BulletsVectorPtr.clear();
+}
+
+void AGameState::InitGame() const
+{
+    Enemy->InitEnemy();
+    Player->InitPlayer();
 }
 
 // void AGameState::HandleUserInput(const sf::Event &event)
@@ -21,58 +31,57 @@ void AGameState::InitGame()
 //     
 //         if(event.key.code == (sf::Keyboard::W))
 //         {
-//             player.SetPlayerDirection(EPawnDirection::EPD_Up);
+//             Player.SetPlayerDirection(EPawnDirection::EPD_Up);
 //         }
 //         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 //         {
-//             player.SetPlayerDirection(EPawnDirection::EPD_Left);
+//             Player.SetPlayerDirection(EPawnDirection::EPD_Left);
 //         }
 //         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 //         {
-//             player.SetPlayerDirection(EPawnDirection::EPD_Down);
+//             Player.SetPlayerDirection(EPawnDirection::EPD_Down);
 //         }
 //         else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 //         {
-//             player.SetPlayerDirection(EPawnDirection::EPD_Right);
+//             Player.SetPlayerDirection(EPawnDirection::EPD_Right);
 //         }
 //     if (event.type == sf::Event::KeyPressed)
 //     {
 //         if (event.key.code == sf::Keyboard::Space)
 //         {
-//             player.SetPlayerDirection(EPawnDirection::EPD_Jump);
+//             Player.SetPlayerDirection(EPawnDirection::EPD_Jump);
 //         }
 //     }
 //
 // }
 
-void AGameState::UpdateGameplay(const sf::Event &event, float delta_time)
+void AGameState::UpdateGameplay(float DeltaTime)
 {
     // Обновлять состояние передвижения персонажа
-    player.UpdatePlayerMove(event, delta_time);
+    Player->UpdatePlayerMove(DeltaTime);
 
     // Сделать зарежку между каждый выстрелом
-    float elapsedSeconds = delayShootTime.getElapsedTime().asSeconds();
-    if (elapsedSeconds >= 0.5f)
+    float elapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
+    if (elapsedSeconds >= 0.05f)
     {
         // Делаем выстрел, если нажали левую кнопку мыши
-        AGameEngine::PlayerShoot(bulletsVector, player.GetPlayerRect());
-        delayShootTime.restart();
+        AGameEngine::PlayerShoot(BulletsVectorPtr, Player->GetPlayerRect());
+        DelayShotTimerHandle.restart();
     }
 
     // Проверяем с чем сталкиваются пули
-    AGameEngine::CheckBulletCollision(bulletsVector, enemy, delta_time);
-    
+    AGameEngine::CheckBulletCollision(BulletsVectorPtr, *Enemy, DeltaTime);
 }
 
-void AGameState::DrawGame(sf::RenderWindow& window)
+void AGameState::DrawGame(sf::RenderWindow& Window) const
 {
     // Draw everything
-    enemy.DrawEnemy(window);
-    player.DrawPlayer(window);
+    Enemy->DrawEnemy(Window);
+    Player->DrawPlayer(Window);
     
     // Рисовать пули
-    for (ABullet& bullet : bulletsVector)
+    for (ABullet* bullet : BulletsVectorPtr)
     {
-        bullet.DrawBullet(window);
+        bullet->DrawBullet(Window);
     }
 }

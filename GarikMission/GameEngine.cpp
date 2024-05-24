@@ -1,58 +1,74 @@
 ﻿#include "GameEngine.h"
-#include "GameState.h"
 
-// AGameEngine::AGameEngine()
-// {
-//     gamePtr = new AGameState;
-// }
-//
-// AGameEngine::~AGameEngine()
-// {
-//     delete gamePtr;
-// }
-
-bool AGameEngine::DoShapeCollide(const Rectangle& rect1, const Rectangle& rect2)
-{
-    return (rect1.position2D.X < rect2.position2D.X + rect2.size.X) &&
-           (rect1.position2D.X + rect1.size.X > rect2.position2D.X) &&
-           (rect1.position2D.Y < rect2.position2D.Y + rect2.size.Y) &&
-           (rect1.position2D.Y + rect1.size.Y > rect2.position2D.Y);
-}
-
-void AGameEngine::PlayerShoot(std::vector<ABullet> &bullets_vector, const sf::FloatRect &player_rect)
+void AGameEngine::PlayerShoot(std::vector<ABullet*> &BulletsVectorPtr, const sf::FloatRect &PlayerRect)
 {
     // Выстрел из оружия. Пока кнопка нажата - мы стреляем 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        constexpr float spawn_bullet_offsetX = 90.f;
-        constexpr float spawn_bullet_offsetY = 75.f;
-        bullets_vector.emplace_back(sf::Vector2f(player_rect.left + spawn_bullet_offsetX, player_rect.top + spawn_bullet_offsetY));
+        constexpr float SpawnBulletOffsetX = 45.f;
+        constexpr float SpawnBulletOffsetY = 20.f;
+        BulletsVectorPtr.emplace_back(new ABullet(sf::Vector2f(PlayerRect.left + SpawnBulletOffsetX, PlayerRect.top + SpawnBulletOffsetY)));
     }
 }
 
-void AGameEngine::CheckBulletCollision(std::vector<ABullet> &bullets_vector, const AEnemy &enemy_collision, float delta_time)
+void AGameEngine::CheckBulletCollision(std::vector<ABullet*> &BulletsVectorPrt, const AEnemy &EnemyCollision, float DeltaTime)
 {
-    // Обновление передвижения пули
-    std::vector<size_t> indices_to_remove;
+    // Вектор для хранения индексов(итераторов) пуль, которые нужно удалить
+    std::vector<ABullet*> IndicesToRemove;
 
-    for (size_t i = 0; i < bullets_vector.size(); ++i)
-    {
-        bullets_vector[i].UpdateBulletPosition(delta_time);
-        if (bullets_vector[i].CheckPositionBulletWithScreen())
+    // Проходим по всем пулям в векторе
+    for (size_t i = 0; i < BulletsVectorPrt.size(); ++i)
+    {        
+        // Обновляем позицию пули
+        BulletsVectorPrt[i]->UpdateBulletPosition(DeltaTime);
+        
+        // Проверяем, вышла ли пуля за пределы экрана
+        if (BulletsVectorPrt[i]->CheckPositionBulletWithScreen())
         {
-            indices_to_remove.push_back(i);
+            IndicesToRemove.push_back(BulletsVectorPrt[i]);
+            continue; // Если пуля выходит за экран, проверка столкновения с врагом не нужна
         }
 
-        if (bullets_vector[i].CheckBulletCollisionWithEnemy(enemy_collision.GetEnemyRect()))
+        // Проверяем столкновение пули с врагом
+        if (BulletsVectorPrt[i]->CheckBulletCollisionWithEnemy(EnemyCollision.GetEnemyRect()))
         {
-            indices_to_remove.push_back(i);
+            IndicesToRemove.push_back(BulletsVectorPrt[i]);
         }
     }
 
-    // Удаляем пули, которые встрелись с препятствием
-    for (auto it = indices_to_remove.rbegin(); it != indices_to_remove.rend(); ++it)
+    // Удаляем пули, которые встрелись с препятствием, начиная с конца вектора
+    for (ABullet *BulletRemove : IndicesToRemove)
     {
-        bullets_vector.erase(bullets_vector.begin() + static_cast<size_t>(*it));
+        BulletsVectorPrt.erase(std::remove(BulletsVectorPrt.begin(), BulletsVectorPrt.end(), BulletRemove), BulletsVectorPrt.end());
+        delete BulletRemove;
     }
 }
+
+void AGameEngine::SetSpriteSize(sf::Sprite& Sprite, const float DesiredWidth, const float DesiredHeight)
+{// Установить размер спрайта
+    const sf::FloatRect SpriteRect = Sprite.getLocalBounds();
+    const sf::Vector2f Scale = { DesiredWidth / SpriteRect.width, DesiredHeight / SpriteRect.height };
+    Sprite.setScale(Scale);
+}
+
+void AGameEngine::SetShapeSize(sf::Shape& Shape, const float DesiredWidth, const float DesiredHeight)
+{// Установить размер формы(shape)
+    const sf::FloatRect SpriteRect = Shape.getLocalBounds();
+    const sf::Vector2f Scale = { DesiredWidth / SpriteRect.width, DesiredHeight / SpriteRect.height };
+    Shape.setScale(Scale);
+}
+
+void AGameEngine::SetSpriteRelativeOrigin(sf::Sprite& Sprite, const float OriginX, const float OriginY)
+{// Установить центр координа для спрайта(тексты объекта)
+    const sf::FloatRect SpriteRect = Sprite.getLocalBounds();
+    Sprite.setOrigin(OriginX * SpriteRect.width, OriginY * SpriteRect.height);
+}
+
+void AGameEngine::SetShapeRelativeOrigin(sf::Shape& Shape, const float OriginX, const float OriginY)
+{// Установить центр координа для формы(коллизии)
+    const sf::FloatRect ShapeRect = Shape.getLocalBounds();
+    Shape.setOrigin(OriginX * ShapeRect.width, OriginY * ShapeRect.height);
+}
+
+
 

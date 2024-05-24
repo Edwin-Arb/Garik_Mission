@@ -1,41 +1,31 @@
 ﻿#pragma once
 #include "Constants.h"
-#include "Bullet.h"
-#include "Enemy.h"
 
 class APlayer
 {
 public:
     APlayer();
-    
+    ~APlayer();
+
     void InitPlayer();
-    void UpdatePlayerMove(const sf::Event& event, float delta_time);
+    void UpdatePlayerMove(float DeltaTime);
     sf::FloatRect GetPlayerRect() const;
-    void DrawPlayer(sf::RenderWindow& window);
+    void DrawPlayer(sf::RenderWindow& Window);
 
 private:
     // Параметры персонажа
-    bool isPlayerOnGround;
-    float playerSpeed;
-    float playerJumpSpeed;
+    bool bIsPlayerOnGround;
+    float PlayerSpeed;
+    float PlayerJumpSpeed;
 
     // Направление и коллизия
-    sf::Vector2f playerVelocity;
-    sf::FloatRect playerRect;
+    sf::Vector2f PlayerVelocity;
+    sf::FloatRect PlayerRect;
 
     // Текстура персонажа
-    sf::Texture playerTexture;
-    sf::Sprite playerSprite;
-
-    // Таймер, для задержки между выстрелами
-    sf::Clock delayShootTime;
-
-    // Добавляем в массив пули, которые выстрелили, чтобы их отрисовать
-    std::vector<ABullet> bullets;
+    sf::Texture *PlayerTexturePtr;
+    sf::Sprite PlayerSprite;
     
     // для тестов коллизии, потом удалить
-    sf::RectangleShape playerShapeCollision;
-
-    // Test
-    AEnemy enemy;
+    sf::RectangleShape PlayerRectCollision;
 };

@@ -116,7 +116,7 @@ int main()
     
     while (window.isOpen())
     {
-        sf::sleep(sf::milliseconds(1.f));
+        sf::sleep(sf::milliseconds(1));
         float deltaTime = gameClock.getElapsedTime().asSeconds();
         gameClock.restart();
         
@@ -131,7 +131,7 @@ int main()
         }
 
         // Update Game State
-        game.UpdateGameplay(event, deltaTime);
+        game.UpdateGameplay(deltaTime);
         
         // Draw Game
         window.clear();

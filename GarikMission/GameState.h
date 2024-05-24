@@ -2,26 +2,27 @@
 #include "Constants.h"
 #include "Enemy.h"
 #include "Player.h"
+#include "Bullet.h"
 
 class AGameState
 {
 public:
     AGameState();
-    //~AGameState();
+    ~AGameState();
     
-    void InitGame();
-    void UpdateGameplay(const sf::Event& event, float delta_time);
-    void DrawGame(sf::RenderWindow &window);
+    void InitGame() const;
+    void UpdateGameplay(float DeltaTime);
+    void DrawGame(sf::RenderWindow& Window) const;
 
 private:
     // Для размеров окна игры
-    Rectangle screenRect;
+    sf::FloatRect ScreenRect;
 
     // Динамические классы
-    AEnemy enemy;
-    APlayer player;
-    std::vector<ABullet> bulletsVector;
-
+    AEnemy *Enemy;
+    APlayer *Player;
+    std::vector<ABullet*> BulletsVectorPtr;
+ 
     // Для создания интервала между выстрелами
-    sf::Clock delayShootTime;
+    sf::Clock DelayShotTimerHandle;
 };
