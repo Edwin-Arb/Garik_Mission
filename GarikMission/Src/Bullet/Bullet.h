@@ -1,13 +1,15 @@
 ﻿#pragma once
-#include "Constants.h"
+#include "../Constants.h"
+#include "../Renderer/IRendererSprite.h"
+
 
 
 class ABullet
 {
 public:
-    ABullet(const sf::Vector2f& StartPosition);
+    ABullet(const sf::Vector2f& StartPosition, IRendererSprite& RendererSprite);
     ~ABullet();
-
+    
     //bool DoShapesCollide(const sf::FloatRect& Rect1, const sf::FloatRect& Rect2);
     bool CheckPositionBulletWithScreen() const;
     bool CheckBulletCollisionWithEnemy(const sf::FloatRect& Enemy) const;
@@ -25,5 +27,6 @@ private:
     // Текстура пули
     sf::Texture *BulletTexturePtr;
     sf::Sprite BulletSprite;
+    
 };
 

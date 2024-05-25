@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "Constants.h"
+#include "../Constants.h"
+#include "../Renderer/IRendererSprite.h"
 
 
 class AEnemy
@@ -8,7 +9,7 @@ public:
     AEnemy();
     ~AEnemy();
 
-    void InitEnemy();
+    void InitEnemy(IRendererSprite &RendererSprite);
     sf::FloatRect GetEnemyRect() const;
     void DrawEnemy(sf::RenderWindow& Window);
 

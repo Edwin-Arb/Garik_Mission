@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "Constants.h"
+#include "../Constants.h"
+#include "../Renderer/IRendererSprite.h"
+
 
 class APlayer
 {
@@ -7,7 +9,7 @@ public:
     APlayer();
     ~APlayer();
 
-    void InitPlayer();
+    void InitPlayer(IRendererSprite &RendererSprite);
     void UpdatePlayerMove(float DeltaTime);
     sf::FloatRect GetPlayerRect() const;
     void DrawPlayer(sf::RenderWindow& Window);

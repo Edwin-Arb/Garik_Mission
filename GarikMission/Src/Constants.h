@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include <string>
 #include <cassert>
+#include <string>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 
 struct Vector2D
 {
@@ -43,5 +43,5 @@ const sf::Vector2f BULLET_SIZE = {2.f, 2.f};
 const sf::Vector2f DRAW_SCALE = {8.f, 8.f};
 const sf::Vector2f BULLET_DIRECTION = {400.f, 0.f};
 
-const std::string RESOURCES_PATH = "Resources/";
+const std::string RESOURCES_PATH = "Assets/";
 

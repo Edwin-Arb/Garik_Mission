@@ -1,5 +1,4 @@
 ﻿#include "Player.h"
-#include "GameEngine.h"
 
 APlayer::APlayer()
     : bIsPlayerOnGround(false),
@@ -18,7 +17,7 @@ APlayer::~APlayer()
     delete PlayerTexturePtr;
 }
 
-void APlayer::InitPlayer()
+void APlayer::InitPlayer(IRendererSprite &RendererSprite)
 {
     // Подгрузить текстуру из папки для персонажа
     assert(PlayerTexturePtr->loadFromFile(RESOURCES_PATH + "MainTiles/Player.png"));
@@ -28,12 +27,15 @@ void APlayer::InitPlayer()
     PlayerSprite.setTextureRect(sf::IntRect(19, 0,
                                             static_cast<int>(PLAYER_SIZE.x),
                                             static_cast<int>(PLAYER_SIZE.y)));
-    
-    AGameEngine::SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x,PLAYER_SIZE.y * DRAW_SCALE.y);
-    AGameEngine::SetSpriteRelativeOrigin(PlayerSprite, 0.5f, 0.5f);
+
+    // Установить масштаб спрайта персонажа
+    RendererSprite.SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x,PLAYER_SIZE.y * DRAW_SCALE.y);
+
+    // Установить центр спрайта персонажа
+    RendererSprite.SetSpriteRelativeOrigin(PlayerSprite, 0.5f, 0.5f);
 
     // Создать спрайт коллизии и установить его центр
-    AGameEngine::SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
+    RendererSprite.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
 }
 
 void APlayer::UpdatePlayerMove(float DeltaTime)

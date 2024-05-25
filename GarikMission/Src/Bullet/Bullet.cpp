@@ -1,8 +1,7 @@
 ﻿#include "Bullet.h"
 
-#include "GameEngine.h"
 
-ABullet::ABullet(const sf::Vector2f& StartPosition)
+ABullet::ABullet(const sf::Vector2f& StartPosition, IRendererSprite &RendererSprite)
     : BulletTexturePtr(new sf::Texture)
 {
     // Установить направление, откуда начать движение
@@ -16,14 +15,14 @@ ABullet::ABullet(const sf::Vector2f& StartPosition)
 
     // Установить спрайт для пули
     BulletSprite.setTexture(*BulletTexturePtr);
-    BulletSprite.setTextureRect(sf::IntRect(7, 72, 3.f, 3.f));
+    BulletSprite.setTextureRect(sf::IntRect(7, 72, 3, 3));
     
     // Установить масштаб пули
-    AGameEngine::SetSpriteSize(BulletSprite, BULLET_SIZE.x * DRAW_SCALE.x, BULLET_SIZE.y * DRAW_SCALE.y);
+    RendererSprite.SetSpriteSize(BulletSprite, BULLET_SIZE.x * DRAW_SCALE.x, BULLET_SIZE.y * DRAW_SCALE.y);
 
     // Установить центр спрайта
-    AGameEngine::SetSpriteRelativeOrigin(BulletSprite, 0.5f, 0.5f);
-
+    RendererSprite.SetSpriteRelativeOrigin(BulletSprite, 0.5f, 0.5f);
+    
     // Задать стартовую позицию, т.е откуда начинает стрелять оружие
     BulletSprite.setPosition(StartPosition.x, StartPosition.y);
 }
@@ -76,7 +75,7 @@ sf::FloatRect ABullet::GetBulletCollider() const
 }
 
 void ABullet::DrawBullet(sf::RenderWindow& Window)
-{
+{    
     // Установить положение спрайта с коллизией, и отрисовать на экран
     BulletSprite.setPosition(BulletRect.left, BulletRect.top);
     Window.draw(BulletSprite);

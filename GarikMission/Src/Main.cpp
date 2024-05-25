@@ -1,5 +1,7 @@
+#include <iostream>
+
 #include "Constants.h"
-#include "GameState.h"
+#include "GameMain/GameState.h"
 // #include <tmxlite/Map.hpp>
 // #include <tmxlite/Layer.hpp>
 // #include <tmxlite/TileLayer.hpp>
@@ -107,34 +109,55 @@ int main()
     //     tilesetTextures.push_back(loadTilesetTexture(tileset.getImagePath()));
     // }
     
-    sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Garik's Mission");
+    sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Garik Mission");
+    //Window.setFramerateLimit(500);
 
-    sf::Clock gameClock;
+    // Делаем отображение количества кадров в секунду(FPS)
+    sf::Text FPSText;
+    sf::Font FPSFont;
+    assert(FPSFont.loadFromFile(RESOURCES_PATH + "Fonts/Roboto-Bold.ttf"));
+    FPSText.setFont(FPSFont);
+    FPSText.setCharacterSize(15);
+    FPSText.setPosition(10.f, 10.f);
     
-    AGameState game;
-    game.InitGame();
+    sf::Clock GameClock;
+
+    ASpriteManager SpriteManager;
     
-    while (window.isOpen())
+    AGameState Game;
+    Game.InitGame();
+    
+    while (Window.isOpen())
     {
-        sf::sleep(sf::milliseconds(1));
-        float deltaTime = gameClock.getElapsedTime().asSeconds();
-        gameClock.restart();
+        // Делаем задержку между кадрами, чтобы игра работала на всех компьютерах одинаково
+        sleep(sf::milliseconds(1));
+        float DeltaTime = GameClock.getElapsedTime().asSeconds();
         
+        // Текст, который показывает количества кадров в секунду(FPS)
+        FPSText.setString("FPS: " + std::to_string(static_cast<int>(1/DeltaTime)));
+        
+        // Обновляем таймер между кадрами
+        GameClock.restart();
+
+        // Проверяем ивенты во время открытия окна
         sf::Event event;
-        while (window.pollEvent(event))
+        while (Window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
             {
-                window.close();
+                Window.close();
             }
             //game.HandleUserInput(event);
         }
 
-        // Update Game State
-        game.UpdateGameplay(deltaTime);
+        // Обновлять игровое состояние
+        Game.UpdateGameplay(DeltaTime);
+
+        std::cout << DeltaTime << "\n";
         
-        // Draw Game
-        window.clear();
+        
+        // Очищать экран
+        Window.clear();
 
         // // Render all tile layers of the map
         // for (const auto& layer : map.getLayers())
@@ -146,9 +169,11 @@ int main()
         //     }
         // }
         
-        game.DrawGame(window);
+        // Отрисовываем игру
+        Game.DrawGame(Window);
+        Window.draw(FPSText);
         
-        window.display();
+        Window.display();
     }
     
     return 0;
