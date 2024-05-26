@@ -12,7 +12,7 @@ AEnemy::~AEnemy()
     delete EnemyTexturePtr;
 }
 
-void AEnemy::InitEnemy(IRendererSprite& RendererSprite)
+void AEnemy::InitEnemy(ASpriteManager& RendererSprite)
 {
     // Подгрузить текстуру из папки для персонажа
     assert(EnemyTexturePtr->loadFromFile(RESOURCES_PATH + "MainTiles/enemy.png"));

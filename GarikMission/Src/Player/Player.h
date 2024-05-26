@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "../Constants.h"
-#include "../Renderer/IRendererSprite.h"
+#include "../Bullet/Bullet.h"
+
 
 
 class APlayer
@@ -9,7 +9,9 @@ public:
     APlayer();
     ~APlayer();
 
-    void InitPlayer(IRendererSprite &RendererSprite);
+    void InitPlayer(ASpriteManager &RendererSprite);
+    void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const;
+    void HandlePlayerMove(float DeltaTime);
     void UpdatePlayerMove(float DeltaTime);
     sf::FloatRect GetPlayerRect() const;
     void DrawPlayer(sf::RenderWindow& Window);
@@ -19,8 +21,8 @@ private:
     bool bIsPlayerOnGround;
     float PlayerSpeed;
     float PlayerJumpSpeed;
-
-    // Направление и коллизия
+        
+    // Движение и коллизия
     sf::Vector2f PlayerVelocity;
     sf::FloatRect PlayerRect;
 

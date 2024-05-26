@@ -3,21 +3,24 @@
 APlayer::APlayer()
     : bIsPlayerOnGround(false),
       PlayerSpeed(PAWN_SPEED),
-      PlayerJumpSpeed(1000.f),
+      PlayerJumpSpeed(700.f),
       PlayerVelocity({0.f, 0.f}),
-      PlayerRect({100.f, 400.f,
-                   PLAYER_SIZE.x * DRAW_SCALE.x,
-                   PLAYER_SIZE.y * DRAW_SCALE.y}),
+      PlayerRect({
+          100.f, 400.f,
+          PLAYER_SIZE.x * DRAW_SCALE.x,
+          PLAYER_SIZE.y * DRAW_SCALE.y
+      }),
       PlayerTexturePtr(new sf::Texture),
       PlayerRectCollision(sf::Vector2f(PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y))
-{}
+{
+}
 
 APlayer::~APlayer()
 {
     delete PlayerTexturePtr;
 }
 
-void APlayer::InitPlayer(IRendererSprite &RendererSprite)
+void APlayer::InitPlayer(ASpriteManager& RendererSprite)
 {
     // Подгрузить текстуру из папки для персонажа
     assert(PlayerTexturePtr->loadFromFile(RESOURCES_PATH + "MainTiles/Player.png"));
@@ -29,7 +32,7 @@ void APlayer::InitPlayer(IRendererSprite &RendererSprite)
                                             static_cast<int>(PLAYER_SIZE.y)));
 
     // Установить масштаб спрайта персонажа
-    RendererSprite.SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x,PLAYER_SIZE.y * DRAW_SCALE.y);
+    RendererSprite.SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y);
 
     // Установить центр спрайта персонажа
     RendererSprite.SetSpriteRelativeOrigin(PlayerSprite, 0.5f, 0.5f);
@@ -38,28 +41,48 @@ void APlayer::InitPlayer(IRendererSprite &RendererSprite)
     RendererSprite.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
 }
 
-void APlayer::UpdatePlayerMove(float DeltaTime)
+void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const
 {
-    // Передвижение
+    // Выстрел из оружия. Пока кнопка нажата - мы стреляем 
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        constexpr float SpawnBulletOffsetX = 50.f;
+        constexpr float SpawnBulletOffsetY = 20.f;
+        BulletsVectorPtr.emplace_back(new ABullet(
+               sf::Vector2f(PlayerRect.left + SpawnBulletOffsetX,
+                         PlayerRect.top + SpawnBulletOffsetY),
+                      RendererSprite));
+    }
+}
+
+void APlayer::HandlePlayerMove(float DeltaTime)
+{
+    // Установить направление передвижения персонажа
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
+        // Влево
         PlayerVelocity.x = -PlayerSpeed * DeltaTime;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
+        // Вправо
         PlayerVelocity.x = PlayerSpeed * DeltaTime;
     }
 
-    // Прыжок
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
+        // Прыжок
         if (bIsPlayerOnGround)
         {
             bIsPlayerOnGround = false;
             PlayerVelocity.y = PlayerJumpSpeed * DeltaTime;
         }
     }
+}
 
+void APlayer::UpdatePlayerMove(float DeltaTime)
+{
     // Гравитация необходима для приземления персонажа на землю
     PlayerVelocity.y += GRAVITY * DeltaTime;
 
@@ -84,13 +107,13 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
     }
 
     // Проверка коллизии с левой частью экрана
-    if (PlayerRect.left < 0.f)
+    if (PlayerRectTop < 0.f)
     {
         PlayerVelocity.x = 0.f;
         PlayerRect.left = 0.f;
     }
 
-    PlayerVelocity.x = 0.f;    
+    PlayerVelocity.x = 0.f;
 }
 
 sf::FloatRect APlayer::GetPlayerRect() const

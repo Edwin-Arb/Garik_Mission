@@ -1,18 +1,14 @@
 ﻿#pragma once
-#include "../Constants.h"
-#include "../Renderer/IRendererSprite.h"
-
+#include "../Manager/SpriteManager.h"
 
 
 class ABullet
 {
 public:
-    ABullet(const sf::Vector2f& StartPosition, IRendererSprite& RendererSprite);
+    ABullet(const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite);
     ~ABullet();
-    
+
     //bool DoShapesCollide(const sf::FloatRect& Rect1, const sf::FloatRect& Rect2);
-    bool CheckPositionBulletWithScreen() const;
-    bool CheckBulletCollisionWithEnemy(const sf::FloatRect& Enemy) const;
     void UpdateBulletPosition(float DeltaTime);
     
     sf::FloatRect GetBulletCollider() const;

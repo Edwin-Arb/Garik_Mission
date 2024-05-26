@@ -1,15 +1,14 @@
 #include <iostream>
-
-#include "Constants.h"
 #include "GameMain/GameState.h"
+
 // #include <tmxlite/Map.hpp>
 // #include <tmxlite/Layer.hpp>
 // #include <tmxlite/TileLayer.hpp>
 // #include <tmxlite/Tileset.hpp>
 // #include <vector>
 // #include <iostream>
-
-
+//
+//
 // bool loadMap(const std::string& filepath, tmx::Map& map)
 // {
 //     if (!map.load(filepath))
@@ -96,12 +95,12 @@
 int main()
 {
     // tmx::Map map;
-    // if (!loadMap("D:/VS_Works/GarikMission/GarikMission/Resources/Map/GarikMap.tmx", map))
+    // if (!loadMap("D:/VS_Works/GarikMission/GarikMission/Assets/Map/GarikMap.tmx", map))
     // {
     //     std::cerr << "Failed to load map!" << std::endl;
     //     return -1;
     // }
-
+    //
     // // Load the tileset textures
     // std::vector<sf::Texture> tilesetTextures;
     // for (const auto& tileset : map.getTilesets())
@@ -121,24 +120,24 @@ int main()
     FPSText.setPosition(10.f, 10.f);
     
     sf::Clock GameClock;
-
-    ASpriteManager SpriteManager;
-    
+        
     AGameState Game;
     Game.InitGame();
     
     while (Window.isOpen())
     {
         // Делаем задержку между кадрами, чтобы игра работала на всех компьютерах одинаково
-        sleep(sf::milliseconds(1));
+        sleep(sf::milliseconds(8));
         float DeltaTime = GameClock.getElapsedTime().asSeconds();
         
         // Текст, который показывает количества кадров в секунду(FPS)
         FPSText.setString("FPS: " + std::to_string(static_cast<int>(1/DeltaTime)));
+
+        std::cout << DeltaTime << "\n"; // TODO для тестов
         
         // Обновляем таймер между кадрами
         GameClock.restart();
-
+        
         // Проверяем ивенты во время открытия окна
         sf::Event event;
         while (Window.pollEvent(event))
@@ -147,14 +146,13 @@ int main()
             {
                 Window.close();
             }
-            //game.HandleUserInput(event);
         }
 
+        // Проверяем какие клавиши нажал Игрок
+        Game.UpdateInput(DeltaTime);
+       
         // Обновлять игровое состояние
         Game.UpdateGameplay(DeltaTime);
-
-        std::cout << DeltaTime << "\n";
-        
         
         // Очищать экран
         Window.clear();
@@ -165,7 +163,7 @@ int main()
         //     if (layer->getType() == tmx::Layer::Type::Tile)
         //     {
         //         const auto& tileLayer = layer->getLayerAs<tmx::TileLayer>();
-        //         drawLayer(tileLayer, map, window, tilesetTextures);
+        //         drawLayer(tileLayer, map, Window, tilesetTextures);
         //     }
         // }
         

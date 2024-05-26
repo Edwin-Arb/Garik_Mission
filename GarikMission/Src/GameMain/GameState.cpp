@@ -5,15 +5,14 @@ AGameState::AGameState()
 	: ScreenRect{ { 0.f, 0.f }, { SCREEN_WIDTH, SCREEN_HEIGHT } }
 	, EnemyPtr(new AEnemy)
 	, PlayerPtr(new APlayer)
-	, InputManagerPtr(new AInputManager)
 	, SpriteManagerPtr(new ASpriteManager)
+	, CollisionManagerPtr(new ACollisionManager)
 	{}
 
 AGameState::~AGameState()
 {
 	delete EnemyPtr;
 	delete PlayerPtr;
-	delete InputManagerPtr;
 	delete SpriteManagerPtr;
 
 	for (const ABullet* Bullet : BulletsVectorPtr)
@@ -26,7 +25,7 @@ AGameState::~AGameState()
 
 void AGameState::InitGame()
 {
-	constexpr int CapacityVector = 100;
+	constexpr int CapacityVector = 200;
 
 	EnemyPtr->InitEnemy(*SpriteManagerPtr);
 	PlayerPtr->InitPlayer(*SpriteManagerPtr);
@@ -35,21 +34,33 @@ void AGameState::InitGame()
 }
 
 void AGameState::UpdateGameplay(float DeltaTime)
-{
+{	
 	// Обновлять состояние передвижения персонажа
 	PlayerPtr->UpdatePlayerMove(DeltaTime);
 
-	// Сделать зарежку между каждый выстрелом
-	float ElapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
-	if (ElapsedSeconds >= 0.05f)
+	// Обновлять состояние передвижения пуль
+	for (ABullet* Bullet : BulletsVectorPtr)
 	{
-		// Делаем выстрел, если нажали левую кнопку мыши
-		InputManagerPtr->PlayerShoots(BulletsVectorPtr, PlayerPtr->GetPlayerRect(), *SpriteManagerPtr);
-		DelayShotTimerHandle.restart();
+		Bullet->UpdateBulletPosition(DeltaTime);
 	}
 
 	// Проверяем с чем сталкиваются пули
-	InputManagerPtr->CheckBulletCollision(BulletsVectorPtr, *EnemyPtr, DeltaTime);
+	CollisionManagerPtr->CheckBulletCollision(BulletsVectorPtr);
+}
+
+void AGameState::UpdateInput (float DeltaTime)
+{
+	// Проверяем нажатые клавиши и обновляем состояние персонажа
+	PlayerPtr->HandlePlayerMove(DeltaTime);
+
+	// Сделать зарежку между каждый выстрелом
+	float ElapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
+	if (ElapsedSeconds >= 0.1f)
+	{
+		// Делаем выстрел, если нажали левую кнопку мыши
+		PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
+		DelayShotTimerHandle.restart();
+	}
 }
 
 void AGameState::DrawGame(sf::RenderWindow& Window) const
@@ -59,8 +70,8 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
 	PlayerPtr->DrawPlayer(Window);
 
 	// Рисовать пули
-	for (ABullet* bullet : BulletsVectorPtr)
+	for (ABullet* Bullet : BulletsVectorPtr)
 	{
-		bullet->DrawBullet(Window);
+		Bullet->DrawBullet(Window);
 	}
 }

@@ -1,7 +1,7 @@
 ﻿#include "Bullet.h"
 
 
-ABullet::ABullet(const sf::Vector2f& StartPosition, IRendererSprite &RendererSprite)
+ABullet::ABullet(const sf::Vector2f& StartPosition, ASpriteManager &RendererSprite)
     : BulletTexturePtr(new sf::Texture)
 {
     // Установить направление, откуда начать движение
@@ -55,18 +55,7 @@ void ABullet::UpdateBulletPosition(float DeltaTime)
     BulletRect.height = BulletRect.top + 3.f;
 }
 
-bool ABullet::CheckPositionBulletWithScreen() const
-{
-    // Если дистанция пули выходит за границы экрана, то возвращаем true
-    return (BulletRect.left <= 100.f) || (BulletRect.width >= SCREEN_WIDTH - 100.f);
-}
 
-bool ABullet::CheckBulletCollisionWithEnemy(const sf::FloatRect& Enemy) const
-{
-    // Проверка столкновения с врагом
-    //return BulletRect.left >= Enemy.left && BulletRect.top >= Enemy.top && BulletRect.width >= Enemy.width && BulletRect.height >= Enemy.height;
-    return BulletRect.intersects(Enemy);
-}
 
 sf::FloatRect ABullet::GetBulletCollider() const
 {
