@@ -6,7 +6,7 @@ AGameState::AGameState()
 	, EnemyPtr(new AEnemy)
 	, PlayerPtr(new APlayer)
 	, SpriteManagerPtr(new ASpriteManager)
-	, CollisionManagerPtr(new ACollisionManager)
+	, CollisionManagerPtr(new ACollisionManager(*EnemyPtr))
 	{}
 
 AGameState::~AGameState()
@@ -55,7 +55,7 @@ void AGameState::UpdateInput (float DeltaTime)
 
 	// Сделать зарежку между каждый выстрелом
 	float ElapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
-	if (ElapsedSeconds >= 0.1f)
+	if (ElapsedSeconds >= 0.05f)
 	{
 		// Делаем выстрел, если нажали левую кнопку мыши
 		PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);

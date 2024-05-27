@@ -3,7 +3,7 @@
 APlayer::APlayer()
     : bIsPlayerOnGround(false),
       PlayerSpeed(PAWN_SPEED),
-      PlayerJumpSpeed(700.f),
+      PlayerJumpSpeed(1500.f),
       PlayerVelocity({0.f, 0.f}),
       PlayerRect({
           100.f, 400.f,
@@ -23,7 +23,7 @@ APlayer::~APlayer()
 void APlayer::InitPlayer(ASpriteManager& RendererSprite)
 {
     // Подгрузить текстуру из папки для персонажа
-    assert(PlayerTexturePtr->loadFromFile(RESOURCES_PATH + "MainTiles/Player.png"));
+    assert(PlayerTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/Player.png"));
 
     // Создать спрайт персонажа и установить его центр
     PlayerSprite.setTexture(*PlayerTexturePtr);
@@ -69,6 +69,16 @@ void APlayer::HandlePlayerMove(float DeltaTime)
         // Вправо
         PlayerVelocity.x = PlayerSpeed * DeltaTime;
     }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+    {
+        // Вправо
+        PlayerVelocity.y = PlayerSpeed * DeltaTime;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
+        // Вправо
+        PlayerVelocity.y = -PlayerSpeed * DeltaTime;
+    }
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
@@ -90,13 +100,13 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
     PlayerRect.top -= PlayerVelocity.y;
 
     // Проверка коллизии с землёй карты
-    const float PlayerRectBottom = PlayerRect.top + PlayerRect.height;
-    if (PlayerRectBottom > MAP_SURFACE)
-    {
-        bIsPlayerOnGround = true;
-        PlayerVelocity.y = 0.f;
-        PlayerRect.top = MAP_SURFACE - PlayerRect.height;
-    }
+    //const float PlayerRectBottom = PlayerRect.top + PlayerRect.height;
+    // if (PlayerRectBottom > MAP_SURFACE)
+    // {
+    //     bIsPlayerOnGround = true;
+    //     PlayerVelocity.y = 0.f;
+    //     PlayerRect.top = MAP_SURFACE - PlayerRect.height;
+    // }
 
     // Проверка коллизии с правой частью экрана
     const float PlayerRectTop = PlayerRect.left + PlayerRect.width;
@@ -114,6 +124,7 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
     }
 
     PlayerVelocity.x = 0.f;
+    PlayerVelocity.y = 0.f;
 }
 
 sf::FloatRect APlayer::GetPlayerRect() const
