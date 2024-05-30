@@ -16,10 +16,11 @@ public:
 private:
     // Для размеров окна игры
     sf::FloatRect ScreenRect;
-
+    
     // Динамические классы для основы игры
     AEnemy* EnemyPtr;
     APlayer* PlayerPtr;
+    AGameMap *GameMapPtr;
 
     //Для обработки страйта объектов
     ASpriteManager* SpriteManagerPtr;

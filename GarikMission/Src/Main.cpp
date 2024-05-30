@@ -19,10 +19,6 @@ int main()
         
     AGameState Game;
     Game.InitGame();
-
-    // TODO Тесты с игровой картой
-    AGameMap GameMap;
-    GameMap.InitGameMap();
     
     while (Window.isOpen())
     {
@@ -58,7 +54,6 @@ int main()
         Window.clear();
         
         // Отрисовываем игру
-        GameMap.DrawGameMap(Window, 1.f);
         Game.DrawGame(Window);
         Window.draw(FPSText);
         

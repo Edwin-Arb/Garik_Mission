@@ -1,10 +1,12 @@
-﻿#include "CollisionManager.h"
+﻿// ReSharper disable All
+#include "CollisionManager.h"
 
 
-ACollisionManager::ACollisionManager(AEnemy& Enemy)
+ACollisionManager::ACollisionManager(const AEnemy& Enemy, const APlayer &Player, const AGameMap& GameMap)
     : EnemeRef(Enemy)
-{
-}
+    , PlayerRef(Player)
+    , GameMapRef(GameMap)
+{}
 
 bool ACollisionManager::CheckPositionBulletWithScreen(const ABullet& Bullet) const
 {
@@ -28,24 +30,20 @@ bool ACollisionManager::CheckBulletCollisionWithEnemy(const ABullet& Bullet, con
     return true;
 }
 
-void ACollisionManager::CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPtr)
+void ACollisionManager::CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPtr) const
 {
     // Вектор для хранения индексов пуль, которые нужно удалить
     std::vector<ABullet*> BulletsToRemove;
 
     for (ABullet* Bullet : BulletsVectorPtr)
     {
-        if (CheckPositionBulletWithScreen(*Bullet))
-        {
-            BulletsToRemove.emplace_back(Bullet);
-        }
-
-        if (CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
+        if (CheckPositionBulletWithScreen(*Bullet) ||
+            CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
         {
             BulletsToRemove.emplace_back(Bullet);
         }
     }
-    // ABullet* BulletRemove : BulletsToRemove
+    
     // Удаляем пули, которые встрелись с препятствием
     for (ABullet* &BulletRemove : BulletsToRemove)         
     {

@@ -1,5 +1,7 @@
 ﻿#include "Player.h"
 
+class ACollisionManager;
+
 APlayer::APlayer()
     : bIsPlayerOnGround(false),
       PlayerSpeed(PAWN_SPEED),
@@ -41,48 +43,55 @@ void APlayer::InitPlayer(ASpriteManager& RendererSprite)
     RendererSprite.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
 }
 
+void APlayer::SetPlayerVelocity(const sf::Vector2f& NewVelocity)
+{
+    PlayerVelocity = NewVelocity;
+}
+
+void APlayer::SetPlayerRect(const sf::FloatRect& NewRect)
+{
+    PlayerRect = NewRect;
+}
+
 void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const
 {
     // Выстрел из оружия. Пока кнопка нажата - мы стреляем 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        constexpr float SpawnBulletOffsetX = 50.f;
-        constexpr float SpawnBulletOffsetY = 20.f;
+        constexpr float SpawnBulletOffsetX = 90.f;
+        constexpr float SpawnBulletOffsetY = 85.f;
         BulletsVectorPtr.emplace_back(new ABullet(
                sf::Vector2f(PlayerRect.left + SpawnBulletOffsetX,
-                         PlayerRect.top + SpawnBulletOffsetY),
-                      RendererSprite));
+                                      PlayerRect.top + SpawnBulletOffsetY),
+                                      RendererSprite));
     }
 }
 
 void APlayer::HandlePlayerMove(float DeltaTime)
-{
-    // Установить направление передвижения персонажа
+{// Установить направление передвижения персонажа
 
+    PlayerVelocity.x = 0.f;
+    //PlayerVelocity.y = 0.f;
+    
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-    {
-        // Влево
-        PlayerVelocity.x = -PlayerSpeed * DeltaTime;
+    {// Влево
+        PlayerVelocity.x = -PlayerSpeed * DeltaTime ;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-    {
-        // Вправо
+    {// Вправо
         PlayerVelocity.x = PlayerSpeed * DeltaTime;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-    {
-        // Вправо
+    {// Вправо
         PlayerVelocity.y = PlayerSpeed * DeltaTime;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    {
-        // Вправо
+    {// Вправо
         PlayerVelocity.y = -PlayerSpeed * DeltaTime;
     }
-
+        
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    {
-        // Прыжок
+    {// Прыжок
         if (bIsPlayerOnGround)
         {
             bIsPlayerOnGround = false;
@@ -98,33 +107,32 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
 
     PlayerRect.left += PlayerVelocity.x;
     PlayerRect.top -= PlayerVelocity.y;
-
-    // Проверка коллизии с землёй карты
-    //const float PlayerRectBottom = PlayerRect.top + PlayerRect.height;
-    // if (PlayerRectBottom > MAP_SURFACE)
-    // {
-    //     bIsPlayerOnGround = true;
-    //     PlayerVelocity.y = 0.f;
-    //     PlayerRect.top = MAP_SURFACE - PlayerRect.height;
-    // }
-
+    
     // Проверка коллизии с правой частью экрана
-    const float PlayerRectTop = PlayerRect.left + PlayerRect.width;
-    if (PlayerRectTop > SCREEN_WIDTH)
+    if (PlayerRect.left + PlayerRect.width > SCREEN_WIDTH)
     {
-        PlayerVelocity.x = 0.f;
         PlayerRect.left = SCREEN_WIDTH - PlayerRect.width;
+        PlayerVelocity.x = 0.f;
     }
 
     // Проверка коллизии с левой частью экрана
-    if (PlayerRectTop < 0.f)
+    if (PlayerRect.left < 0.f)
     {
         PlayerVelocity.x = 0.f;
         PlayerRect.left = 0.f;
     }
 
-    PlayerVelocity.x = 0.f;
-    PlayerVelocity.y = 0.f;
+    // Проверка коллизии с землёй карты
+    if (PlayerRect.top + PlayerRect.height > MAP_SURFACE)
+    {
+        PlayerRect.top = MAP_SURFACE - PlayerRect.height;
+        PlayerVelocity.y = 0.f;
+        bIsPlayerOnGround = true; // Игрок на земле
+    }
+        
+    // Обновление позиции спрайта и формы коллизии
+    PlayerDrawPosition = {PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
+                            PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f};
 }
 
 sf::FloatRect APlayer::GetPlayerRect() const
@@ -135,8 +143,8 @@ sf::FloatRect APlayer::GetPlayerRect() const
 void APlayer::DrawPlayer(sf::RenderWindow& Window)
 {
     // Установить положение спрайта с положением персонажа в игре, т.е с его прямоугольником(коллизией)
-    PlayerSprite.setPosition(PlayerRect.left, PlayerRect.top);
-    PlayerRectCollision.setPosition(PlayerRect.left, PlayerRect.top);
+    PlayerSprite.setPosition(PlayerDrawPosition);
+    PlayerRectCollision.setPosition(PlayerDrawPosition);
 
     // Рисовать персонажа и его коллизию
     Window.draw(PlayerRectCollision);

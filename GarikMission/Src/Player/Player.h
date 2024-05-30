@@ -2,7 +2,6 @@
 #include "../Bullet/Bullet.h"
 
 
-
 class APlayer
 {
 public:
@@ -10,6 +9,8 @@ public:
     ~APlayer();
 
     void InitPlayer(ASpriteManager &RendererSprite);
+    void SetPlayerVelocity(const sf::Vector2f& NewVelocity);
+    void SetPlayerRect(const sf::FloatRect& NewRect);
     void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const;
     void HandlePlayerMove(float DeltaTime);
     void UpdatePlayerMove(float DeltaTime);
@@ -25,6 +26,7 @@ private:
     // Движение и коллизия
     sf::Vector2f PlayerVelocity;
     sf::FloatRect PlayerRect;
+    sf::Vector2f PlayerDrawPosition;
 
     // Текстура персонажа
     sf::Texture *PlayerTexturePtr;
