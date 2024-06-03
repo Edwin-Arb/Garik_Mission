@@ -7,8 +7,8 @@
 
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
-constexpr float PAWN_SPEED = 500.f;
-constexpr float BULLET_SPEED = 300.f;
+constexpr float PAWN_SPEED = 300.f;
+constexpr float BULLET_SPEED = 500.f;
 constexpr float GRAVITY = -10.f;
 constexpr float MAP_SURFACE = SCREEN_HEIGHT - 100.f;
 

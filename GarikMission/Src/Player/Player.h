@@ -13,13 +13,15 @@ public:
     void SetPlayerRect(const sf::FloatRect& NewRect);
     void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const;
     void HandlePlayerMove(float DeltaTime);
-    void UpdatePlayerMove(float DeltaTime);
+    void UpdatePlayerMove(float DeltaTime, const class AGameMap& GameMap);
     sf::FloatRect GetPlayerRect() const;
+    void HandleCollision(const sf::FloatRect& Obstacle);
     void DrawPlayer(sf::RenderWindow& Window);
 
 private:
     // Параметры персонажа
-    bool bIsPlayerOnGround;
+    bool bCanJump;
+    bool bIsMoveRight;
     float PlayerSpeed;
     float PlayerJumpSpeed;
         

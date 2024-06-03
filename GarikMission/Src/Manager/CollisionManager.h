@@ -6,7 +6,7 @@
 class ACollisionManager
 {
 public:
-    ACollisionManager(const AEnemy& Enemy, const APlayer& Player, const AGameMap& GameMap);
+    ACollisionManager(AEnemy& Enemy, APlayer& Player, AGameMap& GameMap);
 
     ~ACollisionManager() = default;
     
@@ -17,7 +17,7 @@ private:
     bool CheckBulletCollisionWithEnemy(const ABullet& Bullet, const sf::FloatRect& EnemyRect) const;
 
 private:
-    const AEnemy& EnemeRef;
-    const APlayer& PlayerRef;
-    const AGameMap& GameMapRef;
+    AEnemy& EnemeRef;
+    APlayer& PlayerRef;
+    AGameMap& GameMapRef;
 };

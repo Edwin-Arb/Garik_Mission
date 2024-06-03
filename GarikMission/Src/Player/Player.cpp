@@ -1,19 +1,21 @@
 ﻿#include "Player.h"
+#include "../GameMap/GameMap.h"
 
 class ACollisionManager;
 
 APlayer::APlayer()
-    : bIsPlayerOnGround(false),
-      PlayerSpeed(PAWN_SPEED),
-      PlayerJumpSpeed(1500.f),
-      PlayerVelocity({0.f, 0.f}),
-      PlayerRect({
+    :   bCanJump(true)
+      , bIsMoveRight(true)
+      , PlayerSpeed(PAWN_SPEED)
+      , PlayerJumpSpeed(1500.f)
+      , PlayerVelocity({0.f, 0.f})
+      , PlayerRect({
           100.f, 400.f,
           PLAYER_SIZE.x * DRAW_SCALE.x,
           PLAYER_SIZE.y * DRAW_SCALE.y
-      }),
-      PlayerTexturePtr(new sf::Texture),
-      PlayerRectCollision(sf::Vector2f(PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y))
+      })
+      , PlayerTexturePtr(new sf::Texture)
+      , PlayerRectCollision(sf::Vector2f(PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y))
 {
 }
 
@@ -58,86 +60,122 @@ void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASprit
     // Выстрел из оружия. Пока кнопка нажата - мы стреляем 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        constexpr float SpawnBulletOffsetX = 90.f;
+        const float SpawnBulletOffsetX = bIsMoveRight ? 90.f : 0.f;
         constexpr float SpawnBulletOffsetY = 85.f;
-        BulletsVectorPtr.emplace_back(new ABullet(
-               sf::Vector2f(PlayerRect.left + SpawnBulletOffsetX,
-                                      PlayerRect.top + SpawnBulletOffsetY),
-                                      RendererSprite));
+        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight,
+                                                  sf::Vector2f(PlayerRect.left + SpawnBulletOffsetX,
+                                                               PlayerRect.top + SpawnBulletOffsetY),
+                                                  RendererSprite));
     }
 }
 
 void APlayer::HandlePlayerMove(float DeltaTime)
-{// Установить направление передвижения персонажа
-
+{
+    // Установить направление передвижения персонажа
     PlayerVelocity.x = 0.f;
-    //PlayerVelocity.y = 0.f;
-    
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-    {// Влево
-        PlayerVelocity.x = -PlayerSpeed * DeltaTime ;
+    {
+        // Влево
+        bIsMoveRight = false;
+        PlayerVelocity.x = -PlayerSpeed * DeltaTime;
+        PlayerSprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-    {// Вправо
+    {
+        // Вправо
+        bIsMoveRight = true;
         PlayerVelocity.x = PlayerSpeed * DeltaTime;
+        PlayerSprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-    {// Вправо
+    {
+        // Вверх
         PlayerVelocity.y = PlayerSpeed * DeltaTime;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    {// Вправо
+    {
+        // Вниз
         PlayerVelocity.y = -PlayerSpeed * DeltaTime;
     }
-        
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    {// Прыжок
-        if (bIsPlayerOnGround)
+    {
+        // Прыжок
+        if (bCanJump)
         {
-            bIsPlayerOnGround = false;
+            bCanJump = false;
             PlayerVelocity.y = PlayerJumpSpeed * DeltaTime;
         }
     }
 }
 
-void APlayer::UpdatePlayerMove(float DeltaTime)
+void APlayer::UpdatePlayerMove(float DeltaTime, const AGameMap& GameMap)
 {
     // Гравитация необходима для приземления персонажа на землю
     PlayerVelocity.y += GRAVITY * DeltaTime;
 
     PlayerRect.left += PlayerVelocity.x;
     PlayerRect.top -= PlayerVelocity.y;
-    
-    // Проверка коллизии с правой частью экрана
-    if (PlayerRect.left + PlayerRect.width > SCREEN_WIDTH)
+
+    for (const auto& Obstacle : GameMap.GetCollisionVector())
     {
-        PlayerRect.left = SCREEN_WIDTH - PlayerRect.width;
-        PlayerVelocity.x = 0.f;
+        if (PlayerRect.intersects(Obstacle))
+        {
+            HandleCollision(Obstacle);
+        }
     }
 
-    // Проверка коллизии с левой частью экрана
-    if (PlayerRect.left < 0.f)
-    {
-        PlayerVelocity.x = 0.f;
-        PlayerRect.left = 0.f;
-    }
-
-    // Проверка коллизии с землёй карты
-    if (PlayerRect.top + PlayerRect.height > MAP_SURFACE)
-    {
-        PlayerRect.top = MAP_SURFACE - PlayerRect.height;
-        PlayerVelocity.y = 0.f;
-        bIsPlayerOnGround = true; // Игрок на земле
-    }
-        
     // Обновление позиции спрайта и формы коллизии
-    PlayerDrawPosition = {PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
-                            PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f};
+    PlayerDrawPosition =
+    {
+        PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
+        PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f
+    };
 }
 
 sf::FloatRect APlayer::GetPlayerRect() const
-{// Получаем коллизию персонажа
+{
+    // Получаем коллизию персонажа
     return PlayerRect;
+}
+
+void APlayer::HandleCollision(const sf::FloatRect& Obstacle)
+{
+    // Проверяем пересечение игрока и препятствия
+    if (PlayerRect.intersects(Obstacle))
+    {
+        float OverlapLeft = (PlayerRect.left + PlayerRect.width) - Obstacle.left;
+        float OverlapRight = (Obstacle.left + Obstacle.width) - PlayerRect.left;
+        float OverlapTop = (PlayerRect.top + PlayerRect.height) - Obstacle.top;
+        float OverlapBottom = (Obstacle.top + Obstacle.height) - PlayerRect.top;
+
+        bool FromLeft = std::abs(OverlapLeft) < std::abs(OverlapRight);
+        bool FromTop = std::abs(OverlapTop) < std::abs(OverlapBottom);
+
+        float MinOverlapX = FromLeft ? OverlapLeft : OverlapRight;
+        float MinOverlapY = FromTop ? OverlapTop : OverlapBottom;
+
+        if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
+        {
+            // Горизонтальное столкновение
+            PlayerRect.left += FromLeft ? -OverlapLeft : OverlapRight;
+
+            // Останавливаем горизонтальное движение
+            PlayerVelocity.x = 0.f;
+        }
+        else
+        {
+            // Вертикальное столкновение
+            PlayerRect.top += FromTop ? -OverlapTop : OverlapBottom;
+
+            // Останавливаем вертикальное движение
+            PlayerVelocity.y = 0.f;
+
+            // Если мы на земле, то даём прыгать персонажу 
+            bCanJump = true;
+        }
+    }
 }
 
 void APlayer::DrawPlayer(sf::RenderWindow& Window)

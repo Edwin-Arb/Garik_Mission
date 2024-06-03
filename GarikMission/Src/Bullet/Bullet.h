@@ -5,17 +5,19 @@
 class ABullet
 {
 public:
-    ABullet(const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite);
+    ABullet(const bool NewVelocity, const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite);
     ~ABullet();
-
-    //bool DoShapesCollide(const sf::FloatRect& Rect1, const sf::FloatRect& Rect2);
-    void UpdateBulletPosition(float DeltaTime);
     
+    bool IsCollided() const;
+    void UpdateBulletPosition(float DeltaTime);
+    void HandleCollision(const sf::FloatRect& Obstacle);
     sf::FloatRect GetBulletCollider() const;
     
     void DrawBullet(sf::RenderWindow& Window);
 
 private:
+    bool bIsCollided = false;
+    
     // Направление и коллизия
     sf::Vector2f BulletVelocity;
     sf::FloatRect BulletRect;

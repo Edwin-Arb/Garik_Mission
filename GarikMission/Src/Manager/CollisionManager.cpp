@@ -2,18 +2,33 @@
 #include "CollisionManager.h"
 
 
-ACollisionManager::ACollisionManager(const AEnemy& Enemy, const APlayer &Player, const AGameMap& GameMap)
+ACollisionManager::ACollisionManager(AEnemy& Enemy, APlayer& Player, AGameMap& GameMap)
     : EnemeRef(Enemy)
-    , PlayerRef(Player)
-    , GameMapRef(GameMap)
-{}
-
-bool ACollisionManager::CheckPositionBulletWithScreen(const ABullet& Bullet) const
+      , PlayerRef(Player)
+      , GameMapRef(GameMap)
 {
-    // Если дистанция пули выходит за границы экрана, то возвращаем true
-    return (Bullet.GetBulletCollider().left <= 100.f) ||
-        (Bullet.GetBulletCollider().width >= SCREEN_WIDTH - 100.f);
 }
+
+// bool ACollisionManager::CheckPositionBulletWithScreen(const ABullet& Bullet) const
+// {
+//     // Проверяем столкновение пули с границами экрана
+//     if (Bullet.GetBulletCollider().left <= 100.f ||
+//         Bullet.GetBulletCollider().left + Bullet.GetBulletCollider().width >= SCREEN_WIDTH - 100.f)
+//     {
+//         return true;
+//     }
+//
+//     // Проверяем столкновение пули с препятствиями на карте
+//     for (const auto& Obstacle : GameMapRef.GetCollisionVector())
+//     {
+//         if (Bullet.GetBulletCollider().intersects(Obstacle))
+//         {
+//             return true;
+//         }
+//     }
+//
+//     return false;
+// }
 
 bool ACollisionManager::CheckBulletCollisionWithEnemy(const ABullet& Bullet, const sf::FloatRect& EnemyRect) const
 {
@@ -32,20 +47,30 @@ bool ACollisionManager::CheckBulletCollisionWithEnemy(const ABullet& Bullet, con
 
 void ACollisionManager::CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPtr) const
 {
-    // Вектор для хранения индексов пуль, которые нужно удалить
+    // Вектор для хранения пуль, которые нужно удалить
     std::vector<ABullet*> BulletsToRemove;
 
     for (ABullet* Bullet : BulletsVectorPtr)
     {
-        if (CheckPositionBulletWithScreen(*Bullet) ||
-            CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
+        // TODO доделать коллизии пули с Объетами карты
+        
+        for (const auto& Obstacle : GameMapRef.GetCollisionVector())
+        {
+            if (Bullet->GetBulletCollider().intersects(Obstacle))
+            {
+                BulletsToRemove.emplace_back(Bullet);
+                break;
+            }
+        }
+
+        if (CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
         {
             BulletsToRemove.emplace_back(Bullet);
         }
     }
-    
-    // Удаляем пули, которые встрелись с препятствием
-    for (ABullet* &BulletRemove : BulletsToRemove)         
+
+    // Удаляем пули, которые встретились с препятствием или врагом
+    for (ABullet* BulletRemove : BulletsToRemove)
     {
         BulletsVectorPtr.erase(std::remove(BulletsVectorPtr.begin(), BulletsVectorPtr.end(), BulletRemove),
                                BulletsVectorPtr.end());
