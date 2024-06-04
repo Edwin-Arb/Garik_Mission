@@ -1,5 +1,6 @@
 ﻿// ReSharper disable All
 #include "CollisionManager.h"
+#include "iostream"
 
 
 ACollisionManager::ACollisionManager(AEnemy& Enemy, APlayer& Player, AGameMap& GameMap)
@@ -9,26 +10,28 @@ ACollisionManager::ACollisionManager(AEnemy& Enemy, APlayer& Player, AGameMap& G
 {
 }
 
-// bool ACollisionManager::CheckPositionBulletWithScreen(const ABullet& Bullet) const
-// {
-//     // Проверяем столкновение пули с границами экрана
-//     if (Bullet.GetBulletCollider().left <= 100.f ||
-//         Bullet.GetBulletCollider().left + Bullet.GetBulletCollider().width >= SCREEN_WIDTH - 100.f)
-//     {
-//         return true;
-//     }
-//
-//     // Проверяем столкновение пули с препятствиями на карте
-//     for (const auto& Obstacle : GameMapRef.GetCollisionVector())
-//     {
-//         if (Bullet.GetBulletCollider().intersects(Obstacle))
-//         {
-//             return true;
-//         }
-//     }
-//
-//     return false;
-// }
+bool ACollisionManager::CheckBulletCollisionWithGameMap(const ABullet& Bullet) const
+{
+    // Вычисляем положение пули с объектами коллизии карты
+    for (const auto& Collision : GameMapRef.GetCollisionVector())
+    {
+        if (Bullet.GetBulletCollider().left < Collision.left + Collision.width &&
+            Bullet.GetBulletCollider().left > Collision.left &&
+            Bullet.GetBulletCollider().top < Collision.top + Collision.height &&
+            Bullet.GetBulletCollider().top > Collision.top)
+        {
+            return true;
+        }
+    }
+
+    // Вычисляем положение пули с границами карты
+    if (Bullet.GetBulletCollider().left <= 0.f || Bullet.GetBulletCollider().width >= SCREEN_WIDTH)
+    {
+        return true;
+    }
+    
+    return false;
+}
 
 bool ACollisionManager::CheckBulletCollisionWithEnemy(const ABullet& Bullet, const sf::FloatRect& EnemyRect) const
 {
@@ -47,31 +50,32 @@ bool ACollisionManager::CheckBulletCollisionWithEnemy(const ABullet& Bullet, con
 
 void ACollisionManager::CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPtr) const
 {
-    // Вектор для хранения пуль, которые нужно удалить
+    // Нужен, чтобы положить в него пули, которые столкнулись с препятствием.
+    // Позже пройтись по нему и удалить из основного Вектора Пуль
     std::vector<ABullet*> BulletsToRemove;
 
     for (ABullet* Bullet : BulletsVectorPtr)
     {
-        // TODO доделать коллизии пули с Объетами карты
-        
-        for (const auto& Obstacle : GameMapRef.GetCollisionVector())
+        // Проверка пули с объектами карты и её границами
+        if (CheckBulletCollisionWithGameMap(*Bullet))
         {
-            if (Bullet->GetBulletCollider().intersects(Obstacle))
-            {
-                BulletsToRemove.emplace_back(Bullet);
-                break;
-            }
+            BulletsToRemove.emplace_back(Bullet);
         }
 
+        // Проверка пули с врагом
         if (CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
         {
             BulletsToRemove.emplace_back(Bullet);
         }
     }
 
-    // Удаляем пули, которые встретились с препятствием или врагом
+    // Очищаем вектор пуль, которые столкнулись с препятствием
     for (ABullet* BulletRemove : BulletsToRemove)
     {
+        // TODO вывод информации для тестов
+        std::cout << "Removing bullet at position: " << BulletRemove->GetBulletCollider().left << ", " << BulletRemove->
+            GetBulletCollider().top << std::endl;
+
         BulletsVectorPtr.erase(std::remove(BulletsVectorPtr.begin(), BulletsVectorPtr.end(), BulletRemove),
                                BulletsVectorPtr.end());
         delete BulletRemove;

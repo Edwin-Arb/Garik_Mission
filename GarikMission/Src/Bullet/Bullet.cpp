@@ -53,15 +53,6 @@ void ABullet::UpdateBulletPosition(float DeltaTime)
     BulletRect.height = BulletRect.top + BULLET_SIZE.y;
 }
 
-void ABullet::HandleCollision(const sf::FloatRect& Obstacle)
-{
-    // Проверяем пересечение пули и препятствия
-    if (BulletRect.intersects(Obstacle))
-    {
-        bIsCollided = true;
-    }
-}
-
 sf::FloatRect ABullet::GetBulletCollider() const
 {
     // Получить коллизию пули

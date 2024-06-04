@@ -1,13 +1,12 @@
 ﻿#pragma once
-#include "../Constants.h"
-#include "../Player/Player.h"
-
-#include <tmxlite/Map.hpp>
+#include <vector>
 #include <tmxlite/Layer.hpp>
+#include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/Tileset.hpp>
-#include <unordered_map>
-#include <vector>
+
+#include "../Constants.h"
+#include "../Player/Player.h"
 
 
 class AGameMap
@@ -35,14 +34,24 @@ private:
     void DrawLayer(const tmx::TileLayer& Layer, sf::RenderTarget& target, float DrawScale);
 
 private:
-    tmx::Map GameMap; // Объект карты из tmx
-    sf::Sprite MapSprite; // Спрайт карты
-    sf::RenderTexture MapTexture; // Текстура карты
+    // Ссылка на объект игрока
+    APlayer& PlayerRef;
+    
+    // Объект карты из tmx
+    tmx::Map GameMap;
 
-    sf::VertexArray Vertices; // Массив вершин для отрисовки тайлов
+    // Спрайт карты
+    sf::Sprite MapSprite;
 
-    std::vector<sf::Texture> TilesetTextures; // Вектор текстур тайлсетов
-    std::vector<sf::FloatRect> GetCollisionLayer; // Вектор препятствий
+    // Текстура карты
+    sf::RenderTexture MapTexture;
 
-    APlayer& PlayerRef; // Ссылка на объект игрока
+    // Массив вершин для отрисовки тайлов
+    sf::VertexArray Vertices;
+
+    // Вектор текстур тайлсетов
+    std::vector<sf::Texture> TilesetTextures;
+
+    // Вектор препятствий
+    std::vector<sf::FloatRect> GetCollisionLayer;
 };

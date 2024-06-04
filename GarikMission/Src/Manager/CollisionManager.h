@@ -13,7 +13,7 @@ public:
     void CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPtr) const;
 
 private:
-    bool CheckPositionBulletWithScreen(const ABullet& Bullet) const;
+    bool CheckBulletCollisionWithGameMap(const ABullet& Bullet) const;
     bool CheckBulletCollisionWithEnemy(const ABullet& Bullet, const sf::FloatRect& EnemyRect) const;
 
 private:
