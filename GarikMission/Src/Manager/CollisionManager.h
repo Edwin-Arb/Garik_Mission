@@ -9,12 +9,15 @@ public:
     ACollisionManager(AEnemy& Enemy, APlayer& Player, AGameMap& GameMap);
 
     ~ACollisionManager() = default;
-    
-    void CheckBulletCollision(std::vector<ABullet*>& BulletsVectorPtr) const;
 
 private:
     bool CheckBulletCollisionWithGameMap(const ABullet& Bullet) const;
     bool CheckBulletCollisionWithEnemy(const ABullet& Bullet, const sf::FloatRect& EnemyRect) const;
+
+public:
+    void CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr) const;
+    void HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity) const;
+    void HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const;
 
 private:
     AEnemy& EnemeRef;

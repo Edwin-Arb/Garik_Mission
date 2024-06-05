@@ -12,7 +12,6 @@
 class AGameMap
 {
 public:
-    AGameMap() = delete;
     AGameMap(APlayer& Player);
 
     ~AGameMap() = default;

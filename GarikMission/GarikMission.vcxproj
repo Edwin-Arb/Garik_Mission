@@ -459,6 +459,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Src\Manager\CollisionManager.cpp" />
+    <ClCompile Include="Src\Manager\FpsManager.cpp" />
     <ClCompile Include="Src\Manager\SpriteManager.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -555,6 +556,7 @@
     <ClInclude Include="Src\GameMain\GameState.h" />
     <ClInclude Include="Src\GameMap\GameMap.h" />
     <ClInclude Include="Src\Manager\CollisionManager.h" />
+    <ClInclude Include="Src\Manager\FpsManager.h" />
     <ClInclude Include="Src\Manager\SpriteManager.h" />
     <ClInclude Include="Src\Player\Player.h" />
     <ClInclude Include="tmxlite\src\detail\pugiconfig.hpp" />

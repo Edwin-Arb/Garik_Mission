@@ -10,7 +10,8 @@ constexpr int SCREEN_HEIGHT = 720;
 constexpr float PAWN_SPEED = 300.f;
 constexpr float BULLET_SPEED = 500.f;
 constexpr float GRAVITY = -10.f;
-constexpr float MAP_SURFACE = SCREEN_HEIGHT - 100.f;
+constexpr float ZOOM_FACTOR = 1.2f;
+
 
 const sf::Vector2f PLAYER_SIZE = {11.f, 16.f};
 const sf::Vector2f ENEMY_SIZE = {10.f, 15.f};

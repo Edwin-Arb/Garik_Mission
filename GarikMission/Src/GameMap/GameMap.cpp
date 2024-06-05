@@ -1,6 +1,5 @@
 ﻿#include "GameMap.h"
 #include <iostream>
-#include "../Player/Player.h"
 
 AGameMap::AGameMap(APlayer& Player)
     : PlayerRef(Player)

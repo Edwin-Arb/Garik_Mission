@@ -7,14 +7,6 @@ int main()
 {
     sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Garik Mission");
 
-    // Делаем отображение количества кадров в секунду(FPS)
-    sf::Text FPSText;
-    sf::Font FPSFont;
-    assert(FPSFont.loadFromFile(ASSETS_PATH + "Fonts/Roboto-Bold.ttf"));
-    FPSText.setFont(FPSFont);
-    FPSText.setCharacterSize(15);
-    FPSText.setPosition(10.f, 10.f);
-
     sf::Clock GameClock;
 
     AGameState* Game = new AGameState;
@@ -25,11 +17,6 @@ int main()
         // Делаем задержку между кадрами, чтобы игра работала на всех компьютерах одинаково
         sleep(sf::milliseconds(1));
         float DeltaTime = GameClock.getElapsedTime().asSeconds();
-
-        // Текст, который показывает количества кадров в секунду(FPS)
-        FPSText.setString("FPS: " + std::to_string(static_cast<int>(1 / DeltaTime)));
-
-        //std::cout << DeltaTime << "\n"; // TODO для тестов
 
         // Обновляем таймер между кадрами
         GameClock.restart();
@@ -50,12 +37,14 @@ int main()
         // Обновлять игровое состояние
         Game->UpdateGameplay(DeltaTime);
 
+        // Обновлять положение камеры, слежение за играком
+        Game->UpdateCamera(Window);
+
         // Очищать экран
         Window.clear();
-
+        
         // Отрисовываем игру
         Game->DrawGame(Window);
-        Window.draw(FPSText);
 
         Window.display();
     }

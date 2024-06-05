@@ -1,5 +1,5 @@
 ﻿#include "Player.h"
-#include "../GameMap/GameMap.h"
+#include "../Manager/CollisionManager.h"
 
 class ACollisionManager;
 
@@ -110,7 +110,7 @@ void APlayer::HandlePlayerMove(float DeltaTime)
     }
 }
 
-void APlayer::UpdatePlayerMove(float DeltaTime, const AGameMap& GameMap)
+void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager)
 {
     // Гравитация необходима для приземления персонажа на землю
     PlayerVelocity.y += GRAVITY * DeltaTime;
@@ -118,13 +118,8 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const AGameMap& GameMap)
     PlayerRect.left += PlayerVelocity.x;
     PlayerRect.top -= PlayerVelocity.y;
 
-    for (const auto& Obstacle : GameMap.GetCollisionVector())
-    {
-        if (PlayerRect.intersects(Obstacle))
-        {
-            HandleCollision(Obstacle);
-        }
-    }
+    // Проверка столкновений персонажа с объектами карты
+    CollisionManager.HandlePawnCollisionWithGameMap(PlayerRect, PlayerVelocity, bCanJump);
 
     // Обновление позиции спрайта и формы коллизии
     PlayerDrawPosition =
@@ -134,48 +129,15 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const AGameMap& GameMap)
     };
 }
 
+sf::Vector2f APlayer::GetPlayerPossition() const
+{
+    return PlayerDrawPosition;
+}
+
 sf::FloatRect APlayer::GetPlayerRect() const
 {
     // Получаем коллизию персонажа
     return PlayerRect;
-}
-
-void APlayer::HandleCollision(const sf::FloatRect& Obstacle)
-{
-    // Проверяем пересечение игрока и препятствия
-    if (PlayerRect.intersects(Obstacle))
-    {
-        float OverlapLeft = (PlayerRect.left + PlayerRect.width) - Obstacle.left;
-        float OverlapRight = (Obstacle.left + Obstacle.width) - PlayerRect.left;
-        float OverlapTop = (PlayerRect.top + PlayerRect.height) - Obstacle.top;
-        float OverlapBottom = (Obstacle.top + Obstacle.height) - PlayerRect.top;
-
-        bool FromLeft = std::abs(OverlapLeft) < std::abs(OverlapRight);
-        bool FromTop = std::abs(OverlapTop) < std::abs(OverlapBottom);
-
-        float MinOverlapX = FromLeft ? OverlapLeft : OverlapRight;
-        float MinOverlapY = FromTop ? OverlapTop : OverlapBottom;
-
-        if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
-        {
-            // Горизонтальное столкновение
-            PlayerRect.left += FromLeft ? -OverlapLeft : OverlapRight;
-
-            // Останавливаем горизонтальное движение
-            PlayerVelocity.x = 0.f;
-        }
-        else
-        {
-            // Вертикальное столкновение
-            PlayerRect.top += FromTop ? -OverlapTop : OverlapBottom;
-
-            // Останавливаем вертикальное движение
-            PlayerVelocity.y = 0.f;
-
-            // Если мы на земле, то даём прыгать персонажу 
-            bCanJump = true;
-        }
-    }
 }
 
 void APlayer::DrawPlayer(sf::RenderWindow& Window)
