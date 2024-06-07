@@ -8,15 +8,15 @@ public:
     ABullet(const bool NewVelocity, const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite);
     ~ABullet();
     
-    bool IsCollided() const;
     void UpdateBulletPosition(float DeltaTime);
-    void HandleCollision(const sf::FloatRect& Obstacle);
+    int GetBulletDamage() const;
     sf::FloatRect GetBulletCollider() const;
     
     void DrawBullet(sf::RenderWindow& Window);
 
 private:
-    bool bIsCollided = false;
+    // Урон от пули
+    int BulletDamage;
     
     // Направление и коллизия
     sf::Vector2f BulletVelocity;

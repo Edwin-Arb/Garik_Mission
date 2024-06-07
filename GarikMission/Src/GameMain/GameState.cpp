@@ -1,49 +1,72 @@
 ﻿#include "GameState.h"
 
+#include <iostream>
+
 
 AGameState::AGameState()
     : ScreenRect{{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}}
-      , EnemyPtr(new AEnemy(sf::Vector2f(450.f, 470.f)))
       , PlayerPtr(new APlayer)
       , GameMapPtr(new AGameMap(*PlayerPtr))
       , SpriteManagerPtr(new ASpriteManager)
-      , CollisionManagerPtr(new ACollisionManager(*EnemyPtr, *PlayerPtr, *GameMapPtr))
+      , CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr))
       , FpsManagerPtr(new AFpsManager)
 {
 }
 
 AGameState::~AGameState()
 {
-    delete EnemyPtr;
     delete PlayerPtr;
     delete SpriteManagerPtr;
     delete CollisionManagerPtr;
     delete FpsManagerPtr;
 
+    // Очищаем вектор врагов
+    for (const AEnemy* Enemy : EnemysVectorPtr)
+    {
+        delete Enemy;
+    }
+    EnemysVectorPtr.clear();
+
+    // Очишаем вектор пуль, если какие-то пули остались в памяти
     for (const ABullet* Bullet : BulletsVectorPtr)
     {
         delete Bullet;
     }
-
     BulletsVectorPtr.clear();
 }
 
 void AGameState::InitGame()
 {
-    constexpr int CapacityVector = 200;
+    // TODO Изменить значение, когда игра будет законченна, на количество врагов
+    constexpr int CapacityVectorEnemy = 1;
+    constexpr int CapacityVectorBullet = 50;
 
     GameMapPtr->InitGameMap();
-    EnemyPtr->InitEnemy(*SpriteManagerPtr, 300.f);
     PlayerPtr->InitPlayer(*SpriteManagerPtr);
     FpsManagerPtr->InitFpsText();
 
-    BulletsVectorPtr.reserve(CapacityVector);
+    // Инициализация врагов
+    EnemysVectorPtr.reserve(CapacityVectorEnemy);
+    for (int i = 0; i < CapacityVectorEnemy; ++i)
+    {
+        AEnemy* Enemy = new AEnemy(200,{450.f, 470.f});
+        Enemy->InitEnemy(*SpriteManagerPtr);
+        EnemysVectorPtr.emplace_back(Enemy);
+    }
+
+    BulletsVectorPtr.reserve(CapacityVectorBullet);
 }
 
 void AGameState::UpdateGameplay(float DeltaTime)
 {
     // Обновлять состояние передвижения персонажа
     PlayerPtr->UpdatePlayerMove(DeltaTime, *CollisionManagerPtr);
+
+    // Обновление состояния врагов
+    for (AEnemy* Enemy : EnemysVectorPtr)
+    {
+        Enemy->UpdateEnemyMove(DeltaTime, *PlayerPtr, *GameMapPtr);
+    }
 
     // Обновлять состояние передвижения пуль
     for (ABullet* Bullet : BulletsVectorPtr)
@@ -52,15 +75,14 @@ void AGameState::UpdateGameplay(float DeltaTime)
     }
 
     // Проверяем с чем сталкиваются пули
-    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr);
+    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemysVectorPtr);
 
+    // Обновлять ФПС игры
     FpsManagerPtr->UpdateFpsText(DeltaTime);
 }
 
 void AGameState::UpdateInput(float DeltaTime)
 {
-    EnemyPtr->UpdateEnemyMove(DeltaTime, *PlayerPtr);
-    
     // Проверяем нажатые клавиши и обновляем состояние персонажа
     PlayerPtr->HandlePlayerMove(DeltaTime);
 
@@ -84,7 +106,7 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
     // Устанавливаем положение ФПС в новую позицию, слева ссверху от персонажа
     FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
                                                    ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) + 10.f));
-    
+
     Window.setView(ViewPlayer);
 }
 
@@ -94,8 +116,13 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
     GameMapPtr->DrawGameMap(Window, 1.f);
 
     // Рисовать остальные объекты
-    EnemyPtr->DrawEnemy(Window);
     PlayerPtr->DrawPlayer(Window);
+
+    // Рисовать врагов
+    for (AEnemy* Enemy : EnemysVectorPtr)
+    {
+        Enemy->DrawEnemy(Window);
+    }
 
     // Рисовать пули
     for (ABullet* Bullet : BulletsVectorPtr)

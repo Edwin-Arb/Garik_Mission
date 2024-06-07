@@ -1,32 +1,36 @@
 ﻿#pragma once
 #include "../Bullet/Bullet.h"
 #include  "../Player/Player.h"
+#include "../GameMap/GameMap.h"
 
 
 class AEnemy
 {
 public:
-    AEnemy(const sf::Vector2f StartPosition);
+    AEnemy(const int Health, const sf::Vector2f& StartPosition);
     ~AEnemy();
 
-    void InitEnemy(ASpriteManager& RendererSprite, float MaxDistanceMove);
+    void InitEnemy(ASpriteManager& RendererSprite);
     void CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
                                     const sf::Vector2f& EnemySize,
                                     const sf::Vector2f& DrawScale);
 
     // Методы для установки текущего направления и максимальной дистанции
     //void SetMovingRight(bool bRight);
-    //void SetMaxMoveDistance(float Distance);
+    //void SetMaxMoveDistance(float MaxDistance)
+    
+    void UpdateEnemyMove(float DeltaTime, const ::APlayer& Player, const AGameMap& GameMap);
 
-    void UpdateEnemyMove(float DeltaTime, const APlayer &Player);
-
+    void SetEnemyHealth(int Damage);
+    int GetEnemyHealth() const;
     sf::FloatRect GetEnemyRect() const;
     void DrawEnemy(sf::RenderWindow& Window);
 
 private:
     // Переменные для хранения текущего направления и максимальной дистанции
     bool bMovingRight;
-    bool bPlayerDetected;
+    bool bIsPlayerDetected;
+    int EnemyHealth;
     float MinMoveDistance;
     float MaxMoveDistance;
 

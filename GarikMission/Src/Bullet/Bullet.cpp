@@ -2,7 +2,8 @@
 
 
 ABullet::ABullet(const bool NewVelocity, const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite)
-    : BulletTexturePtr(new sf::Texture)
+    : BulletDamage(BULLET_DAMAGE)
+    , BulletTexturePtr(new sf::Texture)
 {
     // Установить направление, откуда начать движение
     BulletVelocity.x = NewVelocity ? BULLET_SPEED : -BULLET_SPEED;
@@ -15,7 +16,8 @@ ABullet::ABullet(const bool NewVelocity, const sf::Vector2f& StartPosition, ASpr
 
     // Установить спрайт для пули
     BulletSprite.setTexture(*BulletTexturePtr);
-    BulletSprite.setTextureRect(sf::IntRect(7, 72, BULLET_SIZE.x, BULLET_SIZE.y));
+    BulletSprite.setTextureRect(sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x),
+                                            static_cast<int>(BULLET_SIZE.y)));
 
     // Установить масштаб пули
     RendererSprite.SetSpriteSize(BulletSprite, BULLET_SIZE.x * (DRAW_SCALE.x - 3),
@@ -33,11 +35,6 @@ ABullet::~ABullet()
     delete BulletTexturePtr;
 }
 
-bool ABullet::IsCollided() const
-{
-    return bIsCollided;
-}
-
 void ABullet::UpdateBulletPosition(float DeltaTime)
 {
     BulletVelocity += BulletVelocity * DeltaTime;
@@ -51,6 +48,11 @@ void ABullet::UpdateBulletPosition(float DeltaTime)
 
     BulletRect.width = BulletRect.left + BULLET_SIZE.x;
     BulletRect.height = BulletRect.top + BULLET_SIZE.y;
+}
+
+int ABullet::GetBulletDamage() const
+{
+    return BulletDamage;
 }
 
 sf::FloatRect ABullet::GetBulletCollider() const

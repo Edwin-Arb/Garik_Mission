@@ -20,9 +20,10 @@ private:
     sf::FloatRect ScreenRect;
     
     // Динамические классы для основы игры
-    AEnemy* EnemyPtr;
     APlayer* PlayerPtr;
     AGameMap *GameMapPtr;
+    std::vector<AEnemy*> EnemysVectorPtr;
+    std::vector<ABullet*> BulletsVectorPtr;
 
     // Для обработки страйта объектов
     ASpriteManager* SpriteManagerPtr;
@@ -33,9 +34,6 @@ private:
     // Для отображения кадров в игре
     AFpsManager *FpsManagerPtr;
     
-    // Массив укзателей на пули
-    std::vector<ABullet*> BulletsVectorPtr;
-
     // Для создания интервала между выстрелами
     sf::Clock DelayShotTimerHandle;
 

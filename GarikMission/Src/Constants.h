@@ -7,11 +7,14 @@
 
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
+
+constexpr int BULLET_DAMAGE = 50;
+constexpr int DEATH = 0;
+
 constexpr float PAWN_SPEED = 300.f;
 constexpr float BULLET_SPEED = 500.f;
 constexpr float GRAVITY = -10.f;
 constexpr float ZOOM_FACTOR = 1.2f;
-
 
 const sf::Vector2f PLAYER_SIZE = {11.f, 16.f};
 const sf::Vector2f ENEMY_SIZE = {10.f, 15.f};

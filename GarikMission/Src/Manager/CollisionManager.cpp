@@ -3,9 +3,8 @@
 #include "iostream"
 
 
-ACollisionManager::ACollisionManager(AEnemy& Enemy, APlayer& Player, AGameMap& GameMap)
-    : EnemeRef(Enemy)
-      , PlayerRef(Player)
+ACollisionManager::ACollisionManager(APlayer& Player, AGameMap& GameMap)
+    : PlayerRef(Player)
       , GameMapRef(GameMap)
 {
 }
@@ -48,31 +47,43 @@ bool ACollisionManager::CheckBulletCollisionWithEnemy(const ABullet& Bullet, con
     return true;
 }
 
-void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr) const
+void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr,
+                                                 std::vector<AEnemy*>& EnemysVectorPtr) const
 {
     // Нужен, чтобы положить в него пули, которые столкнулись с препятствием.
     // Позже пройтись по нему и удалить из основного Вектора Пуль
     std::vector<ABullet*> BulletsToRemove;
+    std::vector<AEnemy*> EnemysToRemove;
 
     for (ABullet* Bullet : BulletsVectorPtr)
     {
-        // Проверка пули с объектами карты и её границами       // Проверка пули с врагом
-        if (CheckBulletCollisionWithGameMap(*Bullet) || CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
+        // Проверка пули с объектами карты и её границами       
+        if (CheckBulletCollisionWithGameMap(*Bullet))
         {
             BulletsToRemove.emplace_back(Bullet);
         }
+        
+        for (AEnemy* Enemy : EnemysVectorPtr)
+        {
+            // Проверка пули с врагом
+            if (CheckBulletCollisionWithEnemy(*Bullet, Enemy->GetEnemyRect()))
+            {
+                BulletsToRemove.emplace_back(Bullet);
+                Enemy->SetEnemyHealth(Bullet->GetBulletDamage());
 
-        // Проверка пули с врагом
-        // if (CheckBulletCollisionWithEnemy(*Bullet, EnemeRef.GetEnemyRect()))
-        // {
-        //     BulletsToRemove.emplace_back(Bullet);
-        // }
+                // Вносим врага на удаление, если здоровье меньше 0
+                if (Enemy->GetEnemyHealth() <= DEATH)
+                {
+                    EnemysToRemove.emplace_back(Enemy);
+                }
+            }
+        }
     }
 
     // Очищаем вектор пуль, которые столкнулись с препятствием
     for (ABullet* BulletRemove : BulletsToRemove)
     {
-        // TODO вывод информации для тестов
+        // TODO вывод информации для тестов, позже удалить
         std::cout << "Removing bullet at position: " << BulletRemove->GetBulletCollider().left << ", "
             << BulletRemove->GetBulletCollider().top << std::endl;
 
@@ -80,67 +91,39 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
                                BulletsVectorPtr.end());
         delete BulletRemove;
     }
-}
 
-void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity) const
-{
-    for (const auto& Obstacle : GameMapRef.GetCollisionVector())
+    // Очищаем вектор врагов, которых убили
+    for (AEnemy* EnemyRemove : EnemysToRemove)
     {
-        if (PawnRect.intersects(Obstacle))
-        {
-            // Рассчитываем перекрытие по каждой стороне
-            float OverlapLeft = (PawnRect.left + PawnRect.width) - Obstacle.left;
-            float OverlapRight = (Obstacle.left + Obstacle.width) - PawnRect.left;
-            float OverlapTop = (PawnRect.top + PawnRect.height) - Obstacle.top;
-            float OverlapBottom = (Obstacle.top + Obstacle.height) - PawnRect.top;
-
-            // Определяем, с какой стороны произошло столкновение
-            bool FromLeft = std::abs(OverlapLeft) < std::abs(OverlapRight);
-            bool FromTop = std::abs(OverlapTop) < std::abs(OverlapBottom);
-
-            // Выбираем наименьшее перекрытие
-            float MinOverlapX = FromLeft ? OverlapLeft : OverlapRight;
-            float MinOverlapY = FromTop ? OverlapTop : OverlapBottom;
-
-            // Применяем коррекцию к позиции объекта
-            if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
-            {
-                // Горизонтальное столкновение
-                //PawnRect.left += FromLeft ? -MinOverlapX : MinOverlapX;
-
-                // Останавливаем горизонтальное движение
-                ObjectVelocity.x = 0.f;
-            }
-            else
-            {
-                // Вертикальное столкновение
-                //PawnRect.top += FromTop ? -MinOverlapY : MinOverlapY;
-
-                // Останавливаем вертикальное движение
-                ObjectVelocity.y = 0.f;
-            }
-        }
+        EnemysVectorPtr.erase(std::remove(EnemysVectorPtr.begin(), EnemysVectorPtr.end(), EnemyRemove),
+                              EnemysVectorPtr.end());
+        delete EnemyRemove;
     }
 }
 
-void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
-                                                       bool& bCanJump) const
+void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const
 {
+    // Проходим по всем объектам карты для проверки коллизии
     for (const auto& Obstacle : GameMapRef.GetCollisionVector())
     {
+        // Проверка пересечения объекта с препятствием
         if (PawnRect.intersects(Obstacle))
         {
+            // Вычисляем перекрытия с каждой стороны
             float OverlapLeft = (PawnRect.left + PawnRect.width) - Obstacle.left;
             float OverlapRight = (Obstacle.left + Obstacle.width) - PawnRect.left;
             float OverlapTop = (PawnRect.top + PawnRect.height) - Obstacle.top;
             float OverlapBottom = (Obstacle.top + Obstacle.height) - PawnRect.top;
 
+            // Определяем направление столкновения (слева или справа, сверху или снизу)
             bool FromLeft = std::abs(OverlapLeft) < std::abs(OverlapRight);
             bool FromTop = std::abs(OverlapTop) < std::abs(OverlapBottom);
 
+            // Находим минимальное перекрытие по осям X и Y
             float MinOverlapX = FromLeft ? OverlapLeft : OverlapRight;
             float MinOverlapY = FromTop ? OverlapTop : OverlapBottom;
 
+            // Определяем направление столкновения и корректируем позицию объекта
             if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
             {
                 // Горизонтальное столкновение
@@ -157,7 +140,7 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, 
                 // Останавливаем вертикальное движение
                 ObjectVelocity.y = 0.f;
 
-                // Если мы на земле, то даём прыгать персонажу или врагу
+                // Если мы на земле, то даём возможность прыгать персонажу или врагу
                 bCanJump = true;
             }
         }
