@@ -17,7 +17,7 @@ AEnemy::AEnemy(const int Health, const sf::Vector2f& StartPosition)
           StartPosition.y + (ENEMY_SIZE.y * DRAW_SCALE.y)
       }
       , EnemyTexturePtr(new sf::Texture)
-      , LineTraceDetectionArea(sf::Vector2f{400.f, 100.f})
+      , LineTraceDetectionArea(sf::Vector2f{400.f, 100.f}) // Ширина и высота detection area
 {
 }
 
@@ -46,7 +46,7 @@ void AEnemy::InitEnemy(ASpriteManager& RendererSprite)
     RendererSprite.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
 
     // Отрисовать прямоугольник коллизии для визуализации (отключить после проверки)
-    LineTraceDetectionArea.setFillColor(sf::Color(255, 0, 0, 128));
+    LineTraceDetectionArea.setFillColor(sf::Color(155, 0, 0, 128));
 }
 
 void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
@@ -60,11 +60,11 @@ void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
     };
 }
 
-void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap)
+void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
 {
     // Изначально предполагаем, что игрок не обнаружен
     bIsPlayerDetected = false;
-    
+
     // Проверка обнаружения игрока
     if (LineTraceDetectionArea.getGlobalBounds().intersects(Player.GetPlayerRect()))
     {
@@ -78,11 +78,28 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
             }
         }
     }
+}
 
-    // Если игрок обнаружен и не блокируется препятствием, остановить врага
+void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
+{
+    // Если игрок обнаружен и не блокируется препятствием, разворачиваем врага в сторону игрока
     if (bIsPlayerDetected)
     {
         EnemyVelocity.x = 0.f;
+
+        // Определяем направление игрока относительно врага
+        if (Player.GetPlayerRect().left < EnemyRect.left)
+        {
+            // Игрок слева от врага
+            bMovingRight = false;
+            EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+        }
+        else
+        {
+            // Игрок справа от врага
+            bMovingRight = true;
+            EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+        }
     }
     else
     {
@@ -91,22 +108,26 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
         {
             EnemyVelocity.x = 200.f * DeltaTime;
             EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
-            LineTraceDetectionArea.setScale(1.f, 1.f); // Лайн трейс справа
         }
         else
         {
             EnemyVelocity.x = -200.f * DeltaTime;
             EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
-            LineTraceDetectionArea.setScale(-1.f, 1.f); // Лайн трейс слева
         }
     }
+}
 
+void AEnemy::UpdatePosition()
+{
     // Обновление позиции врага
     EnemyRect.left += EnemyVelocity.x;
     EnemyRect.width = EnemyRect.left + ENEMY_SIZE.x * DRAW_SCALE.x;
     EnemyRect.top -= EnemyVelocity.y;
     EnemyRect.height = EnemyRect.top + ENEMY_SIZE.y * DRAW_SCALE.y;
+}
 
+void AEnemy::UpdateDetectionAreaPosition()
+{
     // Обновление позиции зоны обнаружения игрока
     sf::Vector2f DetectionPosition = EnemyDrawPosition;
     if (bMovingRight)
@@ -118,7 +139,10 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
         DetectionPosition.x -= (ENEMY_SIZE.x * DRAW_SCALE.x) / 2.f + LineTraceDetectionArea.getSize().x;
     }
     LineTraceDetectionArea.setPosition(DetectionPosition);
+}
 
+void AEnemy::UpdateMoveDistance()
+{
     // Проверка достижения максимальной или минимальной дистанции
     const float DistanceMoved = EnemyRect.left - EnemyStartPosition.x;
     if (DistanceMoved >= MaxMoveDistance || DistanceMoved <= -MinMoveDistance)
@@ -129,6 +153,15 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
             bMovingRight = !bMovingRight;
         }
     }
+}
+
+void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap)
+{
+    DetectPlayer(Player, GameMap);
+    UpdateDirectionAndVelocity(DeltaTime, Player);
+    UpdatePosition();
+    UpdateDetectionAreaPosition();
+    UpdateMoveDistance();
 
     // TODO Нужна, чтобы установить положение каждого врага отдельно.
     // TODO Позже переместиться в постоянную обработку Геймплея игры

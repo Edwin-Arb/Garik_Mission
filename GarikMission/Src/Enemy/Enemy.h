@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "../Bullet/Bullet.h"
-#include  "../Player/Player.h"
+#include "../Player/Player.h"
 #include "../GameMap/GameMap.h"
 
 
@@ -14,16 +14,17 @@ public:
     void CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
                                     const sf::Vector2f& EnemySize,
                                     const sf::Vector2f& DrawScale);
-
-    // Методы для установки текущего направления и максимальной дистанции
-    //void SetMovingRight(bool bRight);
-    //void SetMaxMoveDistance(float MaxDistance)
-    
+    void DetectPlayer(const APlayer& Player, const AGameMap& GameMap);
+    void UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player);
+    void UpdatePosition();
+    void UpdateDetectionAreaPosition();
+    void UpdateMoveDistance();
     void UpdateEnemyMove(float DeltaTime, const ::APlayer& Player, const AGameMap& GameMap);
 
     void SetEnemyHealth(int Damage);
     int GetEnemyHealth() const;
     sf::FloatRect GetEnemyRect() const;
+
     void DrawEnemy(sf::RenderWindow& Window);
 
 private:
