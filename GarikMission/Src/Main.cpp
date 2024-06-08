@@ -11,7 +11,7 @@ int main()
 
     AGameState* Game = new AGameState;
     Game->InitGame();
-
+    
     while (Window.isOpen())
     {
         // Делаем задержку между кадрами, чтобы игра работала на всех компьютерах одинаково
@@ -36,7 +36,7 @@ int main()
 
         // Обновлять игровое состояние
         Game->UpdateGameplay(DeltaTime);
-
+        
         // Обновлять положение камеры, слежение за играком
         Game->UpdateCamera(Window);
 

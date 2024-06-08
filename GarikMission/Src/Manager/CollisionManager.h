@@ -16,7 +16,7 @@ private:
 
 public:
     void CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr, std::vector<AEnemy*>& EnemysVectorPtr) const;
-    void HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const;
+    void HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const;
 
 private:
     APlayer& PlayerRef;

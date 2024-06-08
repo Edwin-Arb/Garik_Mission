@@ -62,7 +62,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
         {
             BulletsToRemove.emplace_back(Bullet);
         }
-        
+
         for (AEnemy* Enemy : EnemysVectorPtr)
         {
             // Проверка пули с врагом
@@ -101,7 +101,8 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
     }
 }
 
-void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const
+void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
+                                                       bool& bCanJump) const
 {
     // Проходим по всем объектам карты для проверки коллизии
     for (const auto& Obstacle : GameMapRef.GetCollisionVector())
@@ -140,7 +141,7 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, 
                 // Останавливаем вертикальное движение
                 ObjectVelocity.y = 0.f;
 
-                // Если мы на земле, то даём возможность прыгать персонажу или врагу
+                // Если мы на земле, то даём возможность прыгать персонажу
                 bCanJump = true;
             }
         }

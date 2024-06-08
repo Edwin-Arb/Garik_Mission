@@ -8,7 +8,7 @@
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
 
-constexpr int BULLET_DAMAGE = 50;
+constexpr int BULLET_DAMAGE = 20;
 constexpr int DEATH = 0;
 
 constexpr float PAWN_SPEED = 300.f;

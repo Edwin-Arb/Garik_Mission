@@ -2,6 +2,7 @@
 #include "../Bullet/Bullet.h"
 #include "../Player/Player.h"
 #include "../GameMap/GameMap.h"
+#include "../UserInterface/HealthBar.h"
 
 
 class AEnemy
@@ -10,7 +11,7 @@ public:
     AEnemy(const int Health, const sf::Vector2f& StartPosition);
     ~AEnemy();
 
-    void InitEnemy(ASpriteManager& RendererSprite);
+    void InitEnemy(ASpriteManager& SpriteManager);
     void CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
                                     const sf::Vector2f& EnemySize,
                                     const sf::Vector2f& DrawScale);
@@ -47,4 +48,6 @@ private:
 
     // TODO Нужен для тестирования обнаружения персонажа, удалить после тестов
     sf::RectangleShape LineTraceDetectionArea;
+
+    AHealthBar *EnemyHealthBarPtr;
 };

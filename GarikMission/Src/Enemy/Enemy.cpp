@@ -18,15 +18,17 @@ AEnemy::AEnemy(const int Health, const sf::Vector2f& StartPosition)
       }
       , EnemyTexturePtr(new sf::Texture)
       , LineTraceDetectionArea(sf::Vector2f{400.f, 100.f}) // Ширина и высота detection area
+      , EnemyHealthBarPtr(new AHealthBar)
 {
 }
 
 AEnemy::~AEnemy()
 {
     delete EnemyTexturePtr;
+    delete EnemyHealthBarPtr;
 }
 
-void AEnemy::InitEnemy(ASpriteManager& RendererSprite)
+void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
     // Подгрузить текстуру из папки для персонажа
     assert(EnemyTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/enemy.png"));
@@ -38,15 +40,18 @@ void AEnemy::InitEnemy(ASpriteManager& RendererSprite)
                                            static_cast<int>(ENEMY_SIZE.y)));
 
     // Установить масштаб персонажа
-    RendererSprite.SetSpriteSize(EnemySprite, ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y);
+    SpriteManager.SetSpriteSize(EnemySprite, ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y);
     //RendererSprite.SetShapeSize(LineTraceDetectionArea, 0.f, 0.f);
 
     // Установить центр спрайта и коллизии
-    RendererSprite.SetSpriteRelativeOrigin(EnemySprite, 0.5f, 0.5f);
-    RendererSprite.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
+    SpriteManager.SetSpriteRelativeOrigin(EnemySprite, 0.5f, 0.5f);
+    SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
 
     // Отрисовать прямоугольник коллизии для визуализации (отключить после проверки)
     LineTraceDetectionArea.setFillColor(sf::Color(155, 0, 0, 128));
+
+    // Инициализируем шкалу здоровья врага
+    EnemyHealthBarPtr->InitHealthBar(100.f, 20.f, sf::Color::Green, sf::Color::Red, SpriteManager);
 }
 
 void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
@@ -166,6 +171,12 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
     // TODO Нужна, чтобы установить положение каждого врага отдельно.
     // TODO Позже переместиться в постоянную обработку Геймплея игры
     CalculateEnemyDrawPosition(EnemyRect, ENEMY_SIZE, DRAW_SCALE);
+
+
+    // TODO test health
+    // Устанавливаем положение шкалы здоровья чуть выше врага
+    EnemyHealthBarPtr->SetPosition(EnemyDrawPosition - sf::Vector2f(0.f, 100.f));
+    EnemyHealthBarPtr->Update(EnemyHealth, 400);
 }
 
 void AEnemy::SetEnemyHealth(int Damage)
@@ -191,4 +202,6 @@ void AEnemy::DrawEnemy(sf::RenderWindow& Window)
 
     Window.draw(LineTraceDetectionArea);
     Window.draw(EnemySprite);
+
+    EnemyHealthBarPtr->Draw(Window);
 }

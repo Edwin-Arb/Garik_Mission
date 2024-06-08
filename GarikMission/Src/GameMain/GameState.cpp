@@ -49,7 +49,7 @@ void AGameState::InitGame()
     EnemysVectorPtr.reserve(CapacityVectorEnemy);
     for (int i = 0; i < CapacityVectorEnemy; ++i)
     {
-        AEnemy* Enemy = new AEnemy(200,{450.f, 470.f});
+        AEnemy* Enemy = new AEnemy(400,{450.f, 470.f});
         Enemy->InitEnemy(*SpriteManagerPtr);
         EnemysVectorPtr.emplace_back(Enemy);
     }

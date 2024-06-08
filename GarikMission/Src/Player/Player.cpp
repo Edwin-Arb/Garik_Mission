@@ -4,7 +4,7 @@
 class ACollisionManager;
 
 APlayer::APlayer()
-    :   bCanJump(true)
+    : bCanJump(true)
       , bIsMoveRight(true)
       , PlayerSpeed(PAWN_SPEED)
       , PlayerJumpSpeed(1500.f)
@@ -15,6 +15,8 @@ APlayer::APlayer()
           PLAYER_SIZE.y * DRAW_SCALE.y
       })
       , PlayerTexturePtr(new sf::Texture)
+      , HealthBarTexturePtr(new sf::Texture)
+      , HealthBarPtr(new AHealthBar)
       , PlayerRectCollision(sf::Vector2f(PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y))
 {
 }
@@ -22,12 +24,20 @@ APlayer::APlayer()
 APlayer::~APlayer()
 {
     delete PlayerTexturePtr;
+    delete HealthBarPtr;
+    delete HealthBarTexturePtr;
 }
 
-void APlayer::InitPlayer(ASpriteManager& RendererSprite)
+void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 {
-    // Подгрузить текстуру из папки для персонажа
+    // Подгрузить текстуры из папки для персонажа
     assert(PlayerTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/Player.png"));
+    assert(HealthBarTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/HealthBarPlayer.png"));
+
+    // Инициализация шкалы здоровья
+    HealthBarPtr->InitHealthBar(100, 25, sf::Color::Red, sf::Color::Yellow, SpriteManager);
+    HealthBarSprite.setTexture(*HealthBarTexturePtr);
+    HealthBarSprite.setScale(0.2f, 0.2f);
 
     // Создать спрайт персонажа и установить его центр
     PlayerSprite.setTexture(*PlayerTexturePtr);
@@ -36,13 +46,13 @@ void APlayer::InitPlayer(ASpriteManager& RendererSprite)
                                             static_cast<int>(PLAYER_SIZE.y)));
 
     // Установить масштаб спрайта персонажа
-    RendererSprite.SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y);
+    SpriteManager.SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y);
 
     // Установить центр спрайта персонажа
-    RendererSprite.SetSpriteRelativeOrigin(PlayerSprite, 0.5f, 0.5f);
+    SpriteManager.SetSpriteRelativeOrigin(PlayerSprite, 0.5f, 0.5f);
 
     // Создать спрайт коллизии и установить его центр
-    RendererSprite.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
+    SpriteManager.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
 }
 
 void APlayer::SetPlayerVelocity(const sf::Vector2f& NewVelocity)
@@ -119,7 +129,7 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
     PlayerRect.top -= PlayerVelocity.y;
 
     // Проверка столкновений персонажа с объектами карты
-    CollisionManager.HandlePawnCollisionWithGameMap(PlayerRect, PlayerVelocity, bCanJump);
+    CollisionManager.HandlePlayerCollisionWithGameMap(PlayerRect, PlayerVelocity, bCanJump);
 
     // Обновление позиции спрайта и формы коллизии
     PlayerDrawPosition =
@@ -127,6 +137,14 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
         PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
         PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f
     };
+}
+
+
+void APlayer::UpdatePlayerHealthBar()
+{
+    HealthBarPtr->Update(200, 400);
+    HealthBarPtr->SetPosition({PlayerDrawPosition.x - 300.f, PlayerDrawPosition.y - 300.f});
+    HealthBarSprite.setPosition(PlayerDrawPosition.x - 760.f, PlayerDrawPosition.y - 380.f);
 }
 
 sf::Vector2f APlayer::GetPlayerPossition() const
@@ -149,4 +167,9 @@ void APlayer::DrawPlayer(sf::RenderWindow& Window)
     // Рисовать персонажа и его коллизию
     Window.draw(PlayerRectCollision);
     Window.draw(PlayerSprite);
+
+    // Рисовать шкалу здоровья 
+    UpdatePlayerHealthBar();
+    HealthBarPtr->Draw(Window);
+    Window.draw(HealthBarSprite);
 }
