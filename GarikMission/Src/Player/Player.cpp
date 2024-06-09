@@ -6,13 +6,14 @@ class ACollisionManager;
 APlayer::APlayer()
     : bCanJump(true)
       , bIsMoveRight(true)
+      , PlayerHealth(400)
       , PlayerSpeed(PAWN_SPEED)
       , PlayerJumpSpeed(1500.f)
       , PlayerVelocity({0.f, 0.f})
       , PlayerRect({
           100.f, 400.f,
-          PLAYER_SIZE.x * DRAW_SCALE.x,
-          PLAYER_SIZE.y * DRAW_SCALE.y
+          100.f + PLAYER_SIZE.x * DRAW_SCALE.x,
+          400.f + PLAYER_SIZE.y * DRAW_SCALE.y
       })
       , PlayerTexturePtr(new sf::Texture)
       , HealthBarTexturePtr(new sf::Texture)
@@ -35,7 +36,7 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     assert(HealthBarTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/HealthBarPlayer.png"));
 
     // Инициализация шкалы здоровья
-    HealthBarPtr->InitHealthBar(100, 25, sf::Color::Red, sf::Color::Yellow, SpriteManager);
+    HealthBarPtr->InitHealthBar(165, 25, sf::Color::Red, sf::Color::Yellow, SpriteManager);
     HealthBarSprite.setTexture(*HealthBarTexturePtr);
     HealthBarSprite.setScale(0.2f, 0.2f);
 
@@ -55,30 +56,22 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     SpriteManager.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
 }
 
-void APlayer::SetPlayerVelocity(const sf::Vector2f& NewVelocity)
-{
-    PlayerVelocity = NewVelocity;
-}
-
-void APlayer::SetPlayerRect(const sf::FloatRect& NewRect)
-{
-    PlayerRect = NewRect;
-}
-
-void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const
+// Обработка выстрелов игрока
+void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const
 {
     // Выстрел из оружия. Пока кнопка нажата - мы стреляем 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         const float SpawnBulletOffsetX = bIsMoveRight ? 90.f : 0.f;
         constexpr float SpawnBulletOffsetY = 85.f;
-        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight,
+        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtEnemy,
                                                   sf::Vector2f(PlayerRect.left + SpawnBulletOffsetX,
                                                                PlayerRect.top + SpawnBulletOffsetY),
-                                                  RendererSprite));
+                                                  SpriteManager));
     }
 }
 
+// Обработка передвижения игрока
 void APlayer::HandlePlayerMove(float DeltaTime)
 {
     // Установить направление передвижения персонажа
@@ -101,7 +94,7 @@ void APlayer::HandlePlayerMove(float DeltaTime)
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
     {
         // Вверх
-        PlayerVelocity.y = PlayerSpeed * DeltaTime;
+        PlayerVelocity.y = 2;
     }
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
@@ -115,11 +108,12 @@ void APlayer::HandlePlayerMove(float DeltaTime)
         if (bCanJump)
         {
             bCanJump = false;
-            PlayerVelocity.y = PlayerJumpSpeed * DeltaTime;
+            PlayerVelocity.y -= PlayerJumpSpeed * DeltaTime;
         }
     }
 }
 
+// Обновление передвижения игрока
 void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager)
 {
     // Гравитация необходима для приземления персонажа на землю
@@ -137,39 +131,69 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
         PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
         PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f
     };
+
+    // Установить положение спрайта с положением персонажа в игре, т.е с его прямоугольником(коллизией)
+    PlayerSprite.setPosition(PlayerDrawPosition);
+    PlayerRectCollision.setPosition(PlayerDrawPosition);
 }
 
-
+// Обновление шкалы здоровья игрока
 void APlayer::UpdatePlayerHealthBar()
 {
-    HealthBarPtr->Update(200, 400);
-    HealthBarPtr->SetPosition({PlayerDrawPosition.x - 300.f, PlayerDrawPosition.y - 300.f});
+    HealthBarPtr->Update(PlayerHealth, 400);
+    HealthBarPtr->SetPosition({PlayerDrawPosition.x - 635.f, PlayerDrawPosition.y - 360.f});
     HealthBarSprite.setPosition(PlayerDrawPosition.x - 760.f, PlayerDrawPosition.y - 380.f);
+
+    // TODO Восстановление здоровья для тестов
+    if (PlayerHealth <= DEATH)
+    {
+        PlayerHealth = 400;
+    }
 }
 
+// Установка скорости игрока
+void APlayer::SetPlayerVelocity(const sf::Vector2f& NewVelocity)
+{
+    PlayerVelocity = NewVelocity;
+}
+
+// Установка прямоугольника игрока
+void APlayer::SetPlayerRect(const sf::FloatRect& NewRect)
+{
+    PlayerRect = NewRect;
+}
+
+void APlayer::SetPlayerMaxHealth(int NewPlayerHealth)
+{
+    PlayerHealth -= NewPlayerHealth;
+}
+
+int APlayer::GetPlayerMaxHealth() const
+{
+    return PlayerHealth;
+}
+
+// Получение позиции игрока
 sf::Vector2f APlayer::GetPlayerPossition() const
 {
     return PlayerDrawPosition;
 }
 
+// Получение прямоугольника(коллизии) игрока
 sf::FloatRect APlayer::GetPlayerRect() const
 {
-    // Получаем коллизию персонажа
     return PlayerRect;
 }
 
+// Отрисовка игрока
 void APlayer::DrawPlayer(sf::RenderWindow& Window)
 {
-    // Установить положение спрайта с положением персонажа в игре, т.е с его прямоугольником(коллизией)
-    PlayerSprite.setPosition(PlayerDrawPosition);
-    PlayerRectCollision.setPosition(PlayerDrawPosition);
-
     // Рисовать персонажа и его коллизию
     Window.draw(PlayerRectCollision);
     Window.draw(PlayerSprite);
 
     // Рисовать шкалу здоровья 
     UpdatePlayerHealthBar();
-    HealthBarPtr->Draw(Window);
     Window.draw(HealthBarSprite);
+    HealthBarPtr->Draw(Window);
 }

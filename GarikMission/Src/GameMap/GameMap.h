@@ -31,6 +31,7 @@ private:
 
     // Отрисовывает слой тайлов
     void DrawLayer(const tmx::TileLayer& Layer, sf::RenderTarget& target, float DrawScale);
+    tmx::Vector2u GetTileSizeWithOffset(const tmx::Tileset& Tileset) const;
 
 private:
     // Ссылка на объект игрока

@@ -3,7 +3,7 @@
 
 
 AEnemy::AEnemy(const int Health, const sf::Vector2f& StartPosition)
-    : bMovingRight(true)
+    : bIsMoveRight(true)
       , bIsPlayerDetected(false)
       , EnemyHealth(Health)
       , MinMoveDistance(100.f)
@@ -28,6 +28,7 @@ AEnemy::~AEnemy()
     delete EnemyHealthBarPtr;
 }
 
+// Инициализация врага
 void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
     // Подгрузить текстуру из папки для персонажа
@@ -41,7 +42,6 @@ void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 
     // Установить масштаб персонажа
     SpriteManager.SetSpriteSize(EnemySprite, ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y);
-    //RendererSprite.SetShapeSize(LineTraceDetectionArea, 0.f, 0.f);
 
     // Установить центр спрайта и коллизии
     SpriteManager.SetSpriteRelativeOrigin(EnemySprite, 0.5f, 0.5f);
@@ -54,6 +54,21 @@ void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
     EnemyHealthBarPtr->InitHealthBar(100.f, 20.f, sf::Color::Green, sf::Color::Red, SpriteManager);
 }
 
+void AEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const
+{
+    // Выстрел из оружия. Пока персонаж в зоне обнаружения врага
+    if (bIsPlayerDetected)
+    {
+        const float SpawnBulletOffsetX = bIsMoveRight ? 85.f : 0.f;
+        constexpr float SpawnBulletOffsetY = 75.f;
+        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtPlayer,
+                                                  sf::Vector2f(EnemyRect.left + SpawnBulletOffsetX,
+                                                               EnemyRect.top + SpawnBulletOffsetY),
+                                                  SpriteManager));
+    }
+}
+
+// Вычисление позиции отрисовки врага
 void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
                                         const sf::Vector2f& EnemySize,
                                         const sf::Vector2f& DrawScale)
@@ -65,6 +80,7 @@ void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
     };
 }
 
+// Обнаружение игрока
 void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
 {
     // Изначально предполагаем, что игрок не обнаружен
@@ -85,6 +101,7 @@ void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
     }
 }
 
+// Обновление направления и скорости врага
 void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
 {
     // Если игрок обнаружен и не блокируется препятствием, разворачиваем врага в сторону игрока
@@ -96,20 +113,20 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
         if (Player.GetPlayerRect().left < EnemyRect.left)
         {
             // Игрок слева от врага
-            bMovingRight = false;
+            bIsMoveRight = false;
             EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
         else
         {
             // Игрок справа от врага
-            bMovingRight = true;
+            bIsMoveRight = true;
             EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
     }
     else
     {
         // Движение влево или вправо в зависимости от текущего направления    
-        if (bMovingRight)
+        if (bIsMoveRight)
         {
             EnemyVelocity.x = 200.f * DeltaTime;
             EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
@@ -122,20 +139,20 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
     }
 }
 
+// Обновление позиции врага
 void AEnemy::UpdatePosition()
 {
-    // Обновление позиции врага
     EnemyRect.left += EnemyVelocity.x;
-    EnemyRect.width = EnemyRect.left + ENEMY_SIZE.x * DRAW_SCALE.x;
+    EnemyRect.width = EnemyRect.left + (ENEMY_SIZE.x * DRAW_SCALE.x);
     EnemyRect.top -= EnemyVelocity.y;
-    EnemyRect.height = EnemyRect.top + ENEMY_SIZE.y * DRAW_SCALE.y;
+    EnemyRect.height = EnemyRect.top + (ENEMY_SIZE.y * DRAW_SCALE.y);
 }
 
+// Обновление позиции зоны обнаружения игрока
 void AEnemy::UpdateDetectionAreaPosition()
 {
-    // Обновление позиции зоны обнаружения игрока
     sf::Vector2f DetectionPosition = EnemyDrawPosition;
-    if (bMovingRight)
+    if (bIsMoveRight)
     {
         DetectionPosition.x += (ENEMY_SIZE.x * DRAW_SCALE.x) / 2.f;
     }
@@ -146,6 +163,7 @@ void AEnemy::UpdateDetectionAreaPosition()
     LineTraceDetectionArea.setPosition(DetectionPosition);
 }
 
+// Обновление дистанции движения врага
 void AEnemy::UpdateMoveDistance()
 {
     // Проверка достижения максимальной или минимальной дистанции
@@ -155,11 +173,12 @@ void AEnemy::UpdateMoveDistance()
         // Меняем направление движения только если игрок не обнаружен
         if (!bIsPlayerDetected)
         {
-            bMovingRight = !bMovingRight;
+            bIsMoveRight = !bIsMoveRight;
         }
     }
 }
 
+// Обновление движения врага
 void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap)
 {
     DetectPlayer(Player, GameMap);
@@ -175,25 +194,29 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
 
     // TODO test health
     // Устанавливаем положение шкалы здоровья чуть выше врага
-    EnemyHealthBarPtr->SetPosition(EnemyDrawPosition - sf::Vector2f(0.f, 100.f));
+    EnemyHealthBarPtr->SetPosition(EnemyDrawPosition - sf::Vector2f(0.f, 80.f));
     EnemyHealthBarPtr->Update(EnemyHealth, 400);
 }
 
+// Установка здоровья врага
 void AEnemy::SetEnemyHealth(int Damage)
 {
     EnemyHealth -= Damage;
 }
 
+// Получение здоровья врага
 int AEnemy::GetEnemyHealth() const
 {
     return EnemyHealth;
 }
 
+// Получение прямоугольника(коллизии) врага
 sf::FloatRect AEnemy::GetEnemyRect() const
 {
     return EnemyRect;
 }
 
+// Отрисовка врага
 void AEnemy::DrawEnemy(sf::RenderWindow& Window)
 {
     // Установить положение спрайта и прямоугольника коллизии с положением врага в игре
@@ -203,5 +226,6 @@ void AEnemy::DrawEnemy(sf::RenderWindow& Window)
     Window.draw(LineTraceDetectionArea);
     Window.draw(EnemySprite);
 
+    // Отрисовать шкалу здоровья врага
     EnemyHealthBarPtr->Draw(Window);
 }

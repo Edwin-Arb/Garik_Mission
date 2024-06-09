@@ -21,55 +21,42 @@ void AGameMap::InitGameMap()
         std::string TexturePath = Tileset.getImagePath();
         if (!Texture.loadFromFile(TexturePath))
         {
-            // Обработка ошибки загрузки текстуры
             std::cerr << "Failed to load texture: " << TexturePath << std::endl;
             continue;
         }
         TilesetTextures.emplace_back(Texture);
     }
 
-    // Получение размеров карты и тайлов
     const tmx::Vector2u& MapSize = GameMap.getTileCount();
     const tmx::Vector2u& TileSize = GameMap.getTileSize();
     MapTexture.create(MapSize.x * TileSize.x, MapSize.y * TileSize.y);
-
-    // Очистка текстуры карты перед рисованием
     MapTexture.clear();
+
     for (const auto& Layer : GameMap.getLayers())
     {
-        std::cout << "Layer type: " << static_cast<int>(Layer->getType()) << ", Layer name: " << Layer->getName() << std::endl;
-
-        // Отрисовка тайл-слоя
         if (Layer->getType() == tmx::Layer::Type::Tile)
         {
             const auto& TileLayer = Layer->getLayerAs<tmx::TileLayer>();
             DrawLayer(TileLayer, MapTexture, 1.0f);
         }
 
-        // Обработка слоя объектов
         if (Layer->getType() == tmx::Layer::Type::Object)
         {
             auto* objectLayer = dynamic_cast<const tmx::ObjectGroup*>(Layer.get());
-            std::cout << "Object Layer name: " << objectLayer->getName() << std::endl;
-
             if (objectLayer && objectLayer->getName() == "Obstacles")
             {
-                std::cout << "Found Obstacles layer" << std::endl;
-
-                // Добавление препятствий в вектор коллизий
                 for (const auto& object : objectLayer->getObjects())
                 {
                     tmx::FloatRect tmxRect = object.getAABB();
-                    sf::FloatRect sfRect(tmxRect.left, tmxRect.top, tmxRect.width, tmxRect.height);
+                    sf::FloatRect sfRect(tmxRect.left, tmxRect.top, tmxRect.left + tmxRect.width, tmxRect.top + tmxRect.height);
                     GetCollisionLayer.emplace_back(sfRect);
                 }
             }
         }
     }
-    // Завершение рисования и отображение текстуры карты
+
     MapTexture.display();
     MapSprite.setTexture(MapTexture.getTexture());
-    std::cout << "Number of objects in 'Obstacles' layer: " << GetCollisionLayer.size() << std::endl;
 }
 
 // Проверка коллизии игрока с препятствиями

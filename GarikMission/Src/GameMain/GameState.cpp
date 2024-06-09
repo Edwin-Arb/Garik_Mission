@@ -92,6 +92,14 @@ void AGameState::UpdateInput(float DeltaTime)
     {
         // Делаем выстрел, если нажали левую кнопку мыши
         PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
+
+        // Делаем выстрел, если враг обнаружил персонажа 
+        for (const AEnemy *Enemy : EnemysVectorPtr)
+        {
+            Enemy->EnemyShoot(BulletsVectorPtr, *SpriteManagerPtr);
+        }
+
+        // Обновляем время, чтобы корректно работал интервал времени между выстрелами 
         DelayShotTimerHandle.restart();
     }
 }

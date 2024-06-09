@@ -1,8 +1,9 @@
 ﻿#include "Bullet.h"
 
 
-ABullet::ABullet(const bool NewVelocity, const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite)
+ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite)
     : BulletDamage(BULLET_DAMAGE)
+    , BulletType(ShootAt)
     , BulletTexturePtr(new sf::Texture)
 {
     // Установить направление, откуда начать движение
@@ -35,6 +36,11 @@ ABullet::~ABullet()
     delete BulletTexturePtr;
 }
 
+bool ABullet::CheckCollision(const sf::FloatRect& TargetRect) const
+{
+    return BulletRect.intersects(TargetRect);
+}
+
 void ABullet::UpdateBulletPosition(float DeltaTime)
 {
     BulletVelocity += BulletVelocity * DeltaTime;
@@ -46,8 +52,8 @@ void ABullet::UpdateBulletPosition(float DeltaTime)
     BulletRect.left = BulletSprite.getPosition().x;
     BulletRect.top = BulletSprite.getPosition().y;
 
-    BulletRect.width = BulletRect.left + BULLET_SIZE.x;
-    BulletRect.height = BulletRect.top + BULLET_SIZE.y;
+    BulletRect.width = BulletRect.left + (BULLET_SIZE.x * DRAW_SCALE.x);
+    BulletRect.height = BulletRect.top + (BULLET_SIZE.y * DRAW_SCALE.y);
 }
 
 int ABullet::GetBulletDamage() const
@@ -59,6 +65,11 @@ sf::FloatRect ABullet::GetBulletCollider() const
 {
     // Получить коллизию пули
     return BulletRect;
+}
+
+EBulletType ABullet::GetBulletType() const
+{
+    return BulletType;
 }
 
 void ABullet::DrawBullet(sf::RenderWindow& Window)
