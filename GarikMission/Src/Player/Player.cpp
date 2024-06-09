@@ -12,8 +12,8 @@ APlayer::APlayer()
       , PlayerVelocity({0.f, 0.f})
       , PlayerRect({
           100.f, 400.f,
-          100.f + PLAYER_SIZE.x * DRAW_SCALE.x,
-          400.f + PLAYER_SIZE.y * DRAW_SCALE.y
+          PLAYER_SIZE.x * DRAW_SCALE.x,
+          PLAYER_SIZE.y * DRAW_SCALE.y
       })
       , PlayerTexturePtr(new sf::Texture)
       , HealthBarTexturePtr(new sf::Texture)
@@ -108,7 +108,7 @@ void APlayer::HandlePlayerMove(float DeltaTime)
         if (bCanJump)
         {
             bCanJump = false;
-            PlayerVelocity.y -= PlayerJumpSpeed * DeltaTime;
+            PlayerVelocity.y = PlayerJumpSpeed * DeltaTime;
         }
     }
 }
@@ -121,6 +121,8 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
 
     PlayerRect.left += PlayerVelocity.x;
     PlayerRect.top -= PlayerVelocity.y;
+    PlayerRect.width = PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x);
+    PlayerRect.height = PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y);
 
     // Проверка столкновений персонажа с объектами карты
     CollisionManager.HandlePlayerCollisionWithGameMap(PlayerRect, PlayerVelocity, bCanJump);

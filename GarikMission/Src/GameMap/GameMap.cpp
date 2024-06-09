@@ -48,7 +48,7 @@ void AGameMap::InitGameMap()
                 for (const auto& object : objectLayer->getObjects())
                 {
                     tmx::FloatRect tmxRect = object.getAABB();
-                    sf::FloatRect sfRect(tmxRect.left, tmxRect.top, tmxRect.left + tmxRect.width, tmxRect.top + tmxRect.height);
+                    sf::FloatRect sfRect(tmxRect.left, tmxRect.top, tmxRect.width, tmxRect.height);
                     GetCollisionLayer.emplace_back(sfRect);
                 }
             }

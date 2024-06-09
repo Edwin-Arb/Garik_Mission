@@ -118,51 +118,53 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
 
 void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const
 {
-    // Проходим по всем объектам карты для проверки коллизии
     for (const auto& Obstacle : GameMapRef.GetCollisionVector())
     {
-        // Проверка пересечения объекта с препятствием
         if (PawnRect.intersects(Obstacle))
         {
-            // Вычисляем перекрытия с каждой стороны
             float OverlapLeft = (PawnRect.left + PawnRect.width) - Obstacle.left;
             float OverlapRight = (Obstacle.left + Obstacle.width) - PawnRect.left;
             float OverlapTop = (PawnRect.top + PawnRect.height) - Obstacle.top;
             float OverlapBottom = (Obstacle.top + Obstacle.height) - PawnRect.top;
 
-            // Определяем направление столкновения и корректируем позицию объекта
-            bool HorizontalCollision = (std::abs(OverlapLeft) < std::abs(OverlapRight));
-            bool VerticalCollision = (std::abs(OverlapTop) < std::abs(OverlapBottom));
+            // Выбираем наименьшее перекрытие
+            float MinHorizontalOverlap = std::min(std::abs(OverlapLeft), std::abs(OverlapRight));
+            float MinVerticalOverlap = std::min(std::abs(OverlapTop), std::abs(OverlapBottom));
 
-            if (HorizontalCollision && std::abs(OverlapLeft) < std::abs(OverlapTop) && std::abs(OverlapLeft) < std::abs(OverlapBottom))
+            if (MinHorizontalOverlap < MinVerticalOverlap)
             {
-                // Горизонтальное столкновение слева
-                PawnRect.left -= OverlapLeft;
+                // Обработка горизонтального столкновения
+                if (OverlapLeft < OverlapRight)
+                {
+                    // Столкновение слева
+                    PawnRect.left -= OverlapLeft;
+                }
+                else
+                {
+                    // Столкновение справа
+                    PawnRect.left += OverlapRight;
+                }
                 ObjectVelocity.x = 0.f;
             }
-            else if (HorizontalCollision && std::abs(OverlapRight) < std::abs(OverlapTop) && std::abs(OverlapRight) < std::abs(OverlapBottom))
+            else
             {
-                // Горизонтальное столкновение справа
-                PawnRect.left += OverlapRight;
-                ObjectVelocity.x = 0.f;
-            }
-
-            if (VerticalCollision && std::abs(OverlapTop) < std::abs(OverlapLeft) && std::abs(OverlapTop) < std::abs(OverlapRight))
-            {
-                // Вертикальное столкновение сверху
-                PawnRect.top -= OverlapTop;
-                ObjectVelocity.y = 0.f;
-                bCanJump = true;
-            }
-            else if (VerticalCollision && std::abs(OverlapBottom) < std::abs(OverlapLeft) && std::abs(OverlapBottom) < std::abs(OverlapRight))
-            {
-                // Вертикальное столкновение снизу
-                PawnRect.top += OverlapBottom;
-                ObjectVelocity.y = 0.f;
+                // Обработка вертикального столкновения
+                if (OverlapTop < OverlapBottom)
+                {
+                    // Столкновение сверху
+                    PawnRect.top -= OverlapTop;
+                    ObjectVelocity.y = 0.f;
+                    bCanJump = true;
+                }
+                else
+                {
+                    // Столкновение снизу
+                    PawnRect.top += OverlapBottom;
+                    ObjectVelocity.y = 0.f;
+                }
             }
         }
     }
 
-    // Обновляем позицию спрайта игрока на основе обновленного прямоугольника
     PlayerRef.SetPlayerRect(PawnRect);
 }
