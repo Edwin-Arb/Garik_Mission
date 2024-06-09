@@ -116,7 +116,8 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
     }
 }
 
-void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity, bool& bCanJump) const
+void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
+                                                       bool& bCanJump) const
 {
     for (const auto& Obstacle : GameMapRef.GetCollisionVector())
     {
@@ -127,44 +128,32 @@ void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect
             float OverlapTop = (PawnRect.top + PawnRect.height) - Obstacle.top;
             float OverlapBottom = (Obstacle.top + Obstacle.height) - PawnRect.top;
 
-            // Выбираем наименьшее перекрытие
-            float MinHorizontalOverlap = std::min(std::abs(OverlapLeft), std::abs(OverlapRight));
-            float MinVerticalOverlap = std::min(std::abs(OverlapTop), std::abs(OverlapBottom));
+            bool FromLeft = std::abs(OverlapLeft) < std::abs(OverlapRight);
+            bool FromTop = std::abs(OverlapTop) < std::abs(OverlapBottom);
 
-            if (MinHorizontalOverlap < MinVerticalOverlap)
+            float MinOverlapX = FromLeft ? OverlapLeft : OverlapRight;
+            float MinOverlapY = FromTop ? OverlapTop : OverlapBottom;
+
+            if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
             {
-                // Обработка горизонтального столкновения
-                if (OverlapLeft < OverlapRight)
-                {
-                    // Столкновение слева
-                    PawnRect.left -= OverlapLeft;
-                }
-                else
-                {
-                    // Столкновение справа
-                    PawnRect.left += OverlapRight;
-                }
+                // Горизонтальное столкновение
+                PawnRect.left += FromLeft ? -OverlapLeft : OverlapRight;
+
+                // Останавливаем горизонтальное движение
                 ObjectVelocity.x = 0.f;
             }
             else
             {
-                // Обработка вертикального столкновения
-                if (OverlapTop < OverlapBottom)
-                {
-                    // Столкновение сверху
-                    PawnRect.top -= OverlapTop;
-                    ObjectVelocity.y = 0.f;
-                    bCanJump = true;
-                }
-                else
-                {
-                    // Столкновение снизу
-                    PawnRect.top += OverlapBottom;
-                    ObjectVelocity.y = 0.f;
-                }
+                // Вертикальное столкновение
+                PawnRect.top += FromTop ? -OverlapTop : OverlapBottom;
+
+                // Останавливаем вертикальное движение
+                ObjectVelocity.y = 0.f;
+
+                // Если мы на земле, то даём прыгать персонажу или врагу
+                bCanJump = true;
             }
         }
     }
-
-    PlayerRef.SetPlayerRect(PawnRect);
 }
+

@@ -121,8 +121,6 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
 
     PlayerRect.left += PlayerVelocity.x;
     PlayerRect.top -= PlayerVelocity.y;
-    PlayerRect.width = PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x);
-    PlayerRect.height = PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y);
 
     // Проверка столкновений персонажа с объектами карты
     CollisionManager.HandlePlayerCollisionWithGameMap(PlayerRect, PlayerVelocity, bCanJump);

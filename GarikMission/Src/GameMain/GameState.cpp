@@ -49,7 +49,7 @@ void AGameState::InitGame()
     EnemysVectorPtr.reserve(CapacityVectorEnemy);
     for (int i = 0; i < CapacityVectorEnemy; ++i)
     {
-        AEnemy* Enemy = new AEnemy(400, {450.f, 470.f});
+        AEnemy* Enemy = new AEnemy(400,{450.f, 470.f});
         Enemy->InitEnemy(*SpriteManagerPtr);
         EnemysVectorPtr.emplace_back(Enemy);
     }
@@ -94,7 +94,7 @@ void AGameState::UpdateInput(float DeltaTime)
         PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
 
         // Делаем выстрел, если враг обнаружил персонажа 
-        for (const AEnemy* Enemy : EnemysVectorPtr)
+        for (const AEnemy *Enemy : EnemysVectorPtr)
         {
             Enemy->EnemyShoot(BulletsVectorPtr, *SpriteManagerPtr);
         }
@@ -110,12 +110,6 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
     ViewPlayer = Window.getView();
     ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
     ViewPlayer.setCenter(PlayerPtr->GetPlayerPossition());
-
-    // TODO тесты с камерой, надо будет сделать, чтобы левый и правый край не заходил дальше карты 
-    // if(ViewPlayer.getCenter().x < 0.f)
-    // {
-    //     ViewPlayer.setCenter(0.f, 0.f);
-    // }
 
     // Устанавливаем положение ФПС в новую позицию, слева ссверху от персонажа
     FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
