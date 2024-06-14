@@ -1,45 +1,61 @@
 ﻿#include "GameState.h"
-
 #include <iostream>
 
 
+/**
+ * @brief Конструктор класса AGameState.
+ * 
+ * Инициализирует игровые объекты и менеджеров.
+ */
 AGameState::AGameState()
-    : ScreenRect{{0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}}
-      , PlayerPtr(new APlayer)
-      , GameMapPtr(new AGameMap(*PlayerPtr))
-      , SpriteManagerPtr(new ASpriteManager)
-      , CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr))
-      , FpsManagerPtr(new AFpsManager)
+    : ScreenRect({0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}), // Инициализация экранной области игры
+      PlayerPtr(new APlayer),
+      GameMapPtr(new AGameMap(*PlayerPtr)),
+      SpriteManagerPtr(new ASpriteManager),
+      CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr)),
+      FpsManagerPtr(new AFpsManager)
 {
 }
 
+/**
+ * @brief Деструктор класса AGameState.
+ * 
+ * Освобождает память, удаляя игровые объекты и очищая вектора.
+ */
 AGameState::~AGameState()
 {
+    // Освобождение памяти указателей на игровые объекты
     delete PlayerPtr;
+    delete GameMapPtr;
     delete SpriteManagerPtr;
     delete CollisionManagerPtr;
     delete FpsManagerPtr;
 
     // Очищаем вектор врагов
-    for (const AEnemy* Enemy : EnemysVectorPtr)
+    for (auto Enemy : EnemysVectorPtr)
     {
         delete Enemy;
     }
     EnemysVectorPtr.clear();
 
-    // Очишаем вектор пуль, если какие-то пули остались в памяти
-    for (const ABullet* Bullet : BulletsVectorPtr)
+    // Очищаем вектор пуль
+    for (auto Bullet : BulletsVectorPtr)
     {
         delete Bullet;
     }
     BulletsVectorPtr.clear();
 }
 
+/**
+ * @brief Инициализация игры.
+ * 
+ * Загружает игровую карту, игрока, врагов и устанавливает FPS.
+ */
 void AGameState::InitGame()
 {
-    // TODO Изменить значение, когда игра будет законченна, на количество врагов
-    constexpr int CapacityVectorEnemy = 1;
-    constexpr int CapacityVectorBullet = 50;
+    // TODO: Изменить значение, когда игра будет завершена, на количество врагов
+    constexpr int CapacityVectorEnemy = 1; // Вместимость вектора врагов
+    constexpr int CapacityVectorBullet = 50; // Вместимость вектора пуль
 
     GameMapPtr->InitGameMap();
     PlayerPtr->InitPlayer(*SpriteManagerPtr);
@@ -49,95 +65,115 @@ void AGameState::InitGame()
     EnemysVectorPtr.reserve(CapacityVectorEnemy);
     for (int i = 0; i < CapacityVectorEnemy; ++i)
     {
-        AEnemy* Enemy = new AEnemy(400,{450.f, 470.f});
+        AEnemy* Enemy = new AEnemy(400, {450.f, 470.f}); // Указать начальную позицию врага
         Enemy->InitEnemy(*SpriteManagerPtr);
-        EnemysVectorPtr.emplace_back(Enemy);
+        EnemysVectorPtr.push_back(Enemy);
     }
 
-    BulletsVectorPtr.reserve(CapacityVectorBullet);
+    BulletsVectorPtr.reserve(CapacityVectorBullet); // Резервирование места для пуль
 }
 
-void AGameState::UpdateGameplay(float DeltaTime)
-{
-    // Обновлять состояние передвижения персонажа
-    PlayerPtr->UpdatePlayerMove(DeltaTime, *CollisionManagerPtr);
-
-    // Обновление состояния врагов
-    for (AEnemy* Enemy : EnemysVectorPtr)
-    {
-        Enemy->UpdateEnemyMove(DeltaTime, *PlayerPtr, *GameMapPtr);
-    }
-
-    // Обновлять состояние передвижения пуль
-    for (ABullet* Bullet : BulletsVectorPtr)
-    {
-        Bullet->UpdateBulletPosition(DeltaTime);
-    }
-
-    // Проверяем с чем сталкиваются пули
-    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemysVectorPtr);
-
-    // Обновлять ФПС игры
-    FpsManagerPtr->UpdateFpsText(DeltaTime);
-}
-
+/**
+ * @brief Обновление пользовательского ввода.
+ * 
+ * @param DeltaTime Время, прошедшее с последнего обновления.
+ */
 void AGameState::UpdateInput(float DeltaTime)
 {
     // Проверяем нажатые клавиши и обновляем состояние персонажа
     PlayerPtr->HandlePlayerMove(DeltaTime);
 
-    // Сделать зарежку между каждый выстрелом
+    // Задержка между выстрелами
     float ElapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
-    if (ElapsedSeconds >= 0.05f)
+    if (ElapsedSeconds >= 0.1f)
     {
-        // Делаем выстрел, если нажали левую кнопку мыши
+        // Выстрел игрока при нажатии левой кнопки мыши
         PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
 
-        // Делаем выстрел, если враг обнаружил персонажа 
-        for (const AEnemy *Enemy : EnemysVectorPtr)
+        // Выстрел врага при обнаружении персонажа
+        for (auto Enemy : EnemysVectorPtr)
         {
             Enemy->EnemyShoot(BulletsVectorPtr, *SpriteManagerPtr);
         }
 
-        // Обновляем время, чтобы корректно работал интервал времени между выстрелами 
+        // Сброс таймера задержки между выстрелами
         DelayShotTimerHandle.restart();
     }
 }
 
+/**
+ * @brief Обновление игрового процесса.
+ * 
+ * @param DeltaTime Время, прошедшее с последнего обновления.
+ */
+void AGameState::UpdateGameplay(float DeltaTime)
+{
+    // Обновление движения персонажа
+    PlayerPtr->UpdatePlayerMove(DeltaTime, *CollisionManagerPtr);
+
+    // Обновление движения врагов
+    for (auto Enemy : EnemysVectorPtr)
+    {
+        Enemy->UpdateEnemyMove(DeltaTime, *PlayerPtr, *GameMapPtr);
+    }
+
+    // Обновление движения пуль
+    for (auto Bullet : BulletsVectorPtr)
+    {
+        Bullet->UpdateBulletPosition(DeltaTime);
+    }
+
+    // Проверка столкновений пуль
+    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemysVectorPtr);
+
+    // Обновление отображения FPS
+    FpsManagerPtr->UpdateFpsText(DeltaTime);
+}
+
+/**
+ * @brief Обновление камеры игры.
+ * 
+ * @param Window Окно игры для установки камеры.
+ */
 void AGameState::UpdateCamera(sf::RenderWindow& Window)
 {
-    // Фокусируем игровую камеру на главном персонаже
+    // Фокусировка камеры на игроке
     ViewPlayer = Window.getView();
     ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
     ViewPlayer.setCenter(PlayerPtr->GetPlayerPossition());
 
-    // Устанавливаем положение ФПС в новую позицию, слева ссверху от персонажа
+    // Установка позиции FPS текста относительно игрока
     FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
                                                    ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) + 10.f));
 
     Window.setView(ViewPlayer);
 }
 
+/**
+ * @brief Отрисовка игровых объектов.
+ * 
+ * @param Window Окно игры для отрисовки объектов.
+ */
 void AGameState::DrawGame(sf::RenderWindow& Window) const
 {
-    // Рисовать всю карту
-    GameMapPtr->DrawGameMap(Window, 1.f);
+    // Отрисовка карты
+    GameMapPtr->DrawGameMap(Window, ViewPlayer);
 
-    // Рисовать остальные объекты
+    // Отрисовка игрока
     PlayerPtr->DrawPlayer(Window);
 
-    // Рисовать врагов
-    for (AEnemy* Enemy : EnemysVectorPtr)
+    // Отрисовка врагов
+    for (auto Enemy : EnemysVectorPtr)
     {
         Enemy->DrawEnemy(Window);
     }
 
-    // Рисовать пули
-    for (ABullet* Bullet : BulletsVectorPtr)
+    // Отрисовка пуль
+    for (auto Bullet : BulletsVectorPtr)
     {
         Bullet->DrawBullet(Window);
     }
 
-    // Показывать количество ФПС на экране
+    // Отрисовка FPS
     FpsManagerPtr->DrawFpsText(Window);
 }

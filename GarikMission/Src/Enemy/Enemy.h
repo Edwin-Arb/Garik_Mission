@@ -5,72 +5,138 @@
 #include "../UserInterface/HealthBar.h"
 
 
+/**
+ * @brief Класс, представляющий врага в игре.
+ */
 class AEnemy
 {
 public:
-    AEnemy(const int Health, const sf::Vector2f& StartPosition);
+    /**
+     * @brief Конструктор врага.
+     * 
+     * @param EnemyMaxHealth Максимальное здоровье врага.
+     * @param StartPosition Начальная позиция врага.
+     */
+    AEnemy(float EnemyMaxHealth, const sf::Vector2f& StartPosition);
+
+    /**
+     * @brief Деструктор врага.
+     */
     ~AEnemy();
     
-    // Инициализация врага
+    /**
+     * @brief Инициализация врага.
+     * 
+     * @param SpriteManager Менеджер спрайтов для загрузки ресурсов.
+     */
     void InitEnemy(ASpriteManager& SpriteManager);
 
+    /**
+     * @brief Враг открывает огонь.
+     * 
+     * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
+     * @param SpriteManager Менеджер спрайтов для управления спрайтами.
+     */
     void EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const;
 
-    // Вычисление позиции отрисовки врага
+    /**
+     * @brief Вычисление позиции отрисовки врага.
+     * 
+     * @param EnemyRectRef Прямоугольник коллизии врага.
+     * @param EnemySize Размеры врага.
+     * @param DrawScale Масштаб отрисовки.
+     */
     void CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
                                     const sf::Vector2f& EnemySize,
                                     const sf::Vector2f& DrawScale);
 
-    // Обнаружение игрока
+    /**
+     * @brief Обнаружение игрока в окрестности.
+     * 
+     * @param Player Ссылка на объект игрока.
+     * @param GameMap Ссылка на объект игровой карты.
+     */
     void DetectPlayer(const APlayer& Player, const AGameMap& GameMap);
 
-    // Обновление направления и скорости врага
+    /**
+     * @brief Обновление направления и скорости врага.
+     * 
+     * @param DeltaTime Время, прошедшее с последнего обновления.
+     * @param Player Ссылка на объект игрока.
+     */
     void UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player);
 
-    // Обновление позиции врага
+    /**
+     * @brief Обновление позиции врага на основе текущей скорости.
+     */
     void UpdatePosition();
 
-    // Обновление позиции зоны обнаружения игрока
+    /**
+     * @brief Обновление позиции зоны обнаружения игрока.
+     */
     void UpdateDetectionAreaPosition();
 
-    // Обновление дистанции движения врага
+    /**
+     * @brief Обновление дистанции, на которую может двигаться враг.
+     */
     void UpdateMoveDistance();
 
-    // Обновление движения врага
+    /**
+     * @brief Обновление движения врага.
+     * 
+     * @param DeltaTime Время, прошедшее с последнего обновления.
+     * @param Player Ссылка на объект игрока.
+     * @param GameMap Ссылка на объект игровой карты.
+     */
     void UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap);
 
-    // Установка здоровья врага
+    /**
+     * @brief Установка здоровья врага.
+     * 
+     * @param Damage Полученный урон от пули.
+     */
     void SetEnemyHealth(int Damage);
 
-    // Получение здоровья врага
-    int GetEnemyHealth() const;
+    /**
+     * @brief Получение текущего здоровья врага.
+     * 
+     * @return Текущее здоровье врага.
+     */
+    float GetEnemyHealth() const;
 
-    // Получение прямоугольника врага
+    /**
+     * @brief Получение прямоугольника коллизии врага.
+     * 
+     * @return Прямоугольник коллизии врага.
+     */
     sf::FloatRect GetEnemyRect() const;
 
-    // Отрисовка врага
-    void DrawEnemy(sf::RenderWindow& Window);
+    /**
+     * @brief Отрисовка врага на экране.
+     * 
+     * @param Window Окно, в котором происходит отрисовка.
+     */
+    void DrawEnemy(sf::RenderWindow& Window) const;
 
 private:
-    // Переменные для хранения текущего направления и максимальной дистанции
-    bool bIsMoveRight;
-    bool bIsPlayerDetected;
-    int EnemyHealth;
-    float MinMoveDistance;
-    float MaxMoveDistance;
+    bool bIsMoveRight; ///< Флаг направления движения вправо.
+    bool bIsPlayerDetected; ///< Флаг обнаружения игрока.
 
-    sf::Vector2f EnemyStartPosition;
-    sf::Vector2f EnemyVelocity;
-    sf::FloatRect EnemyRect;
+    float EnemyHealth; ///< Текущее здоровье врага.
+    float MinMoveDistance; ///< Минимальная дистанция движения врага.
+    float MaxMoveDistance; ///< Максимальная дистанция движения врага.
 
-    // Переменная для хранения позиции отрисовки врага
-    sf::Vector2f EnemyDrawPosition;
+    sf::Vector2f EnemyStartPosition; ///< Начальная позиция врага.
+    sf::Vector2f EnemyVelocity; ///< Вектор скорости врага.
+    sf::FloatRect EnemyRect; ///< Прямоугольник коллизии врага.
 
-    sf::Texture* EnemyTexturePtr;
-    sf::Sprite EnemySprite;
+    sf::Vector2f EnemyDrawPosition; ///< Позиция отрисовки врага.
 
-    // TODO Нужен для тестирования обнаружения персонажа, удалить после тестов
-    sf::RectangleShape LineTraceDetectionArea;
+    sf::Texture* EnemyTexturePtr; ///< Указатель на текстуру врага.
+    sf::Sprite EnemySprite; ///< Спрайт врага.
 
-    AHealthBar *EnemyHealthBarPtr;
+    // TODO: Нужен для тестирования обнаружения персонажа, удалить после тестов
+    sf::RectangleShape LineTraceDetectionArea; ///< Прямоугольная область для тестирования обнаружения.
+
+    AHealthBar* EnemyHealthBarPtr; ///< Указатель на полосу здоровья врага.
 };

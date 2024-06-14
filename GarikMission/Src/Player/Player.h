@@ -2,69 +2,75 @@
 #include "../Bullet/Bullet.h"
 #include "../UserInterface/HealthBar.h"
 
-// Forward declaration of ACollisionManager
+// Предварительное объявление (Forward declaration of ACollisionManager)
 class ACollisionManager;
 
+/**
+ * Класс игрока, отвечающий за поведение и состояние персонажа.
+ */
 class APlayer
 {
 public:
-    APlayer();
-    ~APlayer();
+    APlayer();   ///< Конструктор
+    ~APlayer();  ///< Деструктор
     
     // Инициализация персонажа
     void InitPlayer(ASpriteManager& SpriteManager);
 
-    // Обработка выстрелов персонажа
+    // Обработка выстрелов игрока
     void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const;
 
-    // Обработка передвижения персонажа
+    // Обработка движения игрока
     void HandlePlayerMove(float DeltaTime);
 
-    // Обновление передвижения персонажа
-    void UpdatePlayerMove(float DeltaTime, const ACollisionManager& SpriteManager);
-
-    // Обновление шкалы здоровья персонажа
-    void UpdatePlayerHealthBar();
+    // Обновление движения игрока
+    void UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager);
     
-    // Установка скорости персонажа
+private:
+    // Обновление отображения шкалы здоровья игрока
+    void UpdatePlayerHealthBar();
+
+public:
+    // Установка скорости игрока
     void SetPlayerVelocity(const sf::Vector2f& NewVelocity);
 
     // Установка прямоугольника персонажа
     void SetPlayerRect(const sf::FloatRect& NewRect);
 
-    // Установка
+    // Установка максимального здоровья игрока
     void SetPlayerMaxHealth(int NewPlayerHealth);
     
-    // Получения здоровья 
-    int GetPlayerMaxHealth() const;
+    // Получение максимального здоровья игрока
+    float GetPlayerMaxHealth() const;
     
-    // Получение позиции персонажа
+    // Получение текущей позиции игрока
     sf::Vector2f GetPlayerPossition() const;
 
     // Получение прямоугольника персонажа
     sf::FloatRect GetPlayerRect() const;
 
-    // Отрисовка персонажа
+    // Отрисовка игрока на экране
     void DrawPlayer(sf::RenderWindow& Window);
 
 private:
-    bool bCanJump;                       // Может ли игрок прыгать
-    bool bIsMoveRight;                   // Направление движения персонажа
-    int PlayerHealth;                    // Максимальное здоровье персонажа
-    float PlayerSpeed;                   // Скорость персонажа
-    float PlayerJumpSpeed;               // Скорость прыжка персонажа
+    bool bCanJump;                       // Флаг, показывающий, может ли игрок прыгать
+    bool bIsMoveRight;                   // Флаг, указывающий направление движения игрока
+    bool bIsOnLadder;                    // Флаг, указывающий, находится ли игрок на лестнице
+    float PlayerHealth;                  // Текущее здоровье игрока
+    float PlayerSpeed;                   // Скорость перемещения игрока
+    float PlayerJumpSpeed;               // Скорость прыжка игрока
     
-    sf::Vector2f PlayerVelocity;         // Скорость персонажа и направления движения
-    sf::FloatRect PlayerRect;            // Прямоугольник персонажа
-    sf::Vector2f PlayerDrawPosition;     // Позиция для отрисовки персонажа
+    sf::Vector2f PlayerVelocity;         // Текущая скорость и направление движения игрока
+    sf::FloatRect PlayerRect;            // Прямоугольник, ограничивающий персонажа
+    sf::Vector2f PlayerDrawPosition;     // Позиция для отрисовки игрока
     
-    sf::Texture* PlayerTexturePtr;       // Текстура персонажа
+    sf::Texture* PlayerTexturePtr;       // Указатель на текстуру персонажа
     sf::Sprite PlayerSprite;             // Спрайт персонажа
     
-    AHealthBar* HealthBarPtr;            // Указатель на шкалу здоровья
+    AHealthBar* HealthBarPtr;            // Указатель на шкалу здоровья игрока
     sf::Texture* HealthBarTexturePtr;    // Текстура шкалы здоровья
     sf::Sprite HealthBarSprite;          // Спрайт шкалы здоровья
 
-    // TODO для тестов коллизии, потом удалить
-    sf::RectangleShape PlayerRectCollision;  // Прямоугольник для коллизии персонажа
+    // TODO: Для тестирования коллизий, удалить позже
+    sf::RectangleShape PlayerRectCollision;  // Прямоугольная область для коллизий игрока
 };

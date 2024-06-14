@@ -5,48 +5,60 @@
 
 int main()
 {
+    // Создаем главное окно игры с заданными размерами
     sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Garik Mission");
 
+    // Создаем таймер игры
     sf::Clock GameClock;
 
+    // Инициализируем игровое состояние
     AGameState* Game = new AGameState;
     Game->InitGame();
-    
+
+    // Главный цикл игры
     while (Window.isOpen())
     {
-        // Делаем задержку между кадрами, чтобы игра работала на всех компьютерах одинаково
-        sleep(sf::milliseconds(1));
+        // Задержка между кадрами для обеспечения одинаковой скорости на всех устройствах
+        sleep(sf::microseconds(5));
+        
+        // Получаем время прошедшее между кадрами
         float DeltaTime = GameClock.getElapsedTime().asSeconds();
-
-        // Обновляем таймер между кадрами
+        
+        // Сбрасываем таймер для следующего кадра
         GameClock.restart();
 
-        // Проверяем ивенты во время открытия окна
+        // Обрабатываем события окна
         sf::Event event;
         while (Window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
             {
+                // Закрываем окно, если пользователь нажал крестик
                 Window.close();
             }
         }
 
-        // Проверяем какие клавиши нажал Игрок
+        // Обновляем ввод пользователя
         Game->UpdateInput(DeltaTime);
 
-        // Обновлять игровое состояние
+        // Обновляем игровое состояние
         Game->UpdateGameplay(DeltaTime);
-        
-        // Обновлять положение камеры, слежение за играком
+
+        // Обновляем положение камеры, следя за игроком
         Game->UpdateCamera(Window);
 
-        // Очищать экран
+        // Очищаем экран от предыдущего кадра
         Window.clear();
-        
-        // Отрисовываем игру
+
+        // Отрисовываем игровые объекты
         Game->DrawGame(Window);
 
+        // Показываем отрисованные объекты в окне
         Window.display();
     }
+
+    // Освобождаем память, выделенную под игровое состояние
+    delete Game;
+    
     return 0;
 }
