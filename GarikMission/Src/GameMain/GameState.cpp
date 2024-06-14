@@ -140,7 +140,7 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
     // Фокусировка камеры на игроке
     ViewPlayer = Window.getView();
     ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
-    ViewPlayer.setCenter(PlayerPtr->GetPlayerPossition());
+    ViewPlayer.setCenter(PlayerPtr->GetPlayerPosition());
 
     // Установка позиции FPS текста относительно игрока
     FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,

@@ -4,6 +4,7 @@
 
 /**
  * @brief Конструктор класса ACollisionManager.
+ * 
  * @param Player Ссылка на объект игрока.
  * @param GameMap Ссылка на объект игровой карты.
  */
@@ -15,6 +16,7 @@ ACollisionManager::ACollisionManager(APlayer& Player, AGameMap& GameMap)
 
 /**
  * @brief Проверяет столкновение пули с игровой картой.
+ * 
  * @param Bullet Пуля для проверки столкновения.
  * @return true, если есть столкновение, иначе false.
  */
@@ -46,8 +48,10 @@ bool ACollisionManager::CheckBulletCollisionWithGameMap(const ABullet& Bullet) c
 
 /**
  * @brief Проверяет столкновение пули с пешкой (персонажем).
+ * 
  * @param Bullet Пуля для проверки столкновения.
  * @param PawnRect Прямоугольник коллизии пешки.
+ * 
  * @return true, если есть столкновение, иначе false.
  */
 bool ACollisionManager::CheckBulletCollisionWithPawn(const ABullet& Bullet, const sf::FloatRect& PawnRect) const
@@ -58,6 +62,7 @@ bool ACollisionManager::CheckBulletCollisionWithPawn(const ABullet& Bullet, cons
 
 /**
  * @brief Проверяет столкновения всех пуль с препятствиями и врагами.
+ * 
  * @param BulletsVectorPtr Указатель на вектор пуль.
  * @param EnemysVectorPtr Указатель на вектор врагов.
  */
@@ -134,6 +139,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
 
 /**
  * @brief Обрабатывает столкновение игрока с игровой картой.
+ * 
  * @param PawnRect Прямоугольник коллизии игрока.
  * @param ObjectVelocity Вектор скорости объекта игрока.
  * @param bCanJump Может ли игрок прыгать.

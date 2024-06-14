@@ -1,5 +1,12 @@
 ﻿#include "SpriteManager.h"
 
+/**
+ * @brief Устанавливает размер спрайта с заданными шириной и высотой.
+ *
+ * @param Sprite Ссылка на объект спрайта SFML.
+ * @param DesiredWidth Желаемая ширина спрайта.
+ * @param DesiredHeight Желаемая высота спрайта.
+ */
 void ASpriteManager::SetSpriteSize(sf::Sprite& Sprite, const float DesiredWidth, const float DesiredHeight)
 {
     // Получаем локальные границы спрайта
@@ -12,6 +19,13 @@ void ASpriteManager::SetSpriteSize(sf::Sprite& Sprite, const float DesiredWidth,
     Sprite.setScale(Scale);
 }
 
+/**
+ * @brief Устанавливает размер формы с заданными шириной и высотой.
+ *
+ * @param Shape Ссылка на объект формы SFML.
+ * @param DesiredWidth Желаемая ширина формы.
+ * @param DesiredHeight Желаемая высота формы.
+ */
 void ASpriteManager::SetShapeSize(sf::Shape& Shape, const float DesiredWidth, const float DesiredHeight)
 {
     // Получаем локальные границы формы
@@ -24,6 +38,13 @@ void ASpriteManager::SetShapeSize(sf::Shape& Shape, const float DesiredWidth, co
     Shape.setScale(Scale);
 }
 
+/**
+ * @brief Устанавливает относительный центр происхождения спрайта.
+ *
+ * @param Sprite Ссылка на объект спрайта SFML.
+ * @param OriginX Относительная координата X центра происхождения спрайта.
+ * @param OriginY Относительная координата Y центра происхождения спрайта.
+ */
 void ASpriteManager::SetSpriteRelativeOrigin(sf::Sprite& Sprite, const float OriginX, const float OriginY)
 {
     // Получаем локальные границы спрайта
@@ -36,6 +57,13 @@ void ASpriteManager::SetSpriteRelativeOrigin(sf::Sprite& Sprite, const float Ori
     Sprite.setOrigin(Origin);
 }
 
+/**
+ * @brief Устанавливает относительный центр происхождения формы.
+ *
+ * @param Shape Ссылка на объект формы SFML.
+ * @param OriginX Относительная координата X центра происхождения формы.
+ * @param OriginY Относительная координата Y центра происхождения формы.
+ */
 void ASpriteManager::SetShapeRelativeOrigin(sf::Shape& Shape, const float OriginX, const float OriginY)
 {
     // Получаем локальные границы формы

@@ -3,13 +3,13 @@
 
 
 /**
- * Конструктор по умолчанию для класса APlayer.
+ * @brief Конструктор по умолчанию для класса APlayer.
  * Инициализирует начальные значения членов класса.
  */
 APlayer::APlayer()
-    : bCanJump(true)                             // Игрок может прыгать при инициализации
-      , bIsMoveRight(true)                       // Игрок смотрит вправо при инициализации
-      , bIsOnLadder(false)                       // Игрок не на лестнице при инициализации
+    : bCanJump(true)                             // Персонаж может прыгать при инициализации
+      , bIsMoveRight(true)                       // Персонаж смотрит вправо при инициализации
+      , bIsOnLadder(false)                       // Персонаж не на лестнице при инициализации
       , PlayerHealth(400.f)
       , PlayerSpeed(PAWN_SPEED)
       , PlayerJumpSpeed(1500.f)
@@ -18,7 +18,7 @@ APlayer::APlayer()
           100.f, 400.f,
           PLAYER_SIZE.x * DRAW_SCALE.x,
           PLAYER_SIZE.y * DRAW_SCALE.y
-      })                                        // Прямоугольник игрока с учетом масштабирования
+      })                                        // Прямоугольник персонажа с учетом масштабирования
       , PlayerTexturePtr(new sf::Texture)
       , HealthBarTexturePtr(new sf::Texture)
       , HealthBarPtr(new AHealthBar)
@@ -27,7 +27,7 @@ APlayer::APlayer()
 }
 
 /**
- * Деструктор класса APlayer.
+ * @brief Деструктор класса APlayer.
  * Освобождает выделенные ресурсы.
  */
 APlayer::~APlayer()
@@ -38,14 +38,14 @@ APlayer::~APlayer()
 }
 
 /**
- * Инициализация игрока.
+ * @brief Инициализация персонажа.
  * Загружает текстуры и настраивает спрайты и шкалу здоровья.
  * 
  * @param SpriteManager Менеджер спрайтов для управления отображением.
  */
 void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 {
-    // Загрузка текстур игрока и шкалы здоровья
+    // Загрузка текстур персонажа и шкалы здоровья
     assert(PlayerTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/Player.png"));
     assert(HealthBarTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/HealthBarPlayer.png"));
 
@@ -54,24 +54,24 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     HealthBarSprite.setTexture(*HealthBarTexturePtr);
     HealthBarSprite.setScale(0.2f, 0.2f);
 
-    // Создание спрайта игрока
+    // Создание спрайта персонажа
     PlayerSprite.setTexture(*PlayerTexturePtr);
     PlayerSprite.setTextureRect(sf::IntRect(19, 0,
                                             static_cast<int>(PLAYER_SIZE.x),
                                             static_cast<int>(PLAYER_SIZE.y)));
 
-    // Установка масштаба спрайта игрока
+    // Установка масштаба спрайта персонажа
     SpriteManager.SetSpriteSize(PlayerSprite, PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y);
 
-    // Установка центра спрайта игрока
+    // Установка центра спрайта персонажа
     SpriteManager.SetSpriteRelativeOrigin(PlayerSprite, 0.5f, 0.5f);
 
-    // Установка центра прямоугольника коллизии игрока
+    // Установка центра прямоугольника коллизии персонажа
     SpriteManager.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
 }
 
 /**
- * Обработка выстрелов игрока.
+ * @brief Обработка выстрелов персонажа.
  * Создает новый снаряд, если нажата левая кнопка мыши.
  * 
  * @param BulletsVectorPtr Указатель на вектор снарядов для добавления нового снаряда.
@@ -93,8 +93,8 @@ void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASprit
 }
 
 /**
- * Обработка движения игрока.
- * Устанавливает скорость игрока в зависимости от нажатых клавиш.
+ * @brief Обработка движения персонажа.
+ * Устанавливает скорость персонажа в зависимости от нажатых клавиш.
  * 
  * @param DeltaTime Время, прошедшее с предыдущего кадра.
  */
@@ -146,39 +146,39 @@ void APlayer::HandlePlayerMove(float DeltaTime)
 }
 
 /**
- * Обновление позиции и состояния игрока.
+ * @brief Обновление позиции и состояния персонажа.
  * Включает в себя обработку гравитации и проверку столкновений с объектами.
  * 
  * @param DeltaTime Время, прошедшее с предыдущего кадра.
- * @param CollisionManager Менеджер коллизий для обработки столкновений игрока с объектами карты.
+ * @param CollisionManager Менеджер коллизий для обработки столкновений персонажа с объектами карты.
  */
 void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager)
 {
-    // Применение гравитации для падения игрока
+    // Применение гравитации для падения персонажа
     PlayerVelocity.y += GRAVITY * DeltaTime;
 
-    // Обновление позиции игрока на основе скорости
+    // Обновление позиции персонажа на основе скорости
     PlayerRect.left += PlayerVelocity.x;
     PlayerRect.top -= PlayerVelocity.y;
 
-    // Обработка столкновений игрока с объектами карты
+    // Обработка столкновений персонажа с объектами карты
     CollisionManager.HandlePlayerCollisionWithGameMap(PlayerRect, PlayerVelocity, bCanJump, bIsOnLadder);
 
-    // Обновление позиции спрайта игрока и его коллизии
+    // Обновление позиции спрайта персонажа и его коллизии
     PlayerDrawPosition = {
         PlayerRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
         PlayerRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f
     };
 
-    // Установка позиции спрайта игрока
+    // Установка позиции спрайта персонажа
     PlayerSprite.setPosition(PlayerDrawPosition);
 
-    // Установка позиции прямоугольника коллизии игрока
+    // Установка позиции прямоугольника коллизии персонажа
     PlayerRectCollision.setPosition(PlayerDrawPosition);
 }
 
 /**
- * Обновление состояния шкалы здоровья игрока.
+ * @brief Обновление состояния шкалы здоровья персонажа.
  * Рассчитывает текущее состояние шкалы и её положение на экране.
  */
 void APlayer::UpdatePlayerHealthBar()
@@ -196,9 +196,9 @@ void APlayer::UpdatePlayerHealthBar()
 }
 
 /**
- * Установка новой скорости игрока.
+ * @brief Установка новой скорости персонажа.
  * 
- * @param NewVelocity Новая скорость игрока.
+ * @param NewVelocity Новая скорость персонажа.
  */
 void APlayer::SetPlayerVelocity(const sf::Vector2f& NewVelocity)
 {
@@ -206,7 +206,7 @@ void APlayer::SetPlayerVelocity(const sf::Vector2f& NewVelocity)
 }
 
 /**
- * Установка нового прямоугольника коллизии для игрока.
+ * @brief Установка нового прямоугольника коллизии для персонажа.
  * 
  * @param NewRect Новый прямоугольник коллизии.
  */
@@ -216,7 +216,7 @@ void APlayer::SetPlayerRect(const sf::FloatRect& NewRect)
 }
 
 /**
- * Установка нового максимального значения здоровья игрока.
+ * @brief Установка нового максимального значения здоровья персонажа.
  * 
  * @param NewPlayerHealth Новое максимальное значение здоровья.
  */
@@ -226,9 +226,9 @@ void APlayer::SetPlayerMaxHealth(int NewPlayerHealth)
 }
 
 /**
- * Получение текущего значения здоровья игрока.
+ * @brief Получение текущего значения здоровья персонажа.
  * 
- * @return Текущее значение здоровья игрока.
+ * @return Текущее значение здоровья персонажа.
  */
 float APlayer::GetPlayerMaxHealth() const
 {
@@ -236,19 +236,19 @@ float APlayer::GetPlayerMaxHealth() const
 }
 
 /**
- * Получение текущей позиции игрока.
+ * @brief Получение текущей позиции персонажа.
  * 
- * @return Текущая позиция игрока.
+ * @return Текущая позиция персонажа.
  */
-sf::Vector2f APlayer::GetPlayerPossition() const
+sf::Vector2f APlayer::GetPlayerPosition() const
 {
     return PlayerDrawPosition;
 }
 
 /**
- * Получение текущего прямоугольника коллизии игрока.
+ * @brief Получение текущего прямоугольника коллизии персонажа.
  * 
- * @return Текущий прямоугольник коллизии игрока.
+ * @return Текущий прямоугольник коллизии персонажа.
  */
 sf::FloatRect APlayer::GetPlayerRect() const
 {
@@ -256,14 +256,14 @@ sf::FloatRect APlayer::GetPlayerRect() const
 }
 
 /**
- * Отрисовка игрока на экране.
- * Отображает спрайт игрока, его коллизию и шкалу здоровья.
+ * @brief Отрисовка персонажа на экране.
+ * Отображает спрайт персонажа, его коллизию и шкалу здоровья.
  * 
  * @param Window Окно, на котором происходит отрисовка.
  */
 void APlayer::DrawPlayer(sf::RenderWindow& Window)
 {
-    // Отрисовка спрайта и коллизии игрока
+    // Отрисовка спрайта и коллизии персонажа
     Window.draw(PlayerRectCollision);
     Window.draw(PlayerSprite);
 

@@ -1,11 +1,19 @@
 ﻿#include "GameMap.h"
 #include <iostream>
 
+/**
+ * @brief Конструктор класса AGameMap.
+ *
+ * @param Player Ссылка на объект игрока.
+ */
 AGameMap::AGameMap(APlayer& Player)
     : PlayerRef(Player)
 {
 }
 
+/**
+ * @brief Деструктор класса AGameMap.
+ */
 AGameMap::~AGameMap()
 {
     // Очищаем контейнер с текстурами
@@ -18,10 +26,13 @@ AGameMap::~AGameMap()
     LadderCollisionLayer.clear();
 }
 
+/**
+ * @brief Инициализация игровой карты.
+ *
+ * Метод загружает карту, тайлсеты и настраивает слои коллизий и лестницы.
+ */
 void AGameMap::InitGameMap()
 {
-    // Инициализация игровой карты.
-
     // TODO: Изменить в будущем значение, на фактическое количество коллизий карты и лестниц в игре
     int ReserveCollisionCapacity = 100;
     GameMapCollisionLayer.reserve(ReserveCollisionCapacity); // Резервируем память для коллизионного слоя
@@ -34,6 +45,11 @@ void AGameMap::InitGameMap()
     ProcessCollisionLayers(GameMap);
 }
 
+/**
+ * @brief Загрузка текстур тайлсетов карты.
+ *
+ * @param GameMap Константная ссылка на объект карты TMX.
+ */
 void AGameMap::LoadTilesets(const tmx::Map& GameMap)
 {
     // Загрузка текстур тайлсетов
@@ -53,6 +69,11 @@ void AGameMap::LoadTilesets(const tmx::Map& GameMap)
     }
 }
 
+/**
+ * @brief Проверка и обработка тайловых слоев карты.
+ *
+ * @param GameMap Константная ссылка на объект карты TMX.
+ */
 void AGameMap::CheckLayers(const tmx::Map& GameMap)
 {
     // Проверка и обработка тайловых слоев
@@ -65,6 +86,11 @@ void AGameMap::CheckLayers(const tmx::Map& GameMap)
     }
 }
 
+/**
+ * @brief Обработка тайлового слоя карты.
+ *
+ * @param TileLayerPtr Указатель на тайловый слой карты TMX.
+ */
 void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
 {
     // Обработка тайлового слоя
@@ -136,6 +162,11 @@ void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
     }
 }
 
+/**
+ * @brief Обработка объектных слоев карты для получения коллизий и лестниц.
+ *
+ * @param GameMap Константная ссылка на объект карты TMX.
+ */
 void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
 {
     // Обработка объектных слоев
@@ -167,18 +198,32 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
     }
 }
 
+/**
+ * @brief Получение вектора коллизий игровой карты.
+ *
+ * @return Вектор коллизий игровой карты.
+ */
 std::vector<sf::FloatRect> AGameMap::GetGameMapCollisionVector() const
 {
-    // Возвращает вектор коллизий
     return GameMapCollisionLayer;
 }
 
+/**
+ * @brief Получение вектора лестниц игровой карты.
+ *
+ * @return Вектор лестниц игровой карты.
+ */
 std::vector<sf::FloatRect> AGameMap::GetLadderCollisionVector() const
 {
-    // Возвращает вектор лестниц
     return LadderCollisionLayer;
 }
 
+/**
+ * @brief Отрисовка игровой карты на окне.
+ *
+ * @param Window Ссылка на окно SFML для отрисовки.
+ * @param View Ссылка на вид SFML для установки вида карты.
+ */
 void AGameMap::DrawGameMap(sf::RenderWindow& Window, const sf::View &View) const
 {
     // Отрисовка карты    

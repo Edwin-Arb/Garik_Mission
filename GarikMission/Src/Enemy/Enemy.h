@@ -119,24 +119,24 @@ public:
     void DrawEnemy(sf::RenderWindow& Window) const;
 
 private:
-    bool bIsMoveRight; ///< Флаг направления движения вправо.
-    bool bIsPlayerDetected; ///< Флаг обнаружения игрока.
+    bool bIsMoveRight;                             // Флаг направления движения вправо.
+    bool bIsPlayerDetected;                        // Флаг обнаружения игрока.
 
-    float EnemyHealth; ///< Текущее здоровье врага.
-    float MinMoveDistance; ///< Минимальная дистанция движения врага.
-    float MaxMoveDistance; ///< Максимальная дистанция движения врага.
+    float EnemyHealth;                             // Текущее здоровье врага.
+    float MinMoveDistance;                         // Минимальная дистанция движения врага.
+    float MaxMoveDistance;                         // Максимальная дистанция движения врага.
 
-    sf::Vector2f EnemyStartPosition; ///< Начальная позиция врага.
-    sf::Vector2f EnemyVelocity; ///< Вектор скорости врага.
-    sf::FloatRect EnemyRect; ///< Прямоугольник коллизии врага.
+    sf::Vector2f EnemyStartPosition;               // Начальная позиция врага.
+    sf::Vector2f EnemyVelocity;                    // Вектор скорости врага.
+    sf::FloatRect EnemyRect;                       // Прямоугольник коллизии врага.
 
-    sf::Vector2f EnemyDrawPosition; ///< Позиция отрисовки врага.
+    sf::Vector2f EnemyDrawPosition;                // Позиция отрисовки врага.
 
-    sf::Texture* EnemyTexturePtr; ///< Указатель на текстуру врага.
-    sf::Sprite EnemySprite; ///< Спрайт врага.
+    sf::Texture* EnemyTexturePtr;                  // Указатель на текстуру врага.
+    sf::Sprite EnemySprite;                        // Спрайт врага.
 
     // TODO: Нужен для тестирования обнаружения персонажа, удалить после тестов
-    sf::RectangleShape LineTraceDetectionArea; ///< Прямоугольная область для тестирования обнаружения.
+    sf::RectangleShape LineTraceDetectionArea;     // Прямоугольная область для тестирования обнаружения.
 
-    AHealthBar* EnemyHealthBarPtr; ///< Указатель на полосу здоровья врага.
+    AHealthBar* EnemyHealthBarPtr;                 // Указатель на полосу здоровья врага.
 };

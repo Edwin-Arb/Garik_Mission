@@ -4,73 +4,63 @@
 
 
 /**
- * Класс AGameState представляет текущее состояние игры.
+ * @brief Класс AGameState представляет текущее состояние игры.
  * Он управляет инициализацией игры, обновлением ввода, игрового процесса, камеры и отрисовкой.
  */
 class AGameState
 {
 public:
     /**
-     * Конструктор класса AGameState.
+     * @brief Конструктор класса AGameState.
      */
     AGameState();
 
     /**
-     * Деструктор класса AGameState.
+     * @brief Деструктор класса AGameState.
      */
     ~AGameState();
 
     /**
-     * Инициализирует начальное состояние игры, включая игровые объекты и менеджеры.
+     * @brief Инициализирует начальное состояние игры, включая игровые объекты и менеджеры.
      */
     void InitGame();
 
     /**
-     * Обновляет ввод пользователя.
+     * @brief Обновляет ввод пользователя.
      * @param DeltaTime Время, прошедшее с последнего кадра.
      */
     void UpdateInput(float DeltaTime);
 
     /**
-     * Обновляет игровой процесс, включая физику и логику объектов.
+     * @brief Обновляет игровой процесс, включая физику и логику объектов.
      * @param DeltaTime Время, прошедшее с последнего кадра.
      */
     void UpdateGameplay(float DeltaTime);
 
     /**
-     * Обновляет камеру игры в зависимости от положения игрока.
+     * @brief Обновляет камеру игры в зависимости от положения игрока.
      * @param Window Окно для отрисовки игры.
      */
     void UpdateCamera(sf::RenderWindow& Window);
 
     /**
-     * Отрисовывает текущее состояние игры в окне.
+     * @brief Отрисовывает текущее состояние игры в окне.
      * @param Window Окно для отрисовки игры.
      */
     void DrawGame(sf::RenderWindow& Window) const;
 
 private:
-    // Для размеров окна игры
-    sf::FloatRect ScreenRect;
-    
-    // Динамические классы для основы игры
-    APlayer* PlayerPtr;
+    sf::FloatRect ScreenRect;                       // Для размеров окна игры
+ 
+    APlayer* PlayerPtr;                             // Динамические классы для основы игры
     AGameMap *GameMapPtr;
     std::vector<AEnemy*> EnemysVectorPtr;
     std::vector<ABullet*> BulletsVectorPtr;
-
-    // Для обработки страйта объектов
-    ASpriteManager* SpriteManagerPtr;
-
-    // Для проверок коллизии
-    ACollisionManager* CollisionManagerPtr;
-
-    // Для отображения кадров в игре
-    AFpsManager *FpsManagerPtr;
-    
-    // Для создания интервала между выстрелами
-    sf::Clock DelayShotTimerHandle;
-
-    // Камера, чтобы сфокусироваться на игроке
-    sf::View ViewPlayer;
+ 
+    ASpriteManager* SpriteManagerPtr;               // Для обработки страйта объектов
+    ACollisionManager* CollisionManagerPtr;         // Для проверок коллизии
+    AFpsManager *FpsManagerPtr;                     // Для отображения кадров в игре
+ 
+    sf::Clock DelayShotTimerHandle;                 // Для создания интервала между выстрелами
+    sf::View ViewPlayer;                            // Камера, чтобы сфокусироваться на игроке
 };

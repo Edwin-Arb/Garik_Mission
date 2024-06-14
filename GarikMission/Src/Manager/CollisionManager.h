@@ -29,6 +29,7 @@ private:
      * @brief Проверяет столкновение пули с игровой картой.
      * 
      * @param Bullet Пуля для проверки.
+     * 
      * @return true, если есть столкновение с игровой картой, иначе false.
      */
     bool CheckBulletCollisionWithGameMap(const ABullet& Bullet) const;
@@ -38,6 +39,7 @@ private:
      * 
      * @param Bullet Пуля для проверки.
      * @param PawnRect Прямоугольник объекта для проверки.
+     * 
      * @return true, если есть столкновение с объектом, иначе false.
      */
     bool CheckBulletCollisionWithPawn(const ABullet& Bullet, const sf::FloatRect& PawnRect) const;
@@ -63,6 +65,6 @@ public:
                                           bool& bCanClimb) const;
 
 private:
-    APlayer& PlayerRef; // Ссылка на игрока.
+    APlayer& PlayerRef;   // Ссылка на игрока.
     AGameMap& GameMapRef; // Ссылка на игровую карту.
 };

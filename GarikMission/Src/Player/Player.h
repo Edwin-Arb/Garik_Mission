@@ -6,50 +6,105 @@
 class ACollisionManager;
 
 /**
- * Класс игрока, отвечающий за поведение и состояние персонажа.
+ * @brief Класс игрока, отвечающий за поведение и состояние персонажа.
  */
 class APlayer
 {
 public:
-    APlayer();   ///< Конструктор
-    ~APlayer();  ///< Деструктор
-    
-    // Инициализация персонажа
+    /**
+     * @brief Конструктор по умолчанию для класса APlayer.
+     */
+    APlayer();
+
+    /**
+     * @brief Деструктор класса APlayer.
+     */
+    ~APlayer();
+
+    /**
+     * @brief Инициализация персонажа.
+     *
+     * @param SpriteManager Менеджер спрайтов для загрузки текстур.
+     */
     void InitPlayer(ASpriteManager& SpriteManager);
 
-    // Обработка выстрелов игрока
-    void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& RendererSprite) const;
+    /**
+     * @brief Обработка выстрелов игрока.
+     *
+     * @param BulletsVectorPtr Указатель на вектор пуль для добавления новой пули.
+     * @param SpriteManager Менеджер спрайтов для загрузки текстур.
+     */
+    void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const;
 
-    // Обработка движения игрока
+    /**
+     * @brief Обработка движения игрока.
+     *
+     * @param DeltaTime Время, прошедшее между последними кадрами.
+     */
     void HandlePlayerMove(float DeltaTime);
 
-    // Обновление движения игрока
+    /**
+     * @brief Обновление движения игрока.
+     *
+     * @param DeltaTime Время, прошедшее между последними кадрами.
+     * @param CollisionManager Менеджер коллизий для обработки столкновений с игровыми объектами.
+     */
     void UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager);
     
 private:
-    // Обновление отображения шкалы здоровья игрока
+    /**
+     * @brief Обновление отображения шкалы здоровья игрока.
+     */
     void UpdatePlayerHealthBar();
 
 public:
-    // Установка скорости игрока
+    /**
+     * @briefУстановка скорости игрока.
+     *
+     * @param NewVelocity Новая скорость игрока.
+     */
     void SetPlayerVelocity(const sf::Vector2f& NewVelocity);
 
-    // Установка прямоугольника персонажа
+    /**
+     * @brief Установка прямоугольника персонажа.
+     *
+     * @param NewRect Новый прямоугольник, ограничивающий персонажа.
+     */
     void SetPlayerRect(const sf::FloatRect& NewRect);
 
-    // Установка максимального здоровья игрока
+    /**
+     * @brief Установка максимального здоровья игрока.
+     *
+     * @param NewPlayerHealth Новое максимальное здоровье игрока.
+     */
     void SetPlayerMaxHealth(int NewPlayerHealth);
     
-    // Получение максимального здоровья игрока
+    /**
+     * @brief Получение максимального здоровья игрока.
+     *
+     * @return  Максимальное здоровье игрока.
+     */
     float GetPlayerMaxHealth() const;
     
-    // Получение текущей позиции игрока
-    sf::Vector2f GetPlayerPossition() const;
+    /**
+     * @brief Получение текущей позиции игрока.
+     *
+     * @return  Текущая позиция игрока.
+     */
+    sf::Vector2f GetPlayerPosition() const;
 
-    // Получение прямоугольника персонажа
+    /**
+     * @brief Получение прямоугольника, ограничивающего персонажа.
+     *
+     * @return  Прямоугольник, ограничивающий персонажа.
+     */
     sf::FloatRect GetPlayerRect() const;
 
-    // Отрисовка игрока на экране
+    /**
+     * @brief Отрисовка игрока на экране.
+     *
+     * @param Window Окно, в котором происходит отрисовка.
+     */
     void DrawPlayer(sf::RenderWindow& Window);
 
 private:
