@@ -6,6 +6,11 @@
  *
  * @param Player Ссылка на объект игрока.
  */
+// AGameMap::AGameMap(APlayer& Player)
+//     : PlayerRef(Player)
+// {
+// }
+
 AGameMap::AGameMap(APlayer& Player)
     : PlayerRef(Player)
 {

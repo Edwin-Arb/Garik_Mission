@@ -54,6 +54,7 @@ ABullet::~ABullet()
  * @brief Проверка коллизии пули с прямоугольником.
  * 
  * @param TargetRect Прямоугольник цели.
+ * 
  * @return true, если произошла коллизия, иначе false.
  */
 bool ABullet::CheckCollision(const sf::FloatRect& TargetRect) const

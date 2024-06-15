@@ -20,7 +20,7 @@ public:
     /**
      * @brief Конструктор класса.
      *
-     * @param Player Ссылка на объект игрока.
+     * @param Player Ссылка на объект персонажа.
      */
     AGameMap(APlayer& Player);
 
@@ -91,7 +91,7 @@ public:
 
 private:
 
-    APlayer& PlayerRef;                                         // Ссылка на объект игрока
+    APlayer& PlayerRef;                                         // Ссылка на объект персонажа
 
     tmx::Map GameMap;                                           // Объект карты из tmx
 

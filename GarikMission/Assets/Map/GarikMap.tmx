@@ -80,7 +80,6 @@
   <object id="12" x="0" y="31.5" width="32" height="558"/>
  </objectgroup>
  <objectgroup id="5" name="Ladders">
-  <object id="62" x="162" y="272" width="28" height="238"/>
   <object id="65" x="764" y="159" width="37" height="258"/>
   <object id="68" x="324" y="271" width="93" height="177"/>
  </objectgroup>

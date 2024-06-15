@@ -5,12 +5,12 @@
 /**
  * @brief Конструктор класса ACollisionManager.
  * 
- * @param Player Ссылка на объект игрока.
+ * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
  */
 ACollisionManager::ACollisionManager(APlayer& Player, AGameMap& GameMap)
     : PlayerRef(Player)
-      , GameMapRef(GameMap)
+    , GameMapRef(GameMap)
 {
 }
 
@@ -67,7 +67,7 @@ bool ACollisionManager::CheckBulletCollisionWithPawn(const ABullet& Bullet, cons
  * @param EnemysVectorPtr Указатель на вектор врагов.
  */
 void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr,
-                                                 std::vector<AEnemy*>& EnemysVectorPtr) const
+                                                 std::vector<AEnemy*>& EnemysVectorPtr, APlayer& PlayerPtr) const
 {
     // Векторы для хранения пуль и врагов для удаления из основных векторов
     std::vector<ABullet*> BulletsToRemove;
@@ -82,13 +82,13 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
             BulletsToRemove.emplace_back(Bullet); // Добавляем пулю для удаления
         }
 
-        // Проверяем столкновение с игроком
-        if (CheckBulletCollisionWithPawn(*Bullet, PlayerRef.GetPlayerRect()) &&
+        // Проверяем столкновение с персонажем
+        if (CheckBulletCollisionWithPawn(*Bullet, PlayerPtr.GetPlayerRect()) &&
             Bullet->GetBulletType() == EBulletType::EBT_ShootAtPlayer)
         {
             BulletsToRemove.emplace_back(Bullet); // Добавляем пулю для удаления
 
-            // TODO: Уменьшаем здоровье игрока, пока он не умрет
+            // TODO: Уменьшаем здоровье персонажа, пока он не умрет
             if (PlayerRef.GetPlayerMaxHealth() > DEATH)
             {
                 PlayerRef.SetPlayerMaxHealth(Bullet->GetBulletDamage());
@@ -138,19 +138,19 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
 }
 
 /**
- * @brief Обрабатывает столкновение игрока с игровой картой.
+ * @brief Обрабатывает столкновение персонажа с игровой картой.
  * 
- * @param PawnRect Прямоугольник коллизии игрока.
- * @param ObjectVelocity Вектор скорости объекта игрока.
- * @param bCanJump Может ли игрок прыгать.
- * @param bCanClimb Может ли игрок карабкаться.
+ * @param PawnRect Прямоугольник коллизии персонажа.
+ * @param ObjectVelocity Вектор скорости объекта персонажа.
+ * @param bCanJump Может ли персонаж прыгать.
+ * @param bCanClimb Может ли персонаж карабкаться.
  */
 void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
                                                          bool& bCanJump, bool& bCanClimb) const
 {
     bCanClimb = false;
 
-    // Проверяем столкнование игрока с препятствиями игровой карты
+    // Проверяем столкнование персонажа с препятствиями игровой карты
     for (const auto& Obstacle : GameMapRef.GetGameMapCollisionVector())
     {
         if (PawnRect.intersects(Obstacle))
@@ -172,19 +172,19 @@ void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect
             // Если перекрытие по X меньше, чем по Y, это горизонтальное столкновение
             if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
             {
-                // Корректируем положение игрока по X
+                // Корректируем положение персонажа по X
                 PawnRect.left += FromLeft ? -OverlapLeft : OverlapRight;
-                // Останавливаем горизонтальное движение игрока
+                // Останавливаем горизонтальное движение персонажа
                 ObjectVelocity.x = 0.f;
             }
             else // В противном случае это вертикальное столкновение
             {
-                // Корректируем положение игрока по Y
+                // Корректируем положение персонажа по Y
                 PawnRect.top += FromTop ? -OverlapTop : OverlapBottom;
-                // Останавливаем вертикальное движение игрока
+                // Останавливаем вертикальное движение персонажа
                 ObjectVelocity.y = 0.f;
 
-                // Если игрок коснулся земли сверху, он может прыгать
+                // Если персонаж коснулся земли сверху, он может прыгать
                 if (FromTop)
                 {
                     bCanJump = true;
@@ -193,7 +193,7 @@ void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect
         }
     }
 
-    // Проверяем, находится ли игрок на лестнице
+    // Проверяем, находится ли персонаж на лестнице
     for (const auto& Ladder : GameMapRef.GetLadderCollisionVector())
     {
         if (PawnRect.intersects(Ladder))

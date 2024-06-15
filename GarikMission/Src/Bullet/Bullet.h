@@ -2,7 +2,7 @@
 #include "../Manager/SpriteManager.h"
 
 /**
- * Перечисление, определяющее различные типы пуль.
+ * @brief Перечисление, определяющее различные типы пуль.
  */
 enum class EBulletType
 {
@@ -20,6 +20,7 @@ class ABullet
 public:
     /**
      * @brief Конструктор для инициализации пули.
+     * 
      * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
      * @param ShootAt Тип цели, на которую направлена пуля.
      * @param StartPosition Начальная позиция пули.
@@ -35,44 +36,53 @@ public:
 
     /**
      * @brief Проверяет столкновение пули с целью.
+     * 
      * @param TargetRect Ограничивающий прямоугольник цели для проверки столкновения.
+     * 
      * @return true, если пуля сталкивается с целью, иначе false.
      */
     bool CheckCollision(const sf::FloatRect& TargetRect) const;
 
     /**
      * @brief Обновляет позицию пули на основе прошедшего времени.
+     * 
      * @param DeltaTime Время, прошедшее с последнего обновления.
      */
     void UpdateBulletPosition(float DeltaTime);
 
     /**
      * @brief Возвращает урон, наносимый пулей.
+     * 
      * @return Значение урона пули.
      */
     int GetBulletDamage() const;
 
     /**
      * @brief Возвращает ограничивающий прямоугольник пули.
+     * 
      * @return Ограничивающий прямоугольник пули.
      */
     sf::FloatRect GetBulletCollider() const;
 
     /**
      * @brief Возвращает тип пули.
+     * 
      * @return Тип пули (EBulletType).
      */
     EBulletType GetBulletType() const;
 
     /**
      * @brief Отрисовывает пулю на указанном окне отрисовки.
+     * 
      * @param Window Окно отрисовки, на котором отображается пуля.
      */
     void DrawBullet(sf::RenderWindow& Window) const;
 
 private:
     int BulletDamage;                        // Урон, наносимый пулей.
+ 
     EBulletType BulletType;                  // Тип пули (игрок или враг).
+ 
     sf::Vector2f BulletVelocity;             // Вектор скорости пули.
     sf::FloatRect BulletRect;                // Прямоугольник столкновения пули.
     sf::Texture* BulletTexturePtr;           // Указатель на текстуру пули.

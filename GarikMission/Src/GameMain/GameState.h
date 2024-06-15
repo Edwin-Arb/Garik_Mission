@@ -38,7 +38,7 @@ public:
     void UpdateGameplay(float DeltaTime);
 
     /**
-     * @brief Обновляет камеру игры в зависимости от положения игрока.
+     * @brief Обновляет камеру игры в зависимости от положения персонажа.
      * @param Window Окно для отрисовки игры.
      */
     void UpdateCamera(sf::RenderWindow& Window);
@@ -62,5 +62,8 @@ private:
     AFpsManager *FpsManagerPtr;                     // Для отображения кадров в игре
  
     sf::Clock DelayShotTimerHandle;                 // Для создания интервала между выстрелами
-    sf::View ViewPlayer;                            // Камера, чтобы сфокусироваться на игроке
+    sf::View ViewPlayer;                            // Камера, чтобы сфокусироваться на персонаже
+
+    // TODO: Тест абстрактного класс
+    AActor *ActorsPtr;
 };

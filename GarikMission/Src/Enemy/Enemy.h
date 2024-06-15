@@ -3,12 +3,13 @@
 #include "../Player/Player.h"
 #include "../GameMap/GameMap.h"
 #include "../UserInterface/HealthBar.h"
+#include "../Abstract/AActor.h"
 
 
 /**
  * @brief Класс, представляющий врага в игре.
  */
-class AEnemy
+class AEnemy : public AActor
 {
 public:
     /**
@@ -22,7 +23,7 @@ public:
     /**
      * @brief Деструктор врага.
      */
-    ~AEnemy();
+    //~AEnemy();
     
     /**
      * @brief Инициализация врага.
@@ -51,9 +52,9 @@ public:
                                     const sf::Vector2f& DrawScale);
 
     /**
-     * @brief Обнаружение игрока в окрестности.
+     * @brief Обнаружение персонажаа в окрестности.
      * 
-     * @param Player Ссылка на объект игрока.
+     * @param Player Ссылка на объект персонажа.
      * @param GameMap Ссылка на объект игровой карты.
      */
     void DetectPlayer(const APlayer& Player, const AGameMap& GameMap);
@@ -62,7 +63,7 @@ public:
      * @brief Обновление направления и скорости врага.
      * 
      * @param DeltaTime Время, прошедшее с последнего обновления.
-     * @param Player Ссылка на объект игрока.
+     * @param Player Ссылка на объект персонажа.
      */
     void UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player);
 
@@ -72,7 +73,7 @@ public:
     void UpdatePosition();
 
     /**
-     * @brief Обновление позиции зоны обнаружения игрока.
+     * @brief Обновление позиции зоны обнаружения персонажа.
      */
     void UpdateDetectionAreaPosition();
 
@@ -85,7 +86,7 @@ public:
      * @brief Обновление движения врага.
      * 
      * @param DeltaTime Время, прошедшее с последнего обновления.
-     * @param Player Ссылка на объект игрока.
+     * @param Player Ссылка на объект персонажа.
      * @param GameMap Ссылка на объект игровой карты.
      */
     void UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap);
@@ -116,18 +117,20 @@ public:
      * 
      * @param Window Окно, в котором происходит отрисовка.
      */
-    void DrawEnemy(sf::RenderWindow& Window) const;
+    //void DrawEnemy(sf::RenderWindow& Window) const;
+
+    void DrawActor(sf::RenderWindow &Window) override;
 
 private:
     bool bIsMoveRight;                             // Флаг направления движения вправо.
-    bool bIsPlayerDetected;                        // Флаг обнаружения игрока.
+    bool bIsPlayerDetected;                        // Флаг обнаружения персонажа.
 
     float EnemyHealth;                             // Текущее здоровье врага.
     float MinMoveDistance;                         // Минимальная дистанция движения врага.
     float MaxMoveDistance;                         // Максимальная дистанция движения врага.
 
     sf::Vector2f EnemyStartPosition;               // Начальная позиция врага.
-    sf::Vector2f EnemyVelocity;                    // Вектор скорости врага.
+    //sf::Vector2f EnemyVelocity;                    // Вектор скорости врага.
     sf::FloatRect EnemyRect;                       // Прямоугольник коллизии врага.
 
     sf::Vector2f EnemyDrawPosition;                // Позиция отрисовки врага.

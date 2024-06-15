@@ -49,7 +49,7 @@ AGameState::~AGameState()
 /**
  * @brief Инициализация игры.
  * 
- * Загружает игровую карту, игрока, врагов и устанавливает FPS.
+ * Загружает игровую карту, персонажа, врагов и устанавливает FPS.
  */
 void AGameState::InitGame()
 {
@@ -87,7 +87,7 @@ void AGameState::UpdateInput(float DeltaTime)
     float ElapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
     if (ElapsedSeconds >= 0.1f)
     {
-        // Выстрел игрока при нажатии левой кнопки мыши
+        // Выстрел персонажа при нажатии левой кнопки мыши
         PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
 
         // Выстрел врага при обнаружении персонажа
@@ -124,7 +124,7 @@ void AGameState::UpdateGameplay(float DeltaTime)
     }
 
     // Проверка столкновений пуль
-    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemysVectorPtr);
+    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemysVectorPtr, *PlayerPtr);
 
     // Обновление отображения FPS
     FpsManagerPtr->UpdateFpsText(DeltaTime);
@@ -142,7 +142,7 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
     ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
     ViewPlayer.setCenter(PlayerPtr->GetPlayerPosition());
 
-    // Установка позиции FPS текста относительно игрока
+    // Установка позиции FPS текста относительно персонажа
     FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
                                                    ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) + 10.f));
 
@@ -159,13 +159,13 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
     // Отрисовка карты
     GameMapPtr->DrawGameMap(Window, ViewPlayer);
 
-    // Отрисовка игрока
+    // Отрисовка персонажа
     PlayerPtr->DrawPlayer(Window);
 
     // Отрисовка врагов
     for (auto Enemy : EnemysVectorPtr)
     {
-        Enemy->DrawEnemy(Window);
+        Enemy->DrawActor(Window);
     }
 
     // Отрисовка пуль

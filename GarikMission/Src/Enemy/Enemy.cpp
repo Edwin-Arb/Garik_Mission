@@ -14,7 +14,7 @@ AEnemy::AEnemy(const float EnemyMaxHealth, const sf::Vector2f& StartPosition)
     , MinMoveDistance(100.f)
     , MaxMoveDistance(400.f)
     , EnemyStartPosition(StartPosition)
-    , EnemyVelocity{0.f, 0.f}
+    //, Velocity{0.f, 0.f}
     , EnemyRect{StartPosition.x, StartPosition.y,
                 (ENEMY_SIZE.x * DRAW_SCALE.x),
                 (ENEMY_SIZE.y * DRAW_SCALE.y)}
@@ -27,11 +27,11 @@ AEnemy::AEnemy(const float EnemyMaxHealth, const sf::Vector2f& StartPosition)
 /**
  * @brief Деструктор врага.
  */
-AEnemy::~AEnemy()
-{
-    delete EnemyTexturePtr;
-    delete EnemyHealthBarPtr;
-}
+// AEnemy::~AEnemy()
+// {
+//     delete EnemyTexturePtr;
+//     delete EnemyHealthBarPtr;
+// }
 
 /**
  * @brief Инициализация врага.
@@ -64,14 +64,14 @@ void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 }
 
 /**
- * @brief Враг открывает огонь в сторону игрока.
+ * @brief Враг открывает огонь в сторону персонажа.
  * 
  * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
  * @param SpriteManager Менеджер спрайтов для управления спрайтами.
  */
 void AEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const
 {
-    // Выстрел из оружия, если игрок обнаружен
+    // Выстрел из оружия, если персонаж обнаружен
     if (bIsPlayerDetected)
     {
         const float SpawnBulletOffsetX = bIsMoveRight ? 85.f : 0.f;
@@ -102,17 +102,17 @@ void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
 }
 
 /**
- * @brief Обнаружение игрока в окрестности.
+ * @brief Обнаружение персонажа в окрестности.
  * 
- * @param Player Ссылка на объект игрока.
+ * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
  */
 void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
 {
-    // Изначально предполагаем, что игрок не обнаружен
+    // Изначально предполагаем, что персонаж не обнаружен
     bIsPlayerDetected = false;
 
-    // Проверка обнаружения игрока
+    // Проверка обнаружения персонажа
     if (LineTraceDetectionArea.getGlobalBounds().intersects(Player.GetPlayerRect()))
     {
         bIsPlayerDetected = true;
@@ -131,25 +131,25 @@ void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
  * @brief Обновление направления и скорости врага.
  * 
  * @param DeltaTime Время, прошедшее с последнего обновления.
- * @param Player Ссылка на объект игрока.
+ * @param Player Ссылка на объект персонажа.
  */
 void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
 {
-    // Если игрок обнаружен и не блокируется препятствием, разворачиваем врага в сторону игрока
+    // Если персонаж обнаружен и не блокируется препятствием, разворачиваем врага в сторону персонажа
     if (bIsPlayerDetected)
     {
-        EnemyVelocity.x = 0.f;
+        Velocity.x = 0.f;
 
-        // Определяем направление игрока относительно врага
+        // Определяем направление персонажа относительно врага
         if (Player.GetPlayerRect().left < EnemyRect.left)
         {
-            // Игрок слева от врага
+            // персонаж слева от врага
             bIsMoveRight = false;
             EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
         else
         {
-            // Игрок справа от врага
+            // персонаж справа от врага
             bIsMoveRight = true;
             EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
@@ -159,12 +159,12 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
         // Движение влево или вправо в зависимости от текущего направления    
         if (bIsMoveRight)
         {
-            EnemyVelocity.x = 200.f * DeltaTime;
+            Velocity.x = 200.f * DeltaTime;
             EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
         else
         {
-            EnemyVelocity.x = -200.f * DeltaTime;
+            Velocity.x = -200.f * DeltaTime;
             EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
     }
@@ -175,14 +175,14 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
  */
 void AEnemy::UpdatePosition()
 {
-    EnemyRect.left += EnemyVelocity.x;
-    EnemyRect.top -= EnemyVelocity.y;
+    EnemyRect.left += Velocity.x;
+    EnemyRect.top -= Velocity.y;
     // EnemyRect.width = EnemyRect.left + (ENEMY_SIZE.x * DRAW_SCALE.x);
     // EnemyRect.height = EnemyRect.top + (ENEMY_SIZE.y * DRAW_SCALE.y);
 }
 
 /**
- * @brief Обновление позиции зоны обнаружения игрока.
+ * @brief Обновление позиции зоны обнаружения персонажа.
  */
 void AEnemy::UpdateDetectionAreaPosition()
 {
@@ -207,7 +207,7 @@ void AEnemy::UpdateMoveDistance()
     const float DistanceMoved = EnemyRect.left - EnemyStartPosition.x;
     if (DistanceMoved >= MaxMoveDistance || DistanceMoved <= -MinMoveDistance)
     {
-        // Меняем направление движения только если игрок не обнаружен
+        // Меняем направление движения только если персонаж не обнаружен
         if (!bIsPlayerDetected)
         {
             bIsMoveRight = !bIsMoveRight;
@@ -219,7 +219,7 @@ void AEnemy::UpdateMoveDistance()
  * @brief Обновление движения врага.
  * 
  * @param DeltaTime Время, прошедшее с последнего обновления.
- * @param Player Ссылка на объект игрока.
+ * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
  */
 void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap)
@@ -274,12 +274,7 @@ sf::FloatRect AEnemy::GetEnemyRect() const
     return EnemyRect;
 }
 
-/**
- * @brief Отрисовка врага на экране.
- * 
- * @param Window Окно, в котором происходит отрисовка.
- */
-void AEnemy::DrawEnemy(sf::RenderWindow& Window) const
+void AEnemy::DrawActor(sf::RenderWindow& Window)
 {
     Window.draw(LineTraceDetectionArea);
     Window.draw(EnemySprite);
@@ -287,3 +282,17 @@ void AEnemy::DrawEnemy(sf::RenderWindow& Window) const
     // Отрисовать шкалу здоровья врага
     EnemyHealthBarPtr->Draw(Window);
 }
+
+/**
+ * @brief Отрисовка врага на экране.
+ * 
+ * @param Window Окно, в котором происходит отрисовка.
+ */
+// void AEnemy::DrawEnemy(sf::RenderWindow& Window) const
+// {
+//     Window.draw(LineTraceDetectionArea);
+//     Window.draw(EnemySprite);
+//
+//     // Отрисовать шкалу здоровья врага
+//     EnemyHealthBarPtr->Draw(Window);
+// }

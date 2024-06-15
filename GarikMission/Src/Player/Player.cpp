@@ -125,14 +125,16 @@ void APlayer::HandlePlayerMove(float DeltaTime)
             PlayerVelocity.y = PlayerSpeed * DeltaTime;
         }
     }
+
+    // TODO: Возможно придёться убрать, так как есть гравитация, и спуск по лестнице бесмысленный
     // Движение вниз (спуск по лестнице)
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    {
-        if (bIsOnLadder)
-        {
-            PlayerVelocity.y = -PlayerSpeed * DeltaTime;
-        }
-    }
+    // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    // {
+    //     if (bIsOnLadder)
+    //     {
+    //         PlayerVelocity.y = -PlayerSpeed * DeltaTime;
+    //     }
+    // }
 
     // Прыжок
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))

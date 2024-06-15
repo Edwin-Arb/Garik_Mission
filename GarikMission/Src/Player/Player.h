@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../Abstract/AActor.h"
 #include "../Bullet/Bullet.h"
 #include "../UserInterface/HealthBar.h"
 
@@ -6,7 +7,7 @@
 class ACollisionManager;
 
 /**
- * @brief Класс игрока, отвечающий за поведение и состояние персонажа.
+ * @brief Класс персонажа, отвечающий за поведение и состояние персонажа.
  */
 class APlayer
 {
@@ -29,7 +30,7 @@ public:
     void InitPlayer(ASpriteManager& SpriteManager);
 
     /**
-     * @brief Обработка выстрелов игрока.
+     * @brief Обработка выстрелов персонажа.
      *
      * @param BulletsVectorPtr Указатель на вектор пуль для добавления новой пули.
      * @param SpriteManager Менеджер спрайтов для загрузки текстур.
@@ -37,14 +38,14 @@ public:
     void HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const;
 
     /**
-     * @brief Обработка движения игрока.
+     * @brief Обработка движения персонажа.
      *
      * @param DeltaTime Время, прошедшее между последними кадрами.
      */
     void HandlePlayerMove(float DeltaTime);
 
     /**
-     * @brief Обновление движения игрока.
+     * @brief Обновление движения персонажа.
      *
      * @param DeltaTime Время, прошедшее между последними кадрами.
      * @param CollisionManager Менеджер коллизий для обработки столкновений с игровыми объектами.
@@ -53,15 +54,15 @@ public:
     
 private:
     /**
-     * @brief Обновление отображения шкалы здоровья игрока.
+     * @brief Обновление отображения шкалы здоровья персонажа.
      */
     void UpdatePlayerHealthBar();
 
 public:
     /**
-     * @briefУстановка скорости игрока.
+     * @briefУстановка скорости персонажа.
      *
-     * @param NewVelocity Новая скорость игрока.
+     * @param NewVelocity Новая скорость персонажа.
      */
     void SetPlayerVelocity(const sf::Vector2f& NewVelocity);
 
@@ -73,23 +74,23 @@ public:
     void SetPlayerRect(const sf::FloatRect& NewRect);
 
     /**
-     * @brief Установка максимального здоровья игрока.
+     * @brief Установка максимального здоровья персонажа.
      *
-     * @param NewPlayerHealth Новое максимальное здоровье игрока.
+     * @param NewPlayerHealth Новое максимальное здоровье персонажа.
      */
     void SetPlayerMaxHealth(int NewPlayerHealth);
     
     /**
-     * @brief Получение максимального здоровья игрока.
+     * @brief Получение максимального здоровья персонажа.
      *
-     * @return  Максимальное здоровье игрока.
+     * @return  Максимальное здоровье персонажа.
      */
     float GetPlayerMaxHealth() const;
     
     /**
-     * @brief Получение текущей позиции игрока.
+     * @brief Получение текущей позиции персонажа.
      *
-     * @return  Текущая позиция игрока.
+     * @return  Текущая позиция персонажа.
      */
     sf::Vector2f GetPlayerPosition() const;
 
@@ -101,7 +102,7 @@ public:
     sf::FloatRect GetPlayerRect() const;
 
     /**
-     * @brief Отрисовка игрока на экране.
+     * @brief Отрисовка персонажа на экране.
      *
      * @param Window Окно, в котором происходит отрисовка.
      */
@@ -109,23 +110,23 @@ public:
 
 private:
     bool bCanJump;                       // Флаг, показывающий, может ли игрок прыгать
-    bool bIsMoveRight;                   // Флаг, указывающий направление движения игрока
+    bool bIsMoveRight;                   // Флаг, указывающий направление движения персонажа
     bool bIsOnLadder;                    // Флаг, указывающий, находится ли игрок на лестнице
-    float PlayerHealth;                  // Текущее здоровье игрока
-    float PlayerSpeed;                   // Скорость перемещения игрока
-    float PlayerJumpSpeed;               // Скорость прыжка игрока
+    float PlayerHealth;                  // Текущее здоровье персонажа
+    float PlayerSpeed;                   // Скорость перемещения персонажа
+    float PlayerJumpSpeed;               // Скорость прыжка персонажа
     
-    sf::Vector2f PlayerVelocity;         // Текущая скорость и направление движения игрока
+    sf::Vector2f PlayerVelocity;         // Текущая скорость и направление движения персонажа
     sf::FloatRect PlayerRect;            // Прямоугольник, ограничивающий персонажа
-    sf::Vector2f PlayerDrawPosition;     // Позиция для отрисовки игрока
+    sf::Vector2f PlayerDrawPosition;     // Позиция для отрисовки персонажа
     
     sf::Texture* PlayerTexturePtr;       // Указатель на текстуру персонажа
     sf::Sprite PlayerSprite;             // Спрайт персонажа
     
-    AHealthBar* HealthBarPtr;            // Указатель на шкалу здоровья игрока
+    AHealthBar* HealthBarPtr;            // Указатель на шкалу здоровья персонажа
     sf::Texture* HealthBarTexturePtr;    // Текстура шкалы здоровья
     sf::Sprite HealthBarSprite;          // Спрайт шкалы здоровья
 
     // TODO: Для тестирования коллизий, удалить позже
-    sf::RectangleShape PlayerRectCollision;  // Прямоугольная область для коллизий игрока
+    sf::RectangleShape PlayerRectCollision;  // Прямоугольная область для коллизий персонажа
 };
