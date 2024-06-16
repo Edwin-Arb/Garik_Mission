@@ -9,7 +9,7 @@ class ACollisionManager;
 /**
  * @brief Класс персонажа, отвечающий за поведение и состояние персонажа.
  */
-class APlayer
+class APlayer : public AActor
 {
 public:
     /**
@@ -20,7 +20,7 @@ public:
     /**
      * @brief Деструктор класса APlayer.
      */
-    ~APlayer();
+    ~APlayer() override;
 
     /**
      * @brief Инициализация персонажа.
@@ -60,20 +60,6 @@ private:
 
 public:
     /**
-     * @briefУстановка скорости персонажа.
-     *
-     * @param NewVelocity Новая скорость персонажа.
-     */
-    void SetPlayerVelocity(const sf::Vector2f& NewVelocity);
-
-    /**
-     * @brief Установка прямоугольника персонажа.
-     *
-     * @param NewRect Новый прямоугольник, ограничивающий персонажа.
-     */
-    void SetPlayerRect(const sf::FloatRect& NewRect);
-
-    /**
      * @brief Установка максимального здоровья персонажа.
      *
      * @param NewPlayerHealth Новое максимальное здоровье персонажа.
@@ -86,27 +72,13 @@ public:
      * @return  Максимальное здоровье персонажа.
      */
     float GetPlayerMaxHealth() const;
-    
-    /**
-     * @brief Получение текущей позиции персонажа.
-     *
-     * @return  Текущая позиция персонажа.
-     */
-    sf::Vector2f GetPlayerPosition() const;
-
-    /**
-     * @brief Получение прямоугольника, ограничивающего персонажа.
-     *
-     * @return  Прямоугольник, ограничивающий персонажа.
-     */
-    sf::FloatRect GetPlayerRect() const;
 
     /**
      * @brief Отрисовка персонажа на экране.
      *
      * @param Window Окно, в котором происходит отрисовка.
      */
-    void DrawPlayer(sf::RenderWindow& Window);
+    void DrawActor(sf::RenderWindow& Window) override;
 
 private:
     bool bCanJump;                       // Флаг, показывающий, может ли игрок прыгать
@@ -115,14 +87,7 @@ private:
     float PlayerHealth;                  // Текущее здоровье персонажа
     float PlayerSpeed;                   // Скорость перемещения персонажа
     float PlayerJumpSpeed;               // Скорость прыжка персонажа
-    
-    sf::Vector2f PlayerVelocity;         // Текущая скорость и направление движения персонажа
-    sf::FloatRect PlayerRect;            // Прямоугольник, ограничивающий персонажа
-    sf::Vector2f PlayerDrawPosition;     // Позиция для отрисовки персонажа
-    
-    sf::Texture* PlayerTexturePtr;       // Указатель на текстуру персонажа
-    sf::Sprite PlayerSprite;             // Спрайт персонажа
-    
+       
     AHealthBar* HealthBarPtr;            // Указатель на шкалу здоровья персонажа
     sf::Texture* HealthBarTexturePtr;    // Текстура шкалы здоровья
     sf::Sprite HealthBarSprite;          // Спрайт шкалы здоровья

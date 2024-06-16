@@ -9,29 +9,29 @@
  */
 AEnemy::AEnemy(const float EnemyMaxHealth, const sf::Vector2f& StartPosition)
     : bIsMoveRight(true)
-    , bIsPlayerDetected(false)
-    , EnemyHealth(EnemyMaxHealth)
-    , MinMoveDistance(100.f)
-    , MaxMoveDistance(400.f)
-    , EnemyStartPosition(StartPosition)
-    //, Velocity{0.f, 0.f}
-    , EnemyRect{StartPosition.x, StartPosition.y,
-                (ENEMY_SIZE.x * DRAW_SCALE.x),
-                (ENEMY_SIZE.y * DRAW_SCALE.y)}
-    , EnemyTexturePtr(new sf::Texture)
-    , LineTraceDetectionArea(sf::Vector2f{400.f, 100.f}) // Ширина и высота detection area
-    , EnemyHealthBarPtr(new AHealthBar)
+      , bIsPlayerDetected(false)
+      , EnemyHealth(EnemyMaxHealth)
+      , MinMoveDistance(100.f)
+      , MaxMoveDistance(400.f)
+      , EnemyStartPosition(StartPosition)
+      , LineTraceDetectionArea(sf::Vector2f{400.f, 100.f}) // Ширина и высота detection area
+      , EnemyHealthBarPtr(new AHealthBar)
 {
+    ActorCollisionRect = {
+        StartPosition.x, StartPosition.y,
+        (ENEMY_SIZE.x * DRAW_SCALE.x),
+        (ENEMY_SIZE.y * DRAW_SCALE.y)
+    };
 }
 
 /**
  * @brief Деструктор врага.
  */
-// AEnemy::~AEnemy()
-// {
-//     delete EnemyTexturePtr;
-//     delete EnemyHealthBarPtr;
-// }
+AEnemy::~AEnemy()
+{
+    //delete EnemyTexturePtr;
+    delete EnemyHealthBarPtr;
+}
 
 /**
  * @brief Инициализация врага.
@@ -40,20 +40,14 @@ AEnemy::AEnemy(const float EnemyMaxHealth, const sf::Vector2f& StartPosition)
  */
 void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
-    // Подгрузить текстуру из папки для персонажа
-    assert(EnemyTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/enemy.png"));
-
-    // Создать спрайт персонажа и установить его текстуру и прямоугольник
-    EnemySprite.setTexture(*EnemyTexturePtr);
-    EnemySprite.setTextureRect(sf::IntRect(4, 1,
-                                           static_cast<int>(ENEMY_SIZE.x),
-                                           static_cast<int>(ENEMY_SIZE.y)));
-
-    // Установить масштаб персонажа
-    SpriteManager.SetSpriteSize(EnemySprite, ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y);
-
+    // Инициализировать текстуру для врага и создать спрайт для него
+    InitActorTexture(ASSETS_PATH + "MainTiles/Enemy.png",
+                    sf::IntRect(4, 1,
+                    static_cast<int>(ENEMY_SIZE.x),
+                    static_cast<int>(ENEMY_SIZE.y)),
+                 {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y}, {0.5f, 0.5f}, SpriteManager);
+    
     // Установить центр спрайта и коллизии
-    SpriteManager.SetSpriteRelativeOrigin(EnemySprite, 0.5f, 0.5f);
     SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
 
     // Отрисовать прямоугольник коллизии для визуализации (отключить после проверки)
@@ -77,8 +71,8 @@ void AEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager&
         const float SpawnBulletOffsetX = bIsMoveRight ? 85.f : 0.f;
         constexpr float SpawnBulletOffsetY = 75.f;
         BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtPlayer,
-                                                  sf::Vector2f(EnemyRect.left + SpawnBulletOffsetX,
-                                                               EnemyRect.top + SpawnBulletOffsetY),
+                                                  sf::Vector2f(ActorCollisionRect.left + SpawnBulletOffsetX,
+                                                               ActorCollisionRect.top + SpawnBulletOffsetY),
                                                   SpriteManager));
     }
 }
@@ -94,7 +88,7 @@ void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
                                         const sf::Vector2f& EnemySize,
                                         const sf::Vector2f& DrawScale)
 {
-    EnemyDrawPosition =
+    ActorDrawPosition =
     {
         EnemyRectRef.left + (EnemySize.x * DrawScale.x) / 2.f,
         EnemyRectRef.top + (EnemySize.y * DrawScale.y) / 2.f
@@ -113,7 +107,7 @@ void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
     bIsPlayerDetected = false;
 
     // Проверка обнаружения персонажа
-    if (LineTraceDetectionArea.getGlobalBounds().intersects(Player.GetPlayerRect()))
+    if (LineTraceDetectionArea.getGlobalBounds().intersects(Player.GetActorCollisionRect()))
     {
         bIsPlayerDetected = true;
         for (const auto& Obstacle : GameMap.GetGameMapCollisionVector())
@@ -138,20 +132,20 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
     // Если персонаж обнаружен и не блокируется препятствием, разворачиваем врага в сторону персонажа
     if (bIsPlayerDetected)
     {
-        Velocity.x = 0.f;
+        ActorVelocity.x = 0.f;
 
         // Определяем направление персонажа относительно врага
-        if (Player.GetPlayerRect().left < EnemyRect.left)
+        if (Player.GetActorCollisionRect().left < ActorCollisionRect.left)
         {
             // персонаж слева от врага
             bIsMoveRight = false;
-            EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+            ActorSprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
         else
         {
             // персонаж справа от врага
             bIsMoveRight = true;
-            EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+            ActorSprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
     }
     else
@@ -159,13 +153,13 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
         // Движение влево или вправо в зависимости от текущего направления    
         if (bIsMoveRight)
         {
-            Velocity.x = 200.f * DeltaTime;
-            EnemySprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+            ActorVelocity.x = 200.f * DeltaTime;
+            ActorSprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
         else
         {
-            Velocity.x = -200.f * DeltaTime;
-            EnemySprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+            ActorVelocity.x = -200.f * DeltaTime;
+            ActorSprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
     }
 }
@@ -175,8 +169,8 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
  */
 void AEnemy::UpdatePosition()
 {
-    EnemyRect.left += Velocity.x;
-    EnemyRect.top -= Velocity.y;
+    ActorCollisionRect.left += ActorVelocity.x;
+    ActorCollisionRect.top -= ActorVelocity.y;
     // EnemyRect.width = EnemyRect.left + (ENEMY_SIZE.x * DRAW_SCALE.x);
     // EnemyRect.height = EnemyRect.top + (ENEMY_SIZE.y * DRAW_SCALE.y);
 }
@@ -186,7 +180,7 @@ void AEnemy::UpdatePosition()
  */
 void AEnemy::UpdateDetectionAreaPosition()
 {
-    sf::Vector2f DetectionPosition = EnemyDrawPosition;
+    sf::Vector2f DetectionPosition = ActorDrawPosition;
     if (bIsMoveRight)
     {
         DetectionPosition.x += (ENEMY_SIZE.x * DRAW_SCALE.x) / 2.f;
@@ -204,7 +198,7 @@ void AEnemy::UpdateDetectionAreaPosition()
 void AEnemy::UpdateMoveDistance()
 {
     // Проверка достижения максимальной или минимальной дистанции
-    const float DistanceMoved = EnemyRect.left - EnemyStartPosition.x;
+    const float DistanceMoved = ActorCollisionRect.left - EnemyStartPosition.x;
     if (DistanceMoved >= MaxMoveDistance || DistanceMoved <= -MinMoveDistance)
     {
         // Меняем направление движения только если персонаж не обнаружен
@@ -232,15 +226,15 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
 
     // TODO Нужна, чтобы установить положение каждого врага отдельно.
     // TODO Позже переместиться в постоянную обработку Геймплея игры
-    CalculateEnemyDrawPosition(EnemyRect, ENEMY_SIZE, DRAW_SCALE);
+    CalculateEnemyDrawPosition(ActorCollisionRect, ENEMY_SIZE, DRAW_SCALE);
 
     // Установить положение спрайта и прямоугольника коллизии с положением врага в игре
-    EnemySprite.setPosition(EnemyDrawPosition);
-    LineTraceDetectionArea.setPosition(EnemyDrawPosition);
+    ActorSprite.setPosition(ActorDrawPosition);
+    LineTraceDetectionArea.setPosition(ActorDrawPosition);
 
     // TODO test health
     // Устанавливаем положение шкалы здоровья чуть выше врага
-    EnemyHealthBarPtr->SetPosition(EnemyDrawPosition - sf::Vector2f(0.f, 80.f));
+    EnemyHealthBarPtr->SetPosition(ActorDrawPosition - sf::Vector2f(0.f, 80.f));
     EnemyHealthBarPtr->Update(EnemyHealth, 400);
 }
 
@@ -265,34 +259,15 @@ float AEnemy::GetEnemyHealth() const
 }
 
 /**
- * @brief Получение прямоугольника коллизии врага.
- * 
- * @return Прямоугольник коллизии врага.
- */
-sf::FloatRect AEnemy::GetEnemyRect() const
-{
-    return EnemyRect;
-}
-
+* @brief Отрисовка врага на экране.
+* 
+* @param Window Окно, в котором происходит отрисовка.
+*/
 void AEnemy::DrawActor(sf::RenderWindow& Window)
 {
     Window.draw(LineTraceDetectionArea);
-    Window.draw(EnemySprite);
+    Window.draw(ActorSprite);
 
     // Отрисовать шкалу здоровья врага
     EnemyHealthBarPtr->Draw(Window);
 }
-
-/**
- * @brief Отрисовка врага на экране.
- * 
- * @param Window Окно, в котором происходит отрисовка.
- */
-// void AEnemy::DrawEnemy(sf::RenderWindow& Window) const
-// {
-//     Window.draw(LineTraceDetectionArea);
-//     Window.draw(EnemySprite);
-//
-//     // Отрисовать шкалу здоровья врага
-//     EnemyHealthBarPtr->Draw(Window);
-// }

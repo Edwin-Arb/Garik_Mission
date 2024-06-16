@@ -23,14 +23,14 @@ public:
     /**
      * @brief Деструктор врага.
      */
-    //~AEnemy();
+    ~AEnemy() override;
     
     /**
      * @brief Инициализация врага.
      * 
      * @param SpriteManager Менеджер спрайтов для загрузки ресурсов.
      */
-    void InitEnemy(ASpriteManager& SpriteManager);
+     void InitEnemy(ASpriteManager &SpriteManager);
 
     /**
      * @brief Враг открывает огонь.
@@ -104,21 +104,12 @@ public:
      * @return Текущее здоровье врага.
      */
     float GetEnemyHealth() const;
-
-    /**
-     * @brief Получение прямоугольника коллизии врага.
-     * 
-     * @return Прямоугольник коллизии врага.
-     */
-    sf::FloatRect GetEnemyRect() const;
-
+ 
     /**
      * @brief Отрисовка врага на экране.
      * 
      * @param Window Окно, в котором происходит отрисовка.
      */
-    //void DrawEnemy(sf::RenderWindow& Window) const;
-
     void DrawActor(sf::RenderWindow &Window) override;
 
 private:
@@ -130,14 +121,7 @@ private:
     float MaxMoveDistance;                         // Максимальная дистанция движения врага.
 
     sf::Vector2f EnemyStartPosition;               // Начальная позиция врага.
-    //sf::Vector2f EnemyVelocity;                    // Вектор скорости врага.
-    sf::FloatRect EnemyRect;                       // Прямоугольник коллизии врага.
-
-    sf::Vector2f EnemyDrawPosition;                // Позиция отрисовки врага.
-
-    sf::Texture* EnemyTexturePtr;                  // Указатель на текстуру врага.
-    sf::Sprite EnemySprite;                        // Спрайт врага.
-
+ 
     // TODO: Нужен для тестирования обнаружения персонажа, удалить после тестов
     sf::RectangleShape LineTraceDetectionArea;     // Прямоугольная область для тестирования обнаружения.
 

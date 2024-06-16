@@ -159,6 +159,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Src\Abstract\AActor.cpp" />
+    <ClCompile Include="Src\Abstract\APawn.cpp" />
     <ClCompile Include="Src\Bullet\Bullet.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -629,6 +630,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Abstract\AActor.h" />
+    <ClInclude Include="Src\Abstract\APawn.h" />
     <ClInclude Include="Src\Bullet\Bullet.h" />
     <ClInclude Include="Src\Constants.h" />
     <ClInclude Include="Src\Enemy\Enemy.h" />

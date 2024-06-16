@@ -15,6 +15,7 @@ AGameState::AGameState()
       CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr)),
       FpsManagerPtr(new AFpsManager)
 {
+    PlayerPtr->InitPlayer(*SpriteManagerPtr);
 }
 
 /**
@@ -140,7 +141,7 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
     // Фокусировка камеры на игроке
     ViewPlayer = Window.getView();
     ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
-    ViewPlayer.setCenter(PlayerPtr->GetPlayerPosition());
+    ViewPlayer.setCenter(PlayerPtr->GetActorPosition());
 
     // Установка позиции FPS текста относительно персонажа
     FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
@@ -160,7 +161,7 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
     GameMapPtr->DrawGameMap(Window, ViewPlayer);
 
     // Отрисовка персонажа
-    PlayerPtr->DrawPlayer(Window);
+    PlayerPtr->DrawActor(Window);
 
     // Отрисовка врагов
     for (auto Enemy : EnemysVectorPtr)
@@ -171,7 +172,7 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
     // Отрисовка пуль
     for (auto Bullet : BulletsVectorPtr)
     {
-        Bullet->DrawBullet(Window);
+        Bullet->DrawActor(Window);
     }
 
     // Отрисовка FPS

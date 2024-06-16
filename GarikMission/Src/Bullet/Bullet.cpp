@@ -1,43 +1,20 @@
 ﻿#include "Bullet.h"
 
 /**
- * @brief Конструктор пули.
+ * @brief Конструктор для инициализации пули.
  * 
- * @param NewVelocity Указывает направление движения пули (true - вправо, false - влево).
- * @param ShootAt Тип пули (стрелять в игрока или во врага).
+ * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+ * @param ShootAt Тип цели, на которую направлена пуля.
  * @param StartPosition Начальная позиция пули.
- * @param RendererSprite Менеджер спрайтов для обработки спрайтов пули.
+ * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
  */
-
 // TODO: Испраавить EBulletType &ShootAt название аргумента конструтора
-ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::Vector2f& StartPosition, ASpriteManager& RendererSprite)
+ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager)
     : BulletDamage(BULLET_DAMAGE)
     , BulletType(ShootAt)
-    , BulletTexturePtr(new sf::Texture)
+    , SpriteManagerPtr(new ASpriteManager)
 {
-    // Установить направление, откуда начать движение
-    BulletVelocity.x = NewVelocity ? BULLET_SPEED : -BULLET_SPEED;
-
-    // Устанавливаем размер коллизии для пули
-    BulletRect = {StartPosition.x, StartPosition.y, BULLET_SIZE.x * DRAW_SCALE.x, BULLET_SIZE.y * DRAW_SCALE.y};
-
-    // Получить файл текстуры
-    assert(BulletTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/Bullets.png"));
-
-    // Установить спрайт для пули
-    BulletSprite.setTexture(*BulletTexturePtr);
-    BulletSprite.setTextureRect(sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x),
-                                            static_cast<int>(BULLET_SIZE.y)));
-
-    // Установить масштаб пули
-    RendererSprite.SetSpriteSize(BulletSprite, BULLET_SIZE.x * (DRAW_SCALE.x - 3),
-                                 BULLET_SIZE.y * (DRAW_SCALE.y - 3));
-
-    // Установить центр спрайта
-    RendererSprite.SetSpriteRelativeOrigin(BulletSprite, 0.5f, 0.5f);
-
-    // Задать стартовую позицию пули
-    BulletSprite.setPosition(StartPosition.x, StartPosition.y);
+    InitBullet(NewVelocity, StartPosition, SpriteManager);
 }
 
 /**
@@ -47,19 +24,32 @@ ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::V
  */
 ABullet::~ABullet()
 {
-    delete BulletTexturePtr; // Освобождаем память, выделенную под текстуру пули
+    delete SpriteManagerPtr;
 }
 
 /**
- * @brief Проверка коллизии пули с прямоугольником.
+ * @brief Инициализирует текструру и создаёт спрайт для пули.
  * 
- * @param TargetRect Прямоугольник цели.
- * 
- * @return true, если произошла коллизия, иначе false.
+ * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+ * @param StartPosition Начальная позиция пули.
+ * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
  */
-bool ABullet::CheckCollision(const sf::FloatRect& TargetRect) const
+void ABullet::InitBullet(const bool NewVelocity, const sf::Vector2f& StartPosition,  ASpriteManager &SpriteManager)
 {
-    return BulletRect.intersects(TargetRect);
+    // Установить направление, откуда начать движение
+    ActorVelocity.x = NewVelocity ? BULLET_SPEED : -BULLET_SPEED;
+
+    // Устанавливаем размер коллизии для пули
+    ActorCollisionRect = {StartPosition.x, StartPosition.y, BULLET_SIZE.x * DRAW_SCALE.x, BULLET_SIZE.y * DRAW_SCALE.y};
+
+    // Инициализировать текстуру для пули и создать спрайт для неё
+    InitActorTexture(ASSETS_PATH + "MainTiles/Bullets.png",
+                    sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y)),
+                    {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)},
+                    {0.5f, 0.5f}, *SpriteManagerPtr);
+
+    // Задать стартовую позицию пули
+    ActorSprite.setPosition(StartPosition.x, StartPosition.y);
 }
 
 /**
@@ -70,11 +60,11 @@ bool ABullet::CheckCollision(const sf::FloatRect& TargetRect) const
 void ABullet::UpdateBulletPosition(float DeltaTime)
 {
     // Обновляем положение пули с учетом скорости и времени
-    BulletRect.left += BulletVelocity.x * DeltaTime;
-    BulletRect.top -= BulletVelocity.y * DeltaTime;
+    ActorCollisionRect.left += ActorVelocity.x * DeltaTime;
+    ActorCollisionRect.top -= ActorVelocity.y * DeltaTime;
 
     // Устанавливаем положение спрайта с коллизией
-    BulletSprite.setPosition(BulletRect.left, BulletRect.top);
+    ActorSprite.setPosition(ActorCollisionRect.left, ActorCollisionRect.top);
 }
 
 /**
@@ -85,16 +75,6 @@ void ABullet::UpdateBulletPosition(float DeltaTime)
 int ABullet::GetBulletDamage() const
 {
     return BulletDamage;
-}
-
-/**
- * @brief Получение прямоугольника коллизии пули.
- * 
- * @return Прямоугольник коллизии пули.
- */
-sf::FloatRect ABullet::GetBulletCollider() const
-{
-    return BulletRect;
 }
 
 /**
@@ -112,7 +92,7 @@ EBulletType ABullet::GetBulletType() const
  * 
  * @param Window Окно для отрисовки.
  */
-void ABullet::DrawBullet(sf::RenderWindow& Window) const
+void ABullet::DrawActor(sf::RenderWindow& Window)
 {
-    Window.draw(BulletSprite);
+    Window.draw(ActorSprite);
 }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../Abstract/AActor.h"
 #include "../Manager/SpriteManager.h"
 
 /**
@@ -15,7 +16,7 @@ enum class EBulletType
  * Пуля может двигаться с заданной скоростью, проверять коллизии
  * с другими объектами и отрисовываться на экране.
  */
-class ABullet
+class ABullet : public AActor
 {
 public:
     /**
@@ -24,24 +25,24 @@ public:
      * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
      * @param ShootAt Тип цели, на которую направлена пуля.
      * @param StartPosition Начальная позиция пули.
-     * @param RendererSprite Ссылка на менеджер спрайтов для отрисовки.
+     * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
      */
-    ABullet(const bool NewVelocity, const EBulletType& ShootAt, const sf::Vector2f& StartPosition,
-            ASpriteManager& RendererSprite);
+    ABullet(const bool NewVelocity, const EBulletType& ShootAt,
+            const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager);
 
     /**
      * @brief Деструктор для освобождения ресурсов.
      */
-    ~ABullet();
+    ~ABullet() override;
 
     /**
-     * @brief Проверяет столкновение пули с целью.
+     * @brief Инициализирует текструру и создаёт спрайт для пули.
      * 
-     * @param TargetRect Ограничивающий прямоугольник цели для проверки столкновения.
-     * 
-     * @return true, если пуля сталкивается с целью, иначе false.
+     * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+     * @param StartPosition Начальная позиция пули.
+     * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
      */
-    bool CheckCollision(const sf::FloatRect& TargetRect) const;
+    void InitBullet(bool NewVelocity, const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager);
 
     /**
      * @brief Обновляет позицию пули на основе прошедшего времени.
@@ -58,13 +59,6 @@ public:
     int GetBulletDamage() const;
 
     /**
-     * @brief Возвращает ограничивающий прямоугольник пули.
-     * 
-     * @return Ограничивающий прямоугольник пули.
-     */
-    sf::FloatRect GetBulletCollider() const;
-
-    /**
      * @brief Возвращает тип пули.
      * 
      * @return Тип пули (EBulletType).
@@ -76,15 +70,10 @@ public:
      * 
      * @param Window Окно отрисовки, на котором отображается пуля.
      */
-    void DrawBullet(sf::RenderWindow& Window) const;
+    void DrawActor(sf::RenderWindow& Window) override;
 
 private:
-    int BulletDamage;                        // Урон, наносимый пулей.
- 
-    EBulletType BulletType;                  // Тип пули (игрок или враг).
- 
-    sf::Vector2f BulletVelocity;             // Вектор скорости пули.
-    sf::FloatRect BulletRect;                // Прямоугольник столкновения пули.
-    sf::Texture* BulletTexturePtr;           // Указатель на текстуру пули.
-    sf::Sprite BulletSprite;                 // Спрайт, представляющий пулю.
+    int BulletDamage;                 // Урон, наносимый пулей.
+    EBulletType BulletType;           // Тип пули (игрок или враг).
+    ASpriteManager* SpriteManagerPtr; // Указатель на менеджер спрайтов.
 };

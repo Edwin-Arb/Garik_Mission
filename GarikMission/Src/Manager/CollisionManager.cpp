@@ -26,10 +26,10 @@ bool ACollisionManager::CheckBulletCollisionWithGameMap(const ABullet& Bullet) c
     for (const auto& Collision : GameMapRef.GetGameMapCollisionVector())
     {
         // Проверяем, пересекается ли коллайдер пули с текущим объектом коллизии
-        if (Bullet.GetBulletCollider().left < Collision.left + Collision.width &&
-            Bullet.GetBulletCollider().left > Collision.left &&
-            Bullet.GetBulletCollider().top < Collision.top + Collision.height &&
-            Bullet.GetBulletCollider().top > Collision.top)
+        if (Bullet.GetActorCollisionRect().left < Collision.left + Collision.width &&
+            Bullet.GetActorCollisionRect().left > Collision.left &&
+            Bullet.GetActorCollisionRect().top < Collision.top + Collision.height &&
+            Bullet.GetActorCollisionRect().top > Collision.top)
         {
             return true; // Столкновение обнаружено
         }
@@ -57,7 +57,7 @@ bool ACollisionManager::CheckBulletCollisionWithGameMap(const ABullet& Bullet) c
 bool ACollisionManager::CheckBulletCollisionWithPawn(const ABullet& Bullet, const sf::FloatRect& PawnRect) const
 {
     // Проверяем, пересекается ли коллайдер пули с прямоугольником пешки
-    return Bullet.GetBulletCollider().intersects(PawnRect);
+    return Bullet.GetActorCollisionRect().intersects(PawnRect);
 }
 
 /**
@@ -83,7 +83,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
         }
 
         // Проверяем столкновение с персонажем
-        if (CheckBulletCollisionWithPawn(*Bullet, PlayerPtr.GetPlayerRect()) &&
+        if (CheckBulletCollisionWithPawn(*Bullet, PlayerPtr.GetActorCollisionRect()) &&
             Bullet->GetBulletType() == EBulletType::EBT_ShootAtPlayer)
         {
             BulletsToRemove.emplace_back(Bullet); // Добавляем пулю для удаления
@@ -99,7 +99,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
         for (AEnemy* Enemy : EnemysVectorPtr)
         {
             // Проверяем столкновение с врагом
-            if (CheckBulletCollisionWithPawn(*Bullet, Enemy->GetEnemyRect()) &&
+            if (CheckBulletCollisionWithPawn(*Bullet, Enemy->GetActorCollisionRect()) &&
                 Bullet->GetBulletType() == EBulletType::EBT_ShootAtEnemy)
             {
                 BulletsToRemove.emplace_back(Bullet); // Добавляем пулю для удаления
@@ -120,8 +120,8 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
     for (ABullet* BulletRemove : BulletsToRemove)
     {
         // TODO: Выводим информацию для тестирования, удалить позже
-        std::cout << "Delete a bullet at position: " << BulletRemove->GetBulletCollider().left << ", "
-            << BulletRemove->GetBulletCollider().top << std::endl;
+        std::cout << "Delete a bullet at position: " << BulletRemove->GetActorCollisionRect().left << ", "
+            << BulletRemove->GetActorCollisionRect().top << std::endl;
 
         BulletsVectorPtr.erase(std::remove(BulletsVectorPtr.begin(), BulletsVectorPtr.end(), BulletRemove),
                                BulletsVectorPtr.end());
