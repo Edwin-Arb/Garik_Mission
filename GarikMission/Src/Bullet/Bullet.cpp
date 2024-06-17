@@ -12,19 +12,8 @@
 ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager)
     : BulletDamage(BULLET_DAMAGE)
     , BulletType(ShootAt)
-    , SpriteManagerPtr(new ASpriteManager)
 {
     InitBullet(NewVelocity, StartPosition, SpriteManager);
-}
-
-/**
- * @brief Деструктор пули.
- * 
- * Освобождает память, выделенную под текстуру пули.
- */
-ABullet::~ABullet()
-{
-    delete SpriteManagerPtr;
 }
 
 /**
@@ -46,7 +35,7 @@ void ABullet::InitBullet(const bool NewVelocity, const sf::Vector2f& StartPositi
     InitActorTexture(ASSETS_PATH + "MainTiles/Bullets.png",
                     sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y)),
                     {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)},
-                    {0.5f, 0.5f}, *SpriteManagerPtr);
+                    {0.5f, 0.5f}, SpriteManager);
 
     // Задать стартовую позицию пули
     ActorSprite.setPosition(StartPosition.x, StartPosition.y);

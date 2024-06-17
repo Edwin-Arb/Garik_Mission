@@ -110,7 +110,11 @@ void AGameState::UpdateInput(float DeltaTime)
 void AGameState::UpdateGameplay(float DeltaTime)
 {
     // Обновление движения персонажа
-    PlayerPtr->UpdatePlayerMove(DeltaTime, *CollisionManagerPtr);
+    PlayerPtr->UpdatePlayerMove(DeltaTime);
+    
+    // Проверка столкновения персонажа с объектами, коллизиями карты
+    CollisionManagerPtr->HandlePlayerCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(), PlayerPtr->GetActorVelocity(),
+                                                          PlayerPtr->GetCanJump(), PlayerPtr->GetIsOnLadder());
 
     // Обновление движения врагов
     for (auto Enemy : EnemysVectorPtr)

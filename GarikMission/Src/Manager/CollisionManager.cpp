@@ -1,4 +1,5 @@
-﻿#include "CollisionManager.h"
+﻿// ReSharper disable CppMemberFunctionMayBeStatic
+#include "CollisionManager.h"
 #include "iostream"
 
 
@@ -20,7 +21,7 @@ ACollisionManager::ACollisionManager(APlayer& Player, AGameMap& GameMap)
  * @param Bullet Пуля для проверки столкновения.
  * @return true, если есть столкновение, иначе false.
  */
-bool ACollisionManager::CheckBulletCollisionWithGameMap(const ABullet& Bullet) const
+bool ACollisionManager::CheckBulletCollisionWithGameMap(ABullet& Bullet) const
 {
     // Перебираем все объекты коллизий на игровой карте
     for (const auto& Collision : GameMapRef.GetGameMapCollisionVector())
@@ -54,7 +55,7 @@ bool ACollisionManager::CheckBulletCollisionWithGameMap(const ABullet& Bullet) c
  * 
  * @return true, если есть столкновение, иначе false.
  */
-bool ACollisionManager::CheckBulletCollisionWithPawn(const ABullet& Bullet, const sf::FloatRect& PawnRect) const
+bool ACollisionManager::CheckBulletCollisionWithPawn(ABullet& Bullet, const sf::FloatRect& PawnRect) const
 {
     // Проверяем, пересекается ли коллайдер пули с прямоугольником пешки
     return Bullet.GetActorCollisionRect().intersects(PawnRect);
@@ -65,9 +66,10 @@ bool ACollisionManager::CheckBulletCollisionWithPawn(const ABullet& Bullet, cons
  * 
  * @param BulletsVectorPtr Указатель на вектор пуль.
  * @param EnemysVectorPtr Указатель на вектор врагов.
+ * @param Player Ссылка на персонажа.
  */
 void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr,
-                                                 std::vector<AEnemy*>& EnemysVectorPtr, APlayer& PlayerPtr) const
+                                                 std::vector<AEnemy*>& EnemysVectorPtr, APlayer& Player) const
 {
     // Векторы для хранения пуль и врагов для удаления из основных векторов
     std::vector<ABullet*> BulletsToRemove;
@@ -83,15 +85,15 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
         }
 
         // Проверяем столкновение с персонажем
-        if (CheckBulletCollisionWithPawn(*Bullet, PlayerPtr.GetActorCollisionRect()) &&
+        if (CheckBulletCollisionWithPawn(*Bullet, Player.GetActorCollisionRect()) &&
             Bullet->GetBulletType() == EBulletType::EBT_ShootAtPlayer)
         {
             BulletsToRemove.emplace_back(Bullet); // Добавляем пулю для удаления
 
             // TODO: Уменьшаем здоровье персонажа, пока он не умрет
-            if (PlayerRef.GetPlayerMaxHealth() > DEATH)
+            if (PlayerRef.GetPawnMaxHealth() > DEATH)
             {
-                PlayerRef.SetPlayerMaxHealth(Bullet->GetBulletDamage());
+                PlayerRef.SetPawnCurrentHealth(Bullet->GetBulletDamage());
             }
         }
 
@@ -105,10 +107,10 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
                 BulletsToRemove.emplace_back(Bullet); // Добавляем пулю для удаления
 
                 // Уменьшаем здоровье врага
-                Enemy->SetEnemyHealth(Bullet->GetBulletDamage());
+                Enemy->SetPawnCurrentHealth(Bullet->GetBulletDamage());
 
                 // Добавляем врага для удаления, если его здоровье меньше нуля
-                if (Enemy->GetEnemyHealth() <= DEATH)
+                if (Enemy->GetPawnCurrentHealth() <= DEATH)
                 {
                     PawnsToRemove.emplace_back(Enemy);
                 }
@@ -123,16 +125,14 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
         std::cout << "Delete a bullet at position: " << BulletRemove->GetActorCollisionRect().left << ", "
             << BulletRemove->GetActorCollisionRect().top << std::endl;
 
-        BulletsVectorPtr.erase(std::remove(BulletsVectorPtr.begin(), BulletsVectorPtr.end(), BulletRemove),
-                               BulletsVectorPtr.end());
+        std::erase(BulletsVectorPtr, BulletRemove);
         delete BulletRemove;
     }
 
     // Удаляем врагов, которых убили пули
     for (AEnemy* PawnRemove : PawnsToRemove)
     {
-        EnemysVectorPtr.erase(std::remove(EnemysVectorPtr.begin(), EnemysVectorPtr.end(), PawnRemove),
-                              EnemysVectorPtr.end());
+        std::erase(EnemysVectorPtr, PawnRemove);
         delete PawnRemove;
     }
 }
@@ -145,7 +145,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
  * @param bCanJump Может ли персонаж прыгать.
  * @param bCanClimb Может ли персонаж карабкаться.
  */
-void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
+void ACollisionManager::HandlePlayerCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f &ObjectVelocity,
                                                          bool& bCanJump, bool& bCanClimb) const
 {
     bCanClimb = false;

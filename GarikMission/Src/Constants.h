@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <cassert>
 #include <string>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>

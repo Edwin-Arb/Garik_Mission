@@ -1,4 +1,5 @@
 ﻿#include "AActor.h"
+#include <cassert>
 
 AActor::AActor()
 
@@ -14,13 +15,26 @@ AActor::AActor()
  * @param Scale Масштабирование объекта.
  * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
  */
-void AActor::InitActorTexture(const std::string& TexturePath, const sf::IntRect& TextureRect, const sf::Vector2f& Size,
-                              const sf::Vector2f& Scale, ASpriteManager& SpriteManager)
+void AActor::InitActorTexture(const std::string& TexturePath, const sf::IntRect& TextureRect,
+                              const sf::Vector2f& Size, const sf::Vector2f& Scale,
+                              ASpriteManager& SpriteManager)
 {
     ActorTexturePtr = std::make_unique<sf::Texture>();
 
     // Подгрузить текстуру из файла
     assert(ActorTexturePtr->loadFromFile(TexturePath));
+
+    InitActorSprite(ActorTexturePtr, TextureRect, Size, Scale, SpriteManager);
+}
+
+void AActor::InitActorTexture(const sf::IntRect& TextureRect,
+                              const sf::Vector2f& Size, const sf::Vector2f& Scale,
+                              ASpriteManager& SpriteManager)
+{
+    ActorTexturePtr = std::make_unique<sf::Texture>();
+
+    // Подгрузить текстуру из файла
+    // assert(ActorTexturePtr->loadFromFile(TexturePath));
 
     InitActorSprite(ActorTexturePtr, TextureRect, Size, Scale, SpriteManager);
 }
@@ -79,31 +93,31 @@ void AActor::SetActorCollisionRect(const sf::FloatRect& NewRect)
 }
 
 /**
- * @brief Получает текущую скорость объекта.
+ * @brief Получает по ссылки текущую скорость объекта.
  *
  * @return Текущая скорость объекта.
  */
-sf::Vector2f AActor::GetActorVelocity() const
+sf::Vector2f& AActor::GetActorVelocity()
 {
     return ActorVelocity;
 }
 
 /**
- * @brief Получает текущую позицию объекта.
+ * @brief Получает по ссылки текущую позицию объекта.
  *
  * @return Текущая позиция объекта.
  */
-sf::Vector2f AActor::GetActorPosition() const
+sf::Vector2f& AActor::GetActorPosition()
 {
     return ActorDrawPosition;
 }
 
 /**
- * @brief Получает прямоугольник, ограничивающий объект.
+ * @brief Получает по ссылки прямоугольник, ограничивающий объект.
  *
  * @return Прямоугольник, ограничивающий объект.
  */
-sf::FloatRect AActor::GetActorCollisionRect() const
+sf::FloatRect& AActor::GetActorCollisionRect()
 {
     return ActorCollisionRect;
 }

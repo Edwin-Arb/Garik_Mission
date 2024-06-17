@@ -33,7 +33,7 @@ public:
     /**
      * @brief Деструктор для освобождения ресурсов.
      */
-    ~ABullet() override;
+    ~ABullet() override = default;
 
     /**
      * @brief Инициализирует текструру и создаёт спрайт для пули.
@@ -75,5 +75,4 @@ public:
 private:
     int BulletDamage;                 // Урон, наносимый пулей.
     EBulletType BulletType;           // Тип пули (игрок или враг).
-    ASpriteManager* SpriteManagerPtr; // Указатель на менеджер спрайтов.
 };

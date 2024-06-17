@@ -10,15 +10,17 @@ APlayer::APlayer()
     : bCanJump(true) // Персонаж может прыгать при инициализации
       , bIsMoveRight(true) // Персонаж смотрит вправо при инициализации
       , bIsOnLadder(false) // Персонаж не на лестнице при инициализации
-      , PlayerHealth(400.f)
-      , PlayerSpeed(PAWN_SPEED)
       , PlayerJumpSpeed(1500.f)
-
-      //, PlayerTexturePtr(new sf::Texture)
-      , HealthBarPtr(new AHealthBar)
-      , HealthBarTexturePtr(new sf::Texture)
-      , PlayerRectCollision(sf::Vector2f(PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y))
 {
+    // Максимальное и текущие здоровья персонажа,
+    // чтобы использовать для ослеживания шкалы здоровья.
+    PawnMaxHealth = 400.f;
+    PawnCurrentHealth = PawnMaxHealth;
+
+    // Скорость персонажа
+    PawnSpeed = PAWN_SPEED;
+
+    // Скорость и направление персонажа
     ActorVelocity = {0.f, 0.f};
 
     // Прямоугольник персонажа с учетом масштабирования
@@ -27,16 +29,6 @@ APlayer::APlayer()
         PLAYER_SIZE.x * DRAW_SCALE.x,
         PLAYER_SIZE.y * DRAW_SCALE.y
     };
-}
-
-/**
- * @brief Деструктор класса APlayer.
- * Освобождает выделенные ресурсы.
- */
-APlayer::~APlayer()
-{
-    delete HealthBarPtr;
-    delete HealthBarTexturePtr;
 }
 
 /**
@@ -54,16 +46,31 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
                      {0.5f, 0.5f},
                      SpriteManager);
 
-    // Загрузка текстур шкалы здоровья
-    assert(HealthBarTexturePtr->loadFromFile(ASSETS_PATH + "MainTiles/HealthBarPlayer.png"));
-
     // Инициализация шкалы здоровья
-    HealthBarPtr->InitHealthBar(165, 25, sf::Color::Red, sf::Color::Yellow, SpriteManager);
-    HealthBarSprite.setTexture(*HealthBarTexturePtr);
-    HealthBarSprite.setScale(0.2f, 0.2f);
+    InitPawnHealthBar(ASSETS_PATH + "MainTiles/HealthBarPlayer.png",
+                      sf::Vector2f(165.f, 25.f), sf::Vector2f(0.2f, 0.2f),
+                      sf::Color::Red, sf::Color::Yellow,
+                      SpriteManager);
+}
 
-    // Установка центра прямоугольника коллизии персонажа
-    SpriteManager.SetShapeRelativeOrigin(PlayerRectCollision, 0.5f, 0.5f);
+/**
+ * @brief Получить по ссылки данные о состояние прыжка.
+ * 
+ * @return Текущие состояние прыжка.
+ */
+bool& APlayer::GetCanJump()
+{
+    return bCanJump;
+}
+
+/**
+* @brief Получить по ссылки данные, если персонаж находить рядом с лестницей и может карабкаться по ней.
+* 
+* @return Текущие состояние заимодействие с лестницей.
+*/
+bool& APlayer::GetIsOnLadder()
+{
+    return bIsOnLadder;
 }
 
 /**
@@ -80,12 +87,12 @@ void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASprit
     {
         const float SpawnBulletOffsetX = bIsMoveRight ? 90.f : 0.f;
         constexpr float SpawnBulletOffsetY = 85.f;
-        
+
         // Создание нового снаряда и добавление его в вектор снарядов
         BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtEnemy,
-                                      sf::Vector2f(ActorCollisionRect.left + SpawnBulletOffsetX,
-                                                   ActorCollisionRect.top + SpawnBulletOffsetY),
-                                      SpriteManager));
+                                                  sf::Vector2f(ActorCollisionRect.left + SpawnBulletOffsetX,
+                                                               ActorCollisionRect.top + SpawnBulletOffsetY),
+                                                  SpriteManager));
     }
 }
 
@@ -104,14 +111,14 @@ void APlayer::HandlePlayerMove(float DeltaTime)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
         bIsMoveRight = false;
-        ActorVelocity.x = -PlayerSpeed * DeltaTime;
+        ActorVelocity.x = -PawnSpeed * DeltaTime;
         ActorSprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
     }
     // Движение вправо
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
         bIsMoveRight = true;
-        ActorVelocity.x = PlayerSpeed * DeltaTime;
+        ActorVelocity.x = PawnSpeed * DeltaTime;
         ActorSprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
     }
     // Движение вверх (подъем по лестнице)
@@ -119,7 +126,7 @@ void APlayer::HandlePlayerMove(float DeltaTime)
     {
         if (bIsOnLadder)
         {
-            ActorVelocity.y = PlayerSpeed;
+            ActorVelocity.y = PawnSpeed * DeltaTime;
         }
     }
 
@@ -149,9 +156,8 @@ void APlayer::HandlePlayerMove(float DeltaTime)
  * Включает в себя обработку гравитации и проверку столкновений с объектами.
  * 
  * @param DeltaTime Время, прошедшее с предыдущего кадра.
- * @param CollisionManager Менеджер коллизий для обработки столкновений персонажа с объектами карты.
  */
-void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager)
+void APlayer::UpdatePlayerMove(float DeltaTime)
 {
     // Применение гравитации для падения персонажа
     ActorVelocity.y += GRAVITY * DeltaTime;
@@ -159,9 +165,6 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
     // Обновление позиции персонажа на основе скорости
     ActorCollisionRect.left += ActorVelocity.x;
     ActorCollisionRect.top -= ActorVelocity.y;
-
-    // Обработка столкновений персонажа с объектами карты
-    CollisionManager.HandlePlayerCollisionWithGameMap(ActorCollisionRect, ActorVelocity, bCanJump, bIsOnLadder);
 
     // Обновление позиции спрайта персонажа и его коллизии
     ActorDrawPosition = {
@@ -171,47 +174,6 @@ void APlayer::UpdatePlayerMove(float DeltaTime, const ACollisionManager& Collisi
 
     // Установка позиции спрайта персонажа
     ActorSprite.setPosition(ActorDrawPosition);
-
-    // Установка позиции прямоугольника коллизии персонажа
-    PlayerRectCollision.setPosition(ActorDrawPosition);
-}
-
-/**
- * @brief Обновление состояния шкалы здоровья персонажа.
- * Рассчитывает текущее состояние шкалы и её положение на экране.
- */
-void APlayer::UpdatePlayerHealthBar()
-{
-    // Обновление значений шкалы здоровья
-    HealthBarPtr->Update(PlayerHealth, 400);
-    HealthBarPtr->SetPosition({ActorDrawPosition.x - 635.f, ActorDrawPosition.y - 360.f});
-    HealthBarSprite.setPosition(ActorDrawPosition.x - 760.f, ActorDrawPosition.y - 380.f);
-
-    // TODO: Временное восстановление здоровья для тестирования
-    if (PlayerHealth <= DEATH)
-    {
-        PlayerHealth = 400;
-    }
-}
-
-/**
- * @brief Установка нового максимального значения здоровья персонажа.
- * 
- * @param NewPlayerHealth Новое максимальное значение здоровья.
- */
-void APlayer::SetPlayerMaxHealth(int NewPlayerHealth)
-{
-    PlayerHealth -= NewPlayerHealth;
-}
-
-/**
- * @brief Получение текущего значения здоровья персонажа.
- * 
- * @return Текущее значение здоровья персонажа.
- */
-float APlayer::GetPlayerMaxHealth() const
-{
-    return PlayerHealth;
 }
 
 /**
@@ -223,11 +185,13 @@ float APlayer::GetPlayerMaxHealth() const
 void APlayer::DrawActor(sf::RenderWindow& Window)
 {
     // Отрисовка спрайта и коллизии персонажа
-    Window.draw(PlayerRectCollision);
     Window.draw(ActorSprite);
 
     // Отрисовка шкалы здоровья
-    UpdatePlayerHealthBar();
+    UpdatePawnHealthBar(PawnCurrentHealth, PawnMaxHealth,
+                        sf::Vector2f(ActorDrawPosition.x - 635.f, ActorDrawPosition.y - 360.f),
+                        sf::Vector2f(ActorDrawPosition.x - 760.f, ActorDrawPosition.y - 380.f));
+
     Window.draw(HealthBarSprite);
-    HealthBarPtr->Draw(Window);
+    PawnHealthBarPtr->Draw(Window);
 }

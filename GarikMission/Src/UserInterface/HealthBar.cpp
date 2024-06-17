@@ -1,14 +1,15 @@
 ﻿#include "HealthBar.h"
 
+#include <tmxlite/FreeFuncs.hpp>
 
 
-void AHealthBar::InitHealthBar(float Width, float Height, const sf::Color& FillColor, const sf::Color& BackgroundColor,
+void AHealthBar::InitHealthBar(const sf::Vector2f& Size,const sf::Color& FillColor, const sf::Color& BackgroundColor,
                                ASpriteManager& SpriteManager)
 {
-    BackgroundBarRect.setSize(sf::Vector2f(Width, Height));
+    BackgroundBarRect.setSize(Size);
     BackgroundBarRect.setFillColor(BackgroundColor);
 
-    HealthBarRect.setSize(sf::Vector2f(Width, Height));
+    HealthBarRect.setSize(Size);
     HealthBarRect.setFillColor(FillColor);
 
     SpriteManager.SetShapeRelativeOrigin(BackgroundBarRect, 0.5f, 0.5f);

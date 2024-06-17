@@ -1,4 +1,5 @@
-﻿#include "SpriteManager.h"
+﻿// ReSharper disable CppMemberFunctionMayBeStatic
+#include "SpriteManager.h"
 
 /**
  * @brief Устанавливает размер спрайта с заданными шириной и высотой.

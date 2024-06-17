@@ -23,6 +23,19 @@ public:
                                   const sf::Vector2f& Scale,
                                   ASpriteManager& SpriteManager);
 
+    /**
+     * @brief Инициализирует текстуру объекта.
+     * 
+     * @param TextureRect Прямоугольник, ограничивающий текстуру.
+     * @param Size Размер объекта.
+     * @param Scale Масштабирование объекта.
+     * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
+     */
+    virtual void InitActorTexture(const sf::IntRect& TextureRect,
+                                  const sf::Vector2f& Size,
+                                  const sf::Vector2f& Scale,
+                                  ASpriteManager& SpriteManager);
+
 private:
     /**
      * @brief Инициализирует спрайт объекта.
@@ -62,25 +75,25 @@ public:
     void SetActorCollisionRect(const sf::FloatRect& NewRect);
 
     /**
-     * @brief Получает текущую скорость объекта.
+     * @brief Получает по ссылки текущую скорость объекта.
      *
      * @return Текущая скорость объекта.
      */
-    sf::Vector2f GetActorVelocity() const;
+    sf::Vector2f &GetActorVelocity();
 
     /**
-     * @brief Получает текущую позицию объекта.
+     * @brief Получает по ссылки текущую позицию объекта.
      *
      * @return Текущая позиция объекта.
      */
-    sf::Vector2f GetActorPosition() const;
+    sf::Vector2f &GetActorPosition();
 
     /**
-     * @brief Получает прямоугольник, ограничивающий объект.
+     * @brief Получает по ссылки прямоугольник, ограничивающий объект.
      *
      * @return Прямоугольник, ограничивающий объект.
      */
-    sf::FloatRect GetActorCollisionRect() const;
+    sf::FloatRect &GetActorCollisionRect();
 
     /**
      * @brief Отрисовывает объект на экране. Будет переопределён в классах-наследниках.

@@ -2,14 +2,12 @@
 #include "../Bullet/Bullet.h"
 #include "../Player/Player.h"
 #include "../GameMap/GameMap.h"
-#include "../UserInterface/HealthBar.h"
-#include "../Abstract/AActor.h"
 
 
 /**
  * @brief Класс, представляющий врага в игре.
  */
-class AEnemy : public AActor
+class AEnemy : public APawn
 {
 public:
     /**
@@ -23,7 +21,7 @@ public:
     /**
      * @brief Деструктор врага.
      */
-    ~AEnemy() override;
+    ~AEnemy() override = default;
     
     /**
      * @brief Инициализация врага.
@@ -57,7 +55,7 @@ public:
      * @param Player Ссылка на объект персонажа.
      * @param GameMap Ссылка на объект игровой карты.
      */
-    void DetectPlayer(const APlayer& Player, const AGameMap& GameMap);
+    void DetectPlayer(APlayer& Player, const AGameMap& GameMap);
 
     /**
      * @brief Обновление направления и скорости врага.
@@ -65,7 +63,7 @@ public:
      * @param DeltaTime Время, прошедшее с последнего обновления.
      * @param Player Ссылка на объект персонажа.
      */
-    void UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player);
+    void UpdateDirectionAndVelocity(float DeltaTime, APlayer& Player);
 
     /**
      * @brief Обновление позиции врага на основе текущей скорости.
@@ -89,21 +87,7 @@ public:
      * @param Player Ссылка на объект персонажа.
      * @param GameMap Ссылка на объект игровой карты.
      */
-    void UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap);
-
-    /**
-     * @brief Установка здоровья врага.
-     * 
-     * @param Damage Полученный урон от пули.
-     */
-    void SetEnemyHealth(int Damage);
-
-    /**
-     * @brief Получение текущего здоровья врага.
-     * 
-     * @return Текущее здоровье врага.
-     */
-    float GetEnemyHealth() const;
+    void UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap);
  
     /**
      * @brief Отрисовка врага на экране.
@@ -115,8 +99,7 @@ public:
 private:
     bool bIsMoveRight;                             // Флаг направления движения вправо.
     bool bIsPlayerDetected;                        // Флаг обнаружения персонажа.
-
-    float EnemyHealth;                             // Текущее здоровье врага.
+ 
     float MinMoveDistance;                         // Минимальная дистанция движения врага.
     float MaxMoveDistance;                         // Максимальная дистанция движения врага.
 
@@ -124,6 +107,4 @@ private:
  
     // TODO: Нужен для тестирования обнаружения персонажа, удалить после тестов
     sf::RectangleShape LineTraceDetectionArea;     // Прямоугольная область для тестирования обнаружения.
-
-    AHealthBar* EnemyHealthBarPtr;                 // Указатель на полосу здоровья врага.
 };

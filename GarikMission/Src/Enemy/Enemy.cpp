@@ -10,27 +10,19 @@
 AEnemy::AEnemy(const float EnemyMaxHealth, const sf::Vector2f& StartPosition)
     : bIsMoveRight(true)
       , bIsPlayerDetected(false)
-      , EnemyHealth(EnemyMaxHealth)
       , MinMoveDistance(100.f)
       , MaxMoveDistance(400.f)
       , EnemyStartPosition(StartPosition)
       , LineTraceDetectionArea(sf::Vector2f{400.f, 100.f}) // Ширина и высота detection area
-      , EnemyHealthBarPtr(new AHealthBar)
 {
+    PawnMaxHealth = EnemyMaxHealth;
+    PawnCurrentHealth = PawnMaxHealth;
+
     ActorCollisionRect = {
         StartPosition.x, StartPosition.y,
         (ENEMY_SIZE.x * DRAW_SCALE.x),
         (ENEMY_SIZE.y * DRAW_SCALE.y)
     };
-}
-
-/**
- * @brief Деструктор врага.
- */
-AEnemy::~AEnemy()
-{
-    //delete EnemyTexturePtr;
-    delete EnemyHealthBarPtr;
 }
 
 /**
@@ -40,13 +32,13 @@ AEnemy::~AEnemy()
  */
 void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
-    // Инициализировать текстуру для врага и создать спрайт для него
+    // Инициализировать текстуру для врага и создания спрайта для него.
     InitActorTexture(ASSETS_PATH + "MainTiles/Enemy.png",
-                    sf::IntRect(4, 1,
-                    static_cast<int>(ENEMY_SIZE.x),
-                    static_cast<int>(ENEMY_SIZE.y)),
-                 {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y}, {0.5f, 0.5f}, SpriteManager);
-    
+                     sf::IntRect(4, 1,
+                                 static_cast<int>(ENEMY_SIZE.x),
+                                 static_cast<int>(ENEMY_SIZE.y)),
+                     {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y}, {0.5f, 0.5f}, SpriteManager);
+
     // Установить центр спрайта и коллизии
     SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
 
@@ -54,7 +46,10 @@ void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
     LineTraceDetectionArea.setFillColor(sf::Color(155, 0, 0, 128));
 
     // Инициализировать шкалу здоровья врага
-    EnemyHealthBarPtr->InitHealthBar(100, 20, sf::Color::Green, sf::Color::Red, SpriteManager);
+    InitPawnHealthBar(sf::Vector2f(100.f, 20.f), sf::Vector2f(0.2f, 0.2f),
+                      sf::Color::Green, sf::Color::Red,
+                      SpriteManager);
+    //EnemyHealthBarPtr->InitHealthBar(TODO, sf::Color::Green, sf::Color::Red, SpriteManager);
 }
 
 /**
@@ -101,7 +96,7 @@ void AEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
  * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
  */
-void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
+void AEnemy::DetectPlayer(APlayer& Player, const AGameMap& GameMap)
 {
     // Изначально предполагаем, что персонаж не обнаружен
     bIsPlayerDetected = false;
@@ -127,7 +122,7 @@ void AEnemy::DetectPlayer(const APlayer& Player, const AGameMap& GameMap)
  * @param DeltaTime Время, прошедшее с последнего обновления.
  * @param Player Ссылка на объект персонажа.
  */
-void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, const APlayer& Player)
+void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, APlayer& Player)
 {
     // Если персонаж обнаружен и не блокируется препятствием, разворачиваем врага в сторону персонажа
     if (bIsPlayerDetected)
@@ -216,7 +211,7 @@ void AEnemy::UpdateMoveDistance()
  * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
  */
-void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGameMap& GameMap)
+void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap)
 {
     DetectPlayer(Player, GameMap);
     UpdateDirectionAndVelocity(DeltaTime, Player);
@@ -234,28 +229,7 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, const APlayer& Player, const AGame
 
     // TODO test health
     // Устанавливаем положение шкалы здоровья чуть выше врага
-    EnemyHealthBarPtr->SetPosition(ActorDrawPosition - sf::Vector2f(0.f, 80.f));
-    EnemyHealthBarPtr->Update(EnemyHealth, 400);
-}
-
-/**
- * @brief Установка здоровья врага.
- * 
- * @param Damage Полученный урон от пули.
- */
-void AEnemy::SetEnemyHealth(int Damage)
-{
-    EnemyHealth -= Damage;
-}
-
-/**
- * @brief Получение текущего здоровья врага.
- * 
- * @return Текущее здоровье врага.
- */
-float AEnemy::GetEnemyHealth() const
-{
-    return EnemyHealth;
+    UpdatePawnHealthBar(PawnCurrentHealth, PawnMaxHealth, sf::Vector2f(ActorDrawPosition - sf::Vector2f(0.f, 80.f)));
 }
 
 /**
@@ -269,5 +243,5 @@ void AEnemy::DrawActor(sf::RenderWindow& Window)
     Window.draw(ActorSprite);
 
     // Отрисовать шкалу здоровья врага
-    EnemyHealthBarPtr->Draw(Window);
+    PawnHealthBarPtr->Draw(Window);
 }

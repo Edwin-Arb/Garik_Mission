@@ -65,5 +65,4 @@ private:
     sf::View ViewPlayer;                            // Камера, чтобы сфокусироваться на персонаже
 
     // TODO: Тест абстрактного класс
-    AActor *ActorsPtr;
 };

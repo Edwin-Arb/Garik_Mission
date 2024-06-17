@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "../Abstract/AActor.h"
+#include "../Abstract/APawn.h"
 #include "../Bullet/Bullet.h"
-#include "../UserInterface/HealthBar.h"
+
 
 // Предварительное объявление (Forward declaration of ACollisionManager)
 class ACollisionManager;
@@ -9,7 +9,7 @@ class ACollisionManager;
 /**
  * @brief Класс персонажа, отвечающий за поведение и состояние персонажа.
  */
-class APlayer : public AActor
+class APlayer : public APawn
 {
 public:
     /**
@@ -20,7 +20,7 @@ public:
     /**
      * @brief Деструктор класса APlayer.
      */
-    ~APlayer() override;
+    ~APlayer() override = default;
 
     /**
      * @brief Инициализация персонажа.
@@ -29,6 +29,20 @@ public:
      */
     void InitPlayer(ASpriteManager& SpriteManager);
 
+    /**
+     * @brief Получить по ссылки данные о состояние прыжка.
+     * 
+     * @return Текущие состояние прыжка.
+     */
+    bool &GetCanJump();
+
+    /**
+     * @brief Получить по ссылки данные, если персонаж находить рядом с лестницей и может карабкаться по ней.
+     * 
+     * @return Текущие состояние заимодействие с лестницей.
+     */
+    bool &GetIsOnLadder();
+ 
     /**
      * @brief Обработка выстрелов персонажа.
      *
@@ -48,30 +62,8 @@ public:
      * @brief Обновление движения персонажа.
      *
      * @param DeltaTime Время, прошедшее между последними кадрами.
-     * @param CollisionManager Менеджер коллизий для обработки столкновений с игровыми объектами.
      */
-    void UpdatePlayerMove(float DeltaTime, const ACollisionManager& CollisionManager);
-    
-private:
-    /**
-     * @brief Обновление отображения шкалы здоровья персонажа.
-     */
-    void UpdatePlayerHealthBar();
-
-public:
-    /**
-     * @brief Установка максимального здоровья персонажа.
-     *
-     * @param NewPlayerHealth Новое максимальное здоровье персонажа.
-     */
-    void SetPlayerMaxHealth(int NewPlayerHealth);
-    
-    /**
-     * @brief Получение максимального здоровья персонажа.
-     *
-     * @return  Максимальное здоровье персонажа.
-     */
-    float GetPlayerMaxHealth() const;
+    void UpdatePlayerMove(float DeltaTime);
 
     /**
      * @brief Отрисовка персонажа на экране.
@@ -84,14 +76,5 @@ private:
     bool bCanJump;                       // Флаг, показывающий, может ли игрок прыгать
     bool bIsMoveRight;                   // Флаг, указывающий направление движения персонажа
     bool bIsOnLadder;                    // Флаг, указывающий, находится ли игрок на лестнице
-    float PlayerHealth;                  // Текущее здоровье персонажа
-    float PlayerSpeed;                   // Скорость перемещения персонажа
     float PlayerJumpSpeed;               // Скорость прыжка персонажа
-       
-    AHealthBar* HealthBarPtr;            // Указатель на шкалу здоровья персонажа
-    sf::Texture* HealthBarTexturePtr;    // Текстура шкалы здоровья
-    sf::Sprite HealthBarSprite;          // Спрайт шкалы здоровья
-
-    // TODO: Для тестирования коллизий, удалить позже
-    sf::RectangleShape PlayerRectCollision;  // Прямоугольная область для коллизий персонажа
 };
