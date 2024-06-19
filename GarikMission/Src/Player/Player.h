@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../Abstract/APawn.h"
 #include "../Bullet/Bullet.h"
+#include "../Manager/AnimationManager.h"
 
 
 // Предварительное объявление (Forward declaration of ACollisionManager)
@@ -13,7 +14,7 @@ class APlayer : public APawn
 {
 public:
     /**
-     * @brief Конструктор по умолчанию для класса APlayer.
+     * @brief Конструктор для класса APlayer.
      */
     APlayer();
 
@@ -28,13 +29,6 @@ public:
      * @param SpriteManager Менеджер спрайтов для загрузки текстур.
      */
     void InitPlayer(ASpriteManager& SpriteManager);
-
-    /**
-     * @brief Получить по ссылки данные о состояние прыжка.
-     * 
-     * @return Текущие состояние прыжка.
-     */
-    bool &GetCanJump();
 
     /**
      * @brief Получить по ссылки данные, если персонаж находить рядом с лестницей и может карабкаться по ней.
@@ -73,8 +67,14 @@ public:
     void DrawActor(sf::RenderWindow& Window) override;
 
 private:
-    bool bCanJump;                       // Флаг, показывающий, может ли игрок прыгать
     bool bIsMoveRight;                   // Флаг, указывающий направление движения персонажа
     bool bIsOnLadder;                    // Флаг, указывающий, находится ли игрок на лестнице
     float PlayerJumpSpeed;               // Скорость прыжка персонажа
+
+    AAnimationManager IdleAnimation;
+    AAnimationManager WalkAnimation;
+    AAnimationManager JumpUpAnimation;
+    AAnimationManager JumpDownAnimation;
+
+    AAnimationManager *CurrentAnimation;
 };

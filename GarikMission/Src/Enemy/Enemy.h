@@ -87,7 +87,7 @@ public:
      * @param Player Ссылка на объект персонажа.
      * @param GameMap Ссылка на объект игровой карты.
      */
-    void UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap);
+    void UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap, const ACollisionManager &CollisionManager);
  
     /**
      * @brief Отрисовка врага на экране.

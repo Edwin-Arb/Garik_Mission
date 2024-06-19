@@ -461,6 +461,7 @@
       <AdditionalIncludeDirectories>D:\VS_Works\GarikMission\GarikMission\SFML\include; D:\VS_Works\GarikMission\GarikMission\tmxlite\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Src\Manager\AnimationManager.cpp" />
     <ClCompile Include="Src\Manager\CollisionManager.cpp" />
     <ClCompile Include="Src\Manager\FpsManager.cpp" />
     <ClCompile Include="Src\Manager\SpriteManager.cpp">
@@ -636,6 +637,7 @@
     <ClInclude Include="Src\Enemy\Enemy.h" />
     <ClInclude Include="Src\GameMain\GameState.h" />
     <ClInclude Include="Src\GameMap\GameMap.h" />
+    <ClInclude Include="Src\Manager\AnimationManager.h" />
     <ClInclude Include="Src\Manager\CollisionManager.h" />
     <ClInclude Include="Src\Manager\FpsManager.h" />
     <ClInclude Include="Src\Manager\SpriteManager.h" />

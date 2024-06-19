@@ -25,6 +25,12 @@ ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::V
  */
 void ABullet::InitBullet(const bool NewVelocity, const sf::Vector2f& StartPosition,  ASpriteManager &SpriteManager)
 {
+    // Инициализация переменных для текстуры пули
+    const std::string BulletTexturePath = ASSETS_PATH + "MainTiles/Bullets.png";
+    const sf::IntRect BulletRectTexture = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y));
+    const sf::Vector2f BulletSize = {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)};
+    const sf::Vector2f BulletOrigin = {0.5f, 0.5f};
+    
     // Установить направление, откуда начать движение
     ActorVelocity.x = NewVelocity ? BULLET_SPEED : -BULLET_SPEED;
 
@@ -32,10 +38,7 @@ void ABullet::InitBullet(const bool NewVelocity, const sf::Vector2f& StartPositi
     ActorCollisionRect = {StartPosition.x, StartPosition.y, BULLET_SIZE.x * DRAW_SCALE.x, BULLET_SIZE.y * DRAW_SCALE.y};
 
     // Инициализировать текстуру для пули и создать спрайт для неё
-    InitActorTexture(ASSETS_PATH + "MainTiles/Bullets.png",
-                    sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y)),
-                    {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)},
-                    {0.5f, 0.5f}, SpriteManager);
+    InitActorTexture(BulletTexturePath, BulletRectTexture, BulletSize, BulletOrigin, SpriteManager);
 
     // Задать стартовую позицию пули
     ActorSprite.setPosition(StartPosition.x, StartPosition.y);

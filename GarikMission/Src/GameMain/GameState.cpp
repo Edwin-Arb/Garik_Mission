@@ -15,7 +15,6 @@ AGameState::AGameState()
       CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr)),
       FpsManagerPtr(new AFpsManager)
 {
-    PlayerPtr->InitPlayer(*SpriteManagerPtr);
 }
 
 /**
@@ -33,11 +32,11 @@ AGameState::~AGameState()
     delete FpsManagerPtr;
 
     // Очищаем вектор врагов
-    for (auto Enemy : EnemysVectorPtr)
+    for (auto Enemy : EnemyVectorPtr)
     {
         delete Enemy;
     }
-    EnemysVectorPtr.clear();
+    EnemyVectorPtr.clear();
 
     // Очищаем вектор пуль
     for (auto Bullet : BulletsVectorPtr)
@@ -55,20 +54,20 @@ AGameState::~AGameState()
 void AGameState::InitGame()
 {
     // TODO: Изменить значение, когда игра будет завершена, на количество врагов
-    constexpr int CapacityVectorEnemy = 1; // Вместимость вектора врагов
-    constexpr int CapacityVectorBullet = 50; // Вместимость вектора пуль
+    constexpr int CapacityVectorEnemy = 1;    // Вместимость вектора врагов
+    constexpr int CapacityVectorBullet = 50;  // Вместимость вектора пуль
 
     GameMapPtr->InitGameMap();
     PlayerPtr->InitPlayer(*SpriteManagerPtr);
     FpsManagerPtr->InitFpsText();
 
     // Инициализация врагов
-    EnemysVectorPtr.reserve(CapacityVectorEnemy);
+    EnemyVectorPtr.reserve(CapacityVectorEnemy);
     for (int i = 0; i < CapacityVectorEnemy; ++i)
     {
         AEnemy* Enemy = new AEnemy(400, {450.f, 470.f}); // Указать начальную позицию врага
         Enemy->InitEnemy(*SpriteManagerPtr);
-        EnemysVectorPtr.push_back(Enemy);
+        EnemyVectorPtr.push_back(Enemy);
     }
 
     BulletsVectorPtr.reserve(CapacityVectorBullet); // Резервирование места для пуль
@@ -92,7 +91,7 @@ void AGameState::UpdateInput(float DeltaTime)
         PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
 
         // Выстрел врага при обнаружении персонажа
-        for (auto Enemy : EnemysVectorPtr)
+        for (auto Enemy : EnemyVectorPtr)
         {
             Enemy->EnemyShoot(BulletsVectorPtr, *SpriteManagerPtr);
         }
@@ -113,13 +112,13 @@ void AGameState::UpdateGameplay(float DeltaTime)
     PlayerPtr->UpdatePlayerMove(DeltaTime);
     
     // Проверка столкновения персонажа с объектами, коллизиями карты
-    CollisionManagerPtr->HandlePlayerCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(), PlayerPtr->GetActorVelocity(),
-                                                          PlayerPtr->GetCanJump(), PlayerPtr->GetIsOnLadder());
+    CollisionManagerPtr->HandlePawnCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(), PlayerPtr->GetActorVelocity(),
+                                                          PlayerPtr->GetPawnCanJump(), PlayerPtr->GetIsOnLadder());
 
     // Обновление движения врагов
-    for (auto Enemy : EnemysVectorPtr)
+    for (auto Enemy : EnemyVectorPtr)
     {
-        Enemy->UpdateEnemyMove(DeltaTime, *PlayerPtr, *GameMapPtr);
+        Enemy->UpdateEnemyMove(DeltaTime, *PlayerPtr, *GameMapPtr, *CollisionManagerPtr);
     }
 
     // Обновление движения пуль
@@ -129,7 +128,7 @@ void AGameState::UpdateGameplay(float DeltaTime)
     }
 
     // Проверка столкновений пуль
-    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemysVectorPtr, *PlayerPtr);
+    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemyVectorPtr, *PlayerPtr);
 
     // Обновление отображения FPS
     FpsManagerPtr->UpdateFpsText(DeltaTime);
@@ -162,13 +161,13 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
 void AGameState::DrawGame(sf::RenderWindow& Window) const
 {
     // Отрисовка карты
-    GameMapPtr->DrawGameMap(Window, ViewPlayer);
+    GameMapPtr->DrawGameMap(Window);
 
     // Отрисовка персонажа
     PlayerPtr->DrawActor(Window);
 
     // Отрисовка врагов
-    for (auto Enemy : EnemysVectorPtr)
+    for (auto Enemy : EnemyVectorPtr)
     {
         Enemy->DrawActor(Window);
     }

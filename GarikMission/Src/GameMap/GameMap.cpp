@@ -40,13 +40,22 @@ void AGameMap::InitGameMap()
 {
     // TODO: Изменить в будущем значение, на фактическое количество коллизий карты и лестниц в игре
     int ReserveCollisionCapacity = 100;
-    GameMapCollisionLayer.reserve(ReserveCollisionCapacity); // Резервируем память для коллизионного слоя
-    LadderCollisionLayer.reserve(5); // Резервируем память для слоя лестниц
+
+    // Резервируем память для коллизионного слоя
+    GameMapCollisionLayer.reserve(ReserveCollisionCapacity);
+
+    // Резервируем память для слоя лестниц
+    LadderCollisionLayer.reserve(5);
 
     // Загрузка карты
-    assert(GameMap.load(ASSETS_PATH + "Map/GarikMap.tmx")); // Проверяем успешную загрузку карты
-    LoadTilesets(GameMap); // Загружаем тайлсеты карты
-    CheckLayers(GameMap); // Проверяем слои карты
+    // Проверяем успешную загрузку карты
+    assert(GameMap.load(ASSETS_PATH + "Map/GarikMap.tmx"));
+
+    // Загружаем тайлсеты карты
+    LoadTilesets(GameMap);
+
+    // Проверяем слои карты
+    CheckLayers(GameMap);
     ProcessCollisionLayers(GameMap);
 }
 
@@ -62,14 +71,17 @@ void AGameMap::LoadTilesets(const tmx::Map& GameMap)
     for (const auto& Tileset : Tilesets)
     {
         sf::Texture Texture;
+        std::string ImagePath = Tileset.getImagePath();
+
         if (Texture.loadFromFile(Tileset.getImagePath()))
         {
-            TilesetTextures[Tileset.getFirstGID()] = std::move(Texture); // Сохраняем текстуры тайлсетов
+            // Сохраняем текстуры тайлсетов
+            TilesetTextures[Tileset.getFirstGID()] = std::move(Texture);
         }
         else
         {
-            std::cerr << "Error download a texture: " << Tileset.getImagePath() << std::endl;
             // Выводим ошибку загрузки текстуры
+            std::cerr << "Error loading texture: " << ImagePath << std::endl;
         }
     }
 }
@@ -86,7 +98,8 @@ void AGameMap::CheckLayers(const tmx::Map& GameMap)
     {
         if (Layer->getType() == tmx::Layer::Type::Tile)
         {
-            ProcessTileLayer(dynamic_cast<const tmx::TileLayer*>(Layer.get())); // Обрабатываем тайловый слой
+            // Обрабатываем тайловый слой
+            ProcessTileLayer(dynamic_cast<const tmx::TileLayer*>(Layer.get()));
         }
     }
 }
@@ -99,7 +112,7 @@ void AGameMap::CheckLayers(const tmx::Map& GameMap)
 void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
 {
     // Обработка тайлового слоя
-    const auto& Tiles = TileLayerPtr->getTiles();
+   const auto& Tiles = TileLayerPtr->getTiles();
     const auto& MapSize = TileLayerPtr->getSize();
     std::map<const sf::Texture*, sf::VertexArray> LayerVertexMap;
 
@@ -135,8 +148,9 @@ void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
             }
 
             uint32_t LocalTileID = Tile.ID - FirstGID;
-            uint32_t TextureHorizontal = LocalTileID % (CurrentTexturePtr->getSize().x / 16);
-            uint32_t TextureVertical = LocalTileID / (CurrentTexturePtr->getSize().x / 16);
+            uint32_t tilesPerRow = CurrentTexturePtr->getSize().x / 16; // Количество тайлов в строке
+            uint32_t TextureHorizontal = LocalTileID % tilesPerRow;
+            uint32_t TextureVertical = LocalTileID / tilesPerRow;
 
             sf::VertexArray& Vertices = LayerVertexMap[CurrentTexturePtr];
             if (Vertices.getVertexCount() == 0)
@@ -144,7 +158,7 @@ void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
                 Vertices.setPrimitiveType(sf::Quads);
                 Vertices.resize(MapSize.x * MapSize.y * 4);
             }
-            
+
             sf::Vertex* Quad = &Vertices[(x + y * MapSize.x) * 4];
 
             Quad[0].position = sf::Vector2f(x * 16.f, y * 16.f);
@@ -161,8 +175,8 @@ void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
 
     for (const auto& Pair : LayerVertexMap)
     {
-        LayersVector.emplace_back(Pair.second); // Добавляем вершины слоя в вектор слоев
-        RenderStatesVector.emplace_back(); // Добавляем RenderStates для каждого слоя
+        LayersVector.emplace_back(Pair.second);
+        RenderStatesVector.emplace_back();
         RenderStatesVector.back().texture = Pair.first;
     }
 }
@@ -187,7 +201,8 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
                 for (const auto& Object : ObjectLayer->getObjects())
                 {
                     tmx::FloatRect TmxRect = Object.getAABB();
-                    GameMapCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height); // Добавляем коллизии в вектор
+                    GameMapCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height);
+                    // Добавляем коллизии в вектор
                 }
             }
             else if (ObjectLayer && ObjectLayer->getName() == "Ladders")
@@ -196,7 +211,8 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
                 for (const auto& Object : ObjectLayer->getObjects())
                 {
                     tmx::FloatRect TmxRect = Object.getAABB();
-                    LadderCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height); // Добавляем лестницы в вектор
+                    LadderCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height);
+                    // Добавляем лестницы в вектор
                 }
             }
         }
@@ -227,9 +243,8 @@ std::vector<sf::FloatRect> AGameMap::GetLadderCollisionVector() const
  * @brief Отрисовка игровой карты на окне.
  *
  * @param Window Ссылка на окно SFML для отрисовки.
- * @param View Ссылка на вид SFML для установки вида карты.
  */
-void AGameMap::DrawGameMap(sf::RenderWindow& Window, const sf::View &View) const
+void AGameMap::DrawGameMap(sf::RenderWindow& Window) const
 {
     // Отрисовка карты    
     for (size_t i = 0; i < LayersVector.size(); ++i)

@@ -54,7 +54,7 @@ private:
  
     APlayer* PlayerPtr;                             // Динамические классы для основы игры
     AGameMap *GameMapPtr;
-    std::vector<AEnemy*> EnemysVectorPtr;
+    std::vector<AEnemy*> EnemyVectorPtr;
     std::vector<ABullet*> BulletsVectorPtr;
  
     ASpriteManager* SpriteManagerPtr;               // Для обработки страйта объектов

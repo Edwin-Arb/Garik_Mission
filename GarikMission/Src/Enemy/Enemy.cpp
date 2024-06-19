@@ -32,12 +32,14 @@ AEnemy::AEnemy(const float EnemyMaxHealth, const sf::Vector2f& StartPosition)
  */
 void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
+    // Инициализация переменных для текстуры врага
+    const std::string EnemyTexturePath = ASSETS_PATH + "MainTiles/Enemy.png";
+    const sf::IntRect EnemyRectTexture = sf::IntRect(4, 1, static_cast<int>(ENEMY_SIZE.x), static_cast<int>(ENEMY_SIZE.y));
+    const sf::Vector2f EnemySize = {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y};
+    const sf::Vector2f EnemyOrigin = {0.5f, 0.5f};
+
     // Инициализировать текстуру для врага и создания спрайта для него.
-    InitActorTexture(ASSETS_PATH + "MainTiles/Enemy.png",
-                     sf::IntRect(4, 1,
-                                 static_cast<int>(ENEMY_SIZE.x),
-                                 static_cast<int>(ENEMY_SIZE.y)),
-                     {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y}, {0.5f, 0.5f}, SpriteManager);
+    InitActorTexture(EnemyTexturePath, EnemyRectTexture, EnemySize, EnemyOrigin,SpriteManager);
 
     // Установить центр спрайта и коллизии
     SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
@@ -124,6 +126,8 @@ void AEnemy::DetectPlayer(APlayer& Player, const AGameMap& GameMap)
  */
 void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, APlayer& Player)
 {
+    ActorVelocity.y += GRAVITY * DeltaTime;
+    
     // Если персонаж обнаружен и не блокируется препятствием, разворачиваем врага в сторону персонажа
     if (bIsPlayerDetected)
     {
@@ -168,6 +172,7 @@ void AEnemy::UpdatePosition()
     ActorCollisionRect.top -= ActorVelocity.y;
     // EnemyRect.width = EnemyRect.left + (ENEMY_SIZE.x * DRAW_SCALE.x);
     // EnemyRect.height = EnemyRect.top + (ENEMY_SIZE.y * DRAW_SCALE.y);
+    
 }
 
 /**
@@ -211,7 +216,7 @@ void AEnemy::UpdateMoveDistance()
  * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
  */
-void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap)
+void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap, const ACollisionManager &CollisionManager)
 {
     DetectPlayer(Player, GameMap);
     UpdateDirectionAndVelocity(DeltaTime, Player);
@@ -219,15 +224,17 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& G
     UpdateDetectionAreaPosition();
     UpdateMoveDistance();
 
-    // TODO Нужна, чтобы установить положение каждого врага отдельно.
-    // TODO Позже переместиться в постоянную обработку Геймплея игры
+    CollisionManager.HandlePawnCollisionWithGameMap(ActorCollisionRect, ActorVelocity, bIsPawnJump, bIsPawnJump);
+
+    // TODO: Нужна, чтобы установить положение каждого врага отдельно.
+    // TODO: Позже переместиться в постоянную обработку Геймплея игры
     CalculateEnemyDrawPosition(ActorCollisionRect, ENEMY_SIZE, DRAW_SCALE);
 
     // Установить положение спрайта и прямоугольника коллизии с положением врага в игре
     ActorSprite.setPosition(ActorDrawPosition);
     LineTraceDetectionArea.setPosition(ActorDrawPosition);
 
-    // TODO test health
+    // TODO: test health
     // Устанавливаем положение шкалы здоровья чуть выше врага
     UpdatePawnHealthBar(PawnCurrentHealth, PawnMaxHealth, sf::Vector2f(ActorDrawPosition - sf::Vector2f(0.f, 80.f)));
 }

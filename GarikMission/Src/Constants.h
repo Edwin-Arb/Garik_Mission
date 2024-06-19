@@ -47,7 +47,7 @@ constexpr float ZOOM_FACTOR = 1.2f;
 /**
  * @brief Размер игрового персонажа (игрока).
  */
-const sf::Vector2f PLAYER_SIZE = {11.f, 16.f};
+const sf::Vector2f PLAYER_SIZE = {12.f, 16.f};
 
 /**
  * @brief Размер игрового персонажа (врага).

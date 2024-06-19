@@ -85,9 +85,8 @@ public:
      * @brief Отрисовка игровой карты.
      *
      * @param Window Окно для отображения карты.
-     * @param View
      */
-    void DrawGameMap(sf::RenderWindow& Window, const sf::View& View) const;
+    void DrawGameMap(sf::RenderWindow& Window) const;
 
 private:
 

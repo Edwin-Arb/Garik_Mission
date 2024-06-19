@@ -15,6 +15,14 @@ public:
     void InitPawnHealthBar(const sf::Vector2f& Size, const sf::Vector2f &Scale,
                            const sf::Color& FillColor, const sf::Color& BackgroundColor,
                            ASpriteManager &SpriteManager);
+
+    
+    /**
+     * @brief Получить по ссылки данные о состояние прыжка пешки.
+     * 
+     * @return Текущие состояние прыжка пешки.
+     */
+    bool &GetPawnCanJump();
     
     void UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
                              const sf::Vector2f& HealthBarPosition,
@@ -46,6 +54,7 @@ public:
     float GetPawnMaxHealth() const;
 
 protected:
+    bool bIsPawnJump;                        // Флаг, показывающий, может ли пешка прыгать
     float PawnMaxHealth;                     // Максимальное здоровье пешки.
     float PawnCurrentHealth;                 // Текущие здоровье пешки.
     float PawnSpeed;                         // Скорость перемещения пешки.

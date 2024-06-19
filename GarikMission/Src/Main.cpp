@@ -1,12 +1,12 @@
 #include <iostream>
 #include "GameMain/GameState.h"
-#include "GameMap/GameMap.h"
 
 
 int main()
 {
     // Создаем главное окно игры с заданными размерами
     sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Garik Mission");
+    //Window.setFramerateLimit(500);
 
     // Создаем таймер игры
     sf::Clock GameClock;
@@ -19,7 +19,7 @@ int main()
     while (Window.isOpen())
     {
         // Задержка между кадрами для обеспечения одинаковой скорости на всех устройствах
-        sleep(sf::microseconds(5));
+        sleep(sf::milliseconds(1));
         
         // Получаем время прошедшее между кадрами
         float DeltaTime = GameClock.getElapsedTime().asSeconds();

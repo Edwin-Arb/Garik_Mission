@@ -7,11 +7,14 @@
  * Инициализирует начальные значения членов класса.
  */
 APlayer::APlayer()
-    : bCanJump(true) // Персонаж может прыгать при инициализации
-      , bIsMoveRight(true) // Персонаж смотрит вправо при инициализации
+    : bIsMoveRight(true) // Персонаж смотрит вправо при инициализации
       , bIsOnLadder(false) // Персонаж не на лестнице при инициализации
       , PlayerJumpSpeed(1500.f)
+      , CurrentAnimation(nullptr)
 {
+    // Персонаж может прыгать при инициализации
+    bIsPawnJump = true;
+
     // Максимальное и текущие здоровья персонажа,
     // чтобы использовать для ослеживания шкалы здоровья.
     PawnMaxHealth = 400.f;
@@ -39,28 +42,76 @@ APlayer::APlayer()
  */
 void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 {
+    // Инициализация переменных для текстуры персонажа
+    const std::string PlayerTexturePath = ASSETS_PATH + "MainTiles/Player.png";
+    const sf::IntRect PlayerRectTexture = sf::IntRect(19, 0, static_cast<int>(PLAYER_SIZE.x),
+                                                      static_cast<int>(PLAYER_SIZE.y));
+    const sf::Vector2f PlayerSize = {PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y};
+    const sf::Vector2f PlayerOrigin = {0.5f, 0.5f};
+
     // Инициализировать текстуру для персонажа и создать спрайт для него
-    InitActorTexture(ASSETS_PATH + "MainTiles/Player.png",
-                     sf::IntRect(19, 0, static_cast<int>(PLAYER_SIZE.x), static_cast<int>(PLAYER_SIZE.y)),
-                     {PLAYER_SIZE.x * DRAW_SCALE.x, PLAYER_SIZE.y * DRAW_SCALE.y},
-                     {0.5f, 0.5f},
+    InitActorTexture(PlayerTexturePath, PlayerRectTexture,
+                     PlayerSize, PlayerOrigin,
                      SpriteManager);
 
-    // Инициализация шкалы здоровья
-    InitPawnHealthBar(ASSETS_PATH + "MainTiles/HealthBarPlayer.png",
-                      sf::Vector2f(165.f, 25.f), sf::Vector2f(0.2f, 0.2f),
-                      sf::Color::Red, sf::Color::Yellow,
-                      SpriteManager);
-}
+    // Инициализация переменных текстуры шкалы здоровья для персонажа
+    const std::string PlayerTextureHealthBarPath = ASSETS_PATH + "MainTiles/HealthBarPlayer.png";
+    const sf::Vector2f HealthBarSize = sf::Vector2f(165.f, 25.f);
+    const sf::Vector2f HealthBarScale = sf::Vector2f(0.2f, 0.2f);
+    const sf::Color HealthBarFrontColor = sf::Color::Red;
+    const sf::Color HealthBarBackgroundColor = sf::Color::Yellow;
 
-/**
- * @brief Получить по ссылки данные о состояние прыжка.
- * 
- * @return Текущие состояние прыжка.
- */
-bool& APlayer::GetCanJump()
-{
-    return bCanJump;
+    // Инициализация шкалы здоровья
+    InitPawnHealthBar(PlayerTextureHealthBarPath, HealthBarSize, HealthBarScale,
+                      HealthBarFrontColor, HealthBarBackgroundColor,
+                      SpriteManager);
+
+
+    // TODO: Test Animation
+    // Анимация ожидания(Idle)
+    IdleAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
+    IdleAnimation.FrameSpeed = 3.f;
+    
+    IdleAnimation.FrameRect.emplace_back(sf::IntRect(3, 0, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+    IdleAnimation.FrameRect.emplace_back(sf::IntRect(PlayerRectTexture));
+
+    // Анимация бега
+    WalkAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
+
+    WalkAnimation.FrameSpeed = 10.f;
+    
+    WalkAnimation.FrameRect.emplace_back(sf::IntRect(3, 16, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+
+    WalkAnimation.FrameRect.emplace_back(sf::IntRect(17, 16, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+
+    WalkAnimation.FrameRect.emplace_back(sf::IntRect(35, 16, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+
+    // Анимация прыжка
+    JumpUpAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
+
+    JumpUpAnimation.FrameSpeed = 0.f;
+    JumpUpAnimation.FrameRect.emplace_back(sf::IntRect(2, 32, static_cast<int>(PLAYER_SIZE.x),
+                                                       static_cast<int>(PLAYER_SIZE.y)));
+
+    // Анимация прыжка, когда персонаж уже прыгнул и летит вниз
+    JumpDownAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
+    
+    JumpDownAnimation.FrameSpeed = 2.f;
+    
+    JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(18, 33, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+
+    JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(35, 33, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+
+    JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(51, 33, static_cast<int>(PLAYER_SIZE.x),
+                                                     static_cast<int>(PLAYER_SIZE.y)));
+
+    //ActorSprite.setTexture(WalkAnimation.AnimTexture);
 }
 
 /**
@@ -143,9 +194,9 @@ void APlayer::HandlePlayerMove(float DeltaTime)
     // Прыжок
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
-        if (bCanJump)
+        if (bIsPawnJump)
         {
-            bCanJump = false;
+            bIsPawnJump = false;
             ActorVelocity.y = PlayerJumpSpeed * DeltaTime;
         }
     }
@@ -171,6 +222,35 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
         ActorCollisionRect.left + (PLAYER_SIZE.x * DRAW_SCALE.x) / 2.f,
         ActorCollisionRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f
     };
+
+
+    // TODO: Test Animation
+    if (bIsPawnJump)
+    {
+        if (std::abs(ActorVelocity.x) > 0.0001f)
+        {
+            CurrentAnimation = &WalkAnimation;
+        }
+        else
+        {
+            CurrentAnimation = &IdleAnimation;
+        }
+    }
+    else
+    {
+        if (ActorVelocity.y < 0.f)
+        {
+            CurrentAnimation = &JumpDownAnimation;
+        }
+        else
+        {
+            CurrentAnimation = &JumpUpAnimation;
+        }
+    }
+
+    ActorSprite.setTextureRect(CurrentAnimation->GetCurrentFrame());
+    CurrentAnimation->AnimationUpdate(DeltaTime);
+
 
     // Установка позиции спрайта персонажа
     ActorSprite.setPosition(ActorDrawPosition);

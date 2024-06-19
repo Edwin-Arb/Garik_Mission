@@ -3,7 +3,8 @@
 
 
 APawn::APawn()
-    : PawnMaxHealth(0)
+    : bIsPawnJump(false)
+      , PawnMaxHealth(0)
       , PawnCurrentHealth(0)
       , PawnSpeed(0)
       , PawnHealthBarPtr(new AHealthBar)
@@ -38,6 +39,16 @@ void APawn::InitPawnHealthBar(const sf::Vector2f& Size, const sf::Vector2f& Scal
     PawnHealthBarPtr->InitHealthBar(Size, FillColor, BackgroundColor, SpriteManager);
     HealthBarSprite.setTexture(*PawnHealthBarTexturePtr);
     HealthBarSprite.setScale(Scale);
+}
+
+/**
+* @brief Получить по ссылки данные о состояние прыжка пешки.
+* 
+* @return Текущие состояние прыжка пешки.
+*/
+bool& APawn::GetPawnCanJump()
+{
+    return bIsPawnJump;
 }
 
 /**
