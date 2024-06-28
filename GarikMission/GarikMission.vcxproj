@@ -235,6 +235,8 @@
       <AdditionalIncludeDirectories>D:\VS_Works\GarikMission\GarikMission\SFML\include; D:\VS_Works\GarikMission\GarikMission\tmxlite\include;</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="Src\Enemy\BaseEnemy.cpp" />
+    <ClCompile Include="Src\Enemy\BossEnemy.cpp" />
     <ClCompile Include="Src\Enemy\Enemy.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -634,6 +636,8 @@
     <ClInclude Include="Src\Abstract\APawn.h" />
     <ClInclude Include="Src\Bullet\Bullet.h" />
     <ClInclude Include="Src\Constants.h" />
+    <ClInclude Include="Src\Enemy\BaseEnemy.h" />
+    <ClInclude Include="Src\Enemy\BossEnemy.h" />
     <ClInclude Include="Src\Enemy\Enemy.h" />
     <ClInclude Include="Src\GameMain\GameState.h" />
     <ClInclude Include="Src\GameMap\GameMap.h" />

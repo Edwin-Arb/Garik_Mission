@@ -29,6 +29,7 @@ AGameMap::~AGameMap()
     RenderStatesVector.clear();
     GameMapCollisionLayer.clear();
     LadderCollisionLayer.clear();
+    SpawnBaseEnemyPosition.clear();
 }
 
 /**
@@ -112,7 +113,7 @@ void AGameMap::CheckLayers(const tmx::Map& GameMap)
 void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
 {
     // Обработка тайлового слоя
-   const auto& Tiles = TileLayerPtr->getTiles();
+    const auto& Tiles = TileLayerPtr->getTiles();
     const auto& MapSize = TileLayerPtr->getSize();
     std::map<const sf::Texture*, sf::VertexArray> LayerVertexMap;
 
@@ -166,10 +167,17 @@ void AGameMap::ProcessTileLayer(const tmx::TileLayer* TileLayerPtr)
             Quad[2].position = sf::Vector2f((x + 1) * 16.f, (y + 1) * 16.f);
             Quad[3].position = sf::Vector2f(x * 16.f, (y + 1) * 16.f);
 
-            Quad[0].texCoords = sf::Vector2f(TextureHorizontal * 16.f, TextureVertical * 16.f);
-            Quad[1].texCoords = sf::Vector2f((TextureHorizontal + 1) * 16.f, TextureVertical * 16.f);
-            Quad[2].texCoords = sf::Vector2f((TextureHorizontal + 1) * 16.f, (TextureVertical + 1) * 16.f);
-            Quad[3].texCoords = sf::Vector2f(TextureHorizontal * 16.f, (TextureVertical + 1) * 16.f);
+            sf::Vector2f texCoords[4] = {
+                sf::Vector2f(TextureHorizontal * 16.f, TextureVertical * 16.f),
+                sf::Vector2f((TextureHorizontal + 1) * 16.f, TextureVertical * 16.f),
+                sf::Vector2f((TextureHorizontal + 1) * 16.f, (TextureVertical + 1) * 16.f),
+                sf::Vector2f(TextureHorizontal * 16.f, (TextureVertical + 1) * 16.f)
+            };
+
+            Quad[0].texCoords = texCoords[0];
+            Quad[1].texCoords = texCoords[1];
+            Quad[2].texCoords = texCoords[2];
+            Quad[3].texCoords = texCoords[3];
         }
     }
 
@@ -213,6 +221,25 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
                     tmx::FloatRect TmxRect = Object.getAABB();
                     LadderCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height);
                     // Добавляем лестницы в вектор
+                }
+            }
+            else if (ObjectLayer && ObjectLayer->getName() == "SpawnEnemy")
+            {
+                // Обработка лестниц
+                for (const auto& Object : ObjectLayer->getObjects())
+                {
+                    sf::Vector2f TmxRect = {Object.getPosition().x, Object.getPosition().y};
+
+                    // TODO: Сделать в Tiled отдельный спавн слой для боссов
+                    if (Object.getUID() == 399)
+                    {
+                        // Добавляем Босс-врагов в вектор
+                        SpawnBossEnemyPosition.emplace_back(TmxRect);
+                    }
+                    else
+                    {
+                        SpawnBaseEnemyPosition.emplace_back(TmxRect);
+                    }
                 }
             }
         }

@@ -6,7 +6,7 @@ class APawn : public AActor
 {
 public:
     APawn();
-    ~APawn() override;
+    virtual ~APawn();
     
     void InitPawnHealthBar(const std::string &TexturePath, const sf::Vector2f& Size, const sf::Vector2f &Scale,
                            const sf::Color& FillColor, const sf::Color& BackgroundColor,

@@ -1,6 +1,9 @@
 ﻿#include "GameState.h"
 #include <iostream>
 
+#include "../Enemy/BaseEnemy.h"
+#include "../Enemy/BossEnemy.h"
+
 
 /**
  * @brief Конструктор класса AGameState.
@@ -54,8 +57,8 @@ AGameState::~AGameState()
 void AGameState::InitGame()
 {
     // TODO: Изменить значение, когда игра будет завершена, на количество врагов
-    constexpr int CapacityVectorEnemy = 1;    // Вместимость вектора врагов
-    constexpr int CapacityVectorBullet = 50;  // Вместимость вектора пуль
+    constexpr int CapacityVectorEnemy = 30; // Вместимость вектора врагов
+    constexpr int CapacityVectorBullet = 50; // Вместимость вектора пуль
 
     GameMapPtr->InitGameMap();
     PlayerPtr->InitPlayer(*SpriteManagerPtr);
@@ -63,11 +66,19 @@ void AGameState::InitGame()
 
     // Инициализация врагов
     EnemyVectorPtr.reserve(CapacityVectorEnemy);
-    for (int i = 0; i < CapacityVectorEnemy; ++i)
+
+    for (const sf::Vector2f& EnemyPosition : GameMapPtr->SpawnBaseEnemyPosition)
     {
-        AEnemy* Enemy = new AEnemy(400, {450.f, 470.f}); // Указать начальную позицию врага
-        Enemy->InitEnemy(*SpriteManagerPtr);
-        EnemyVectorPtr.push_back(Enemy);
+        ABaseEnemy* BaseEnemy = new ABaseEnemy(80.f, EnemyPosition); // Указать начальную позицию врага
+        BaseEnemy->InitEnemy(*SpriteManagerPtr);
+        EnemyVectorPtr.push_back(BaseEnemy);
+    }
+
+    for (const sf::Vector2f& BossPosition : GameMapPtr->SpawnBossEnemyPosition)
+    {
+        ABossEnemy* Boss = new ABossEnemy(80.f, BossPosition); // Указать начальную позицию врага
+        Boss->InitEnemy(*SpriteManagerPtr);
+        EnemyVectorPtr.push_back(Boss);
     }
 
     BulletsVectorPtr.reserve(CapacityVectorBullet); // Резервирование места для пуль
@@ -85,7 +96,7 @@ void AGameState::UpdateInput(float DeltaTime)
 
     // Задержка между выстрелами
     float ElapsedSeconds = DelayShotTimerHandle.getElapsedTime().asSeconds();
-    if (ElapsedSeconds >= 0.1f)
+    if (ElapsedSeconds >= 0.3f)
     {
         // Выстрел персонажа при нажатии левой кнопки мыши
         PlayerPtr->HandlePlayerShoots(BulletsVectorPtr, *SpriteManagerPtr);
@@ -110,10 +121,11 @@ void AGameState::UpdateGameplay(float DeltaTime)
 {
     // Обновление движения персонажа
     PlayerPtr->UpdatePlayerMove(DeltaTime);
-    
+
     // Проверка столкновения персонажа с объектами, коллизиями карты
-    CollisionManagerPtr->HandlePawnCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(), PlayerPtr->GetActorVelocity(),
-                                                          PlayerPtr->GetPawnCanJump(), PlayerPtr->GetIsOnLadder());
+    CollisionManagerPtr->HandlePawnCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(),
+                                                        PlayerPtr->GetActorVelocity(),
+                                                        PlayerPtr->GetPawnCanJump(), PlayerPtr->GetIsOnLadder());
 
     // Обновление движения врагов
     for (auto Enemy : EnemyVectorPtr)

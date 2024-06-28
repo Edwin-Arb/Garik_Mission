@@ -17,7 +17,7 @@ constexpr int SCREEN_HEIGHT = 720;
 /**
  * @brief Урон, который наносит пуля персонажам (пешкам).
  */
-constexpr int BULLET_DAMAGE = 20;
+constexpr int BULLET_DAMAGE = 10;
 
 /**
  * @brief Значение здоровья, при котором игрок считается мертвым.
@@ -25,24 +25,34 @@ constexpr int BULLET_DAMAGE = 20;
 constexpr int DEATH = 0;
 
 /**
- * @brief Скорость движения игровых персонажей (пешек).
+ * @brief Значение здоровья врагов.
  */
-constexpr float PAWN_SPEED = 300.f;
+constexpr int ENEMY_MAX_HEALTH = 100;
+
+/**
+ * @brief Скорость движения персонажа.
+ */
+constexpr float PLAYER_SPEED = 100.f;
+
+/**
+ * @brief Скорость движения врага.
+ */
+constexpr float ENEMY_SPEED = 50.f;
 
 /**
  * @brief Скорость движения пуль в игре.
  */
-constexpr float BULLET_SPEED = 500.f;
+constexpr float BULLET_SPEED = 150.f;
 
 /**
  * @brief Значение гравитации, влияющее на падение объектов в игре.
  */
-constexpr float GRAVITY = -10.f;
+constexpr float GRAVITY = -5.f;
 
 /**
  * @brief Коэффициент масштабирования для различных элементов игры.
  */
-constexpr float ZOOM_FACTOR = 1.2f;
+constexpr float ZOOM_FACTOR = 0.2f;
 
 /**
  * @brief Размер игрового персонажа (игрока).
@@ -62,7 +72,7 @@ const sf::Vector2f BULLET_SIZE = {3.f, 3.f};
 /**
  * @brief Масштаб для отрисовки игровых объектов.
  */
-const sf::Vector2f DRAW_SCALE = {8.f, 8.f};
+const sf::Vector2f DRAW_SCALE = {1.f, 1.f};
 
 /**
  * @brief Направление по умолчанию для движения пули.

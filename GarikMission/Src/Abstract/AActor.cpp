@@ -12,11 +12,11 @@ AActor::AActor()
  * @param TexturePath Путь к текстуре.
  * @param TextureRect Прямоугольник, ограничивающий текстуру.
  * @param Size Размер объекта.
- * @param Scale Масштабирование объекта.
+ * @param Origin Установить центр объекта.
  * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
  */
 void AActor::InitActorTexture(const std::string& TexturePath, const sf::IntRect& TextureRect,
-                              const sf::Vector2f& Size, const sf::Vector2f& Scale,
+                              const sf::Vector2f& Size, const sf::Vector2f& Origin,
                               ASpriteManager& SpriteManager)
 {
     ActorTexturePtr = std::make_unique<sf::Texture>();
@@ -24,11 +24,11 @@ void AActor::InitActorTexture(const std::string& TexturePath, const sf::IntRect&
     // Подгрузить текстуру из файла
     assert(ActorTexturePtr->loadFromFile(TexturePath));
 
-    InitActorSprite(ActorTexturePtr, TextureRect, Size, Scale, SpriteManager);
+    InitActorSprite(ActorTexturePtr, TextureRect, Size, Origin, SpriteManager);
 }
 
 void AActor::InitActorTexture(const sf::IntRect& TextureRect,
-                              const sf::Vector2f& Size, const sf::Vector2f& Scale,
+                              const sf::Vector2f& Size, const sf::Vector2f& Origin,
                               ASpriteManager& SpriteManager)
 {
     ActorTexturePtr = std::make_unique<sf::Texture>();
@@ -36,7 +36,7 @@ void AActor::InitActorTexture(const sf::IntRect& TextureRect,
     // Подгрузить текстуру из файла
     // assert(ActorTexturePtr->loadFromFile(TexturePath));
 
-    InitActorSprite(ActorTexturePtr, TextureRect, Size, Scale, SpriteManager);
+    InitActorSprite(ActorTexturePtr, TextureRect, Size, Origin, SpriteManager);
 }
 
 /**
@@ -44,22 +44,22 @@ void AActor::InitActorTexture(const sf::IntRect& TextureRect,
  * 
  * @param TexturePtr Указатель на текстуру.
  * @param TextureRect Прямоугольник, ограничивающий текстуру.
- * @param Size Размер объекта.
- * @param Scale Масштабирование объекта.
+ * @param DesiredSize Размер объекта.
+ * @param Origin Установить центр объекта.
  * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
  */
 void AActor::InitActorSprite(const std::unique_ptr<sf::Texture>& TexturePtr, const sf::IntRect& TextureRect,
-                             const sf::Vector2f& Size, const sf::Vector2f& Scale, ASpriteManager& SpriteManager)
+                             const sf::Vector2f& DesiredSize, const sf::Vector2f& Origin, ASpriteManager& SpriteManager)
 {
     // Создать спрайт объекта и установить его текстуру и прямоугольник
     ActorSprite.setTexture(*TexturePtr);
     ActorSprite.setTextureRect(TextureRect);
 
     // Установить масштаб объекта
-    SpriteManager.SetSpriteSize(ActorSprite, Size.x, Size.y);
+    SpriteManager.SetSpriteSize(ActorSprite, DesiredSize);
 
     // Установить центр спрайта и коллизии
-    SpriteManager.SetSpriteRelativeOrigin(ActorSprite, Scale.x, Scale.y);
+    SpriteManager.SetSpriteRelativeOrigin(ActorSprite, Origin.x, Origin.y);
 }
 
 /**

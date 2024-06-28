@@ -14,13 +14,13 @@ public:
      * @param TexturePath Путь к текстуре.
      * @param TextureRect Прямоугольник, ограничивающий текстуру.
      * @param Size Размер объекта.
-     * @param Scale Масштабирование объекта.
+     * @param Origin Установить центр объекта.
      * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
      */
     virtual void InitActorTexture(const std::string& TexturePath,
                                   const sf::IntRect& TextureRect,
                                   const sf::Vector2f& Size,
-                                  const sf::Vector2f& Scale,
+                                  const sf::Vector2f& Origin,
                                   ASpriteManager& SpriteManager);
 
     /**
@@ -28,12 +28,12 @@ public:
      * 
      * @param TextureRect Прямоугольник, ограничивающий текстуру.
      * @param Size Размер объекта.
-     * @param Scale Масштабирование объекта.
+     * @param Origin Установить центр объекта.
      * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
      */
     virtual void InitActorTexture(const sf::IntRect& TextureRect,
                                   const sf::Vector2f& Size,
-                                  const sf::Vector2f& Scale,
+                                  const sf::Vector2f& Origin,
                                   ASpriteManager& SpriteManager);
 
 private:
@@ -42,14 +42,14 @@ private:
      * 
      * @param TexturePtr Указатель на текстуру.
      * @param TextureRect Прямоугольник, ограничивающий текстуру.
-     * @param Size Размер объекта.
-     * @param Scale Масштабирование объекта.
+     * @param DesiredSize Размер объекта.
+     * @param Origin Установить центр объекта.
      * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
      */
     virtual void InitActorSprite(const std::unique_ptr<sf::Texture>& TexturePtr,
                                  const sf::IntRect& TextureRect,
-                                 const sf::Vector2f& Size,
-                                 const sf::Vector2f& Scale,
+                                 const sf::Vector2f& DesiredSize,
+                                 const sf::Vector2f& Origin,
                                  ASpriteManager& SpriteManager);
 
 public:
@@ -103,10 +103,12 @@ public:
     virtual void DrawActor(sf::RenderWindow& Window) = 0;
 
 protected:
+    sf::Vector2f ActorSize;                           // Размер объекта.
     sf::Vector2f ActorVelocity;                       // Вектор скорости.
     sf::FloatRect ActorCollisionRect;                 // Прямоугольник коллизии.
     sf::Vector2f ActorDrawPosition;                   // Позиция отрисовки.
-
-    std::unique_ptr<sf::Texture> ActorTexturePtr;     // Указатель на текстуру.
     sf::Sprite ActorSprite;                           // Спрайт для установки текстуры.
+
+private:
+    std::unique_ptr<sf::Texture> ActorTexturePtr;     // Указатель на текстуру.
 };

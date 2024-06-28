@@ -117,6 +117,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
                 {
                     PawnsToRemove.emplace_back(Enemy);
                 }
+                break;
             }
         }
     }

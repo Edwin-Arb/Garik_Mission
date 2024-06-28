@@ -13,22 +13,21 @@ public:
     /**
      * @brief Конструктор врага.
      * 
-     * @param EnemyMaxHealth Максимальное здоровье врага.
      * @param StartPosition Начальная позиция врага.
      */
-    AEnemy(float EnemyMaxHealth, const sf::Vector2f& StartPosition);
+    AEnemy(const float MaxPatrolDistance, const sf::Vector2f& StartPosition);
 
     /**
      * @brief Деструктор врага.
      */
     ~AEnemy() override = default;
-    
+ 
     /**
      * @brief Инициализация врага.
      * 
      * @param SpriteManager Менеджер спрайтов для загрузки ресурсов.
      */
-     void InitEnemy(ASpriteManager &SpriteManager);
+    virtual void InitEnemy(ASpriteManager& SpriteManager);
 
     /**
      * @brief Враг открывает огонь.
@@ -36,18 +35,14 @@ public:
      * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
      * @param SpriteManager Менеджер спрайтов для управления спрайтами.
      */
-    void EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const;
+    virtual void EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager);
 
     /**
      * @brief Вычисление позиции отрисовки врага.
      * 
-     * @param EnemyRectRef Прямоугольник коллизии врага.
-     * @param EnemySize Размеры врага.
-     * @param DrawScale Масштаб отрисовки.
      */
-    void CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
-                                    const sf::Vector2f& EnemySize,
-                                    const sf::Vector2f& DrawScale);
+    virtual void CalculateEnemyDrawPosition(
+    );
 
     /**
      * @brief Обнаружение персонажаа в окрестности.
@@ -87,24 +82,29 @@ public:
      * @param Player Ссылка на объект персонажа.
      * @param GameMap Ссылка на объект игровой карты.
      */
-    void UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap, const ACollisionManager &CollisionManager);
- 
+    virtual void UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap,
+                                 const ACollisionManager& CollisionManager);
+
     /**
      * @brief Отрисовка врага на экране.
      * 
      * @param Window Окно, в котором происходит отрисовка.
      */
-    void DrawActor(sf::RenderWindow &Window) override;
+    void DrawActor(sf::RenderWindow& Window) override;
 
-private:
-    bool bIsMoveRight;                             // Флаг направления движения вправо.
-    bool bIsPlayerDetected;                        // Флаг обнаружения персонажа.
- 
-    float MinMoveDistance;                         // Минимальная дистанция движения врага.
-    float MaxMoveDistance;                         // Максимальная дистанция движения врага.
+protected:
+    bool bIsMoveRight;                              // Флаг направления движения вправо.
+    bool bIsPlayerDetected;                         // Флаг обнаружения персонажа.
 
-    sf::Vector2f EnemyStartPosition;               // Начальная позиция врага.
+    float EnemyScale;                               // Для установки индивидуального размера врага. 
+
+    AAnimationManager WalkAnimation;
+private: 
+    float MinMoveDistance;                          // Минимальная дистанция движения врага.
+    float MaxMoveDistance;                          // Максимальная дистанция движения врага.
+
+    sf::Vector2f EnemyStartPosition;                // Начальная позиция врага.
  
     // TODO: Нужен для тестирования обнаружения персонажа, удалить после тестов
-    sf::RectangleShape LineTraceDetectionArea;     // Прямоугольная область для тестирования обнаружения.
+    sf::RectangleShape LineTraceDetectionArea;      // Прямоугольная область для тестирования обнаружения.
 };

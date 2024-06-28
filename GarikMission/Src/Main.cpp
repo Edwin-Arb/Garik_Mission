@@ -6,7 +6,7 @@ int main()
 {
     // Создаем главное окно игры с заданными размерами
     sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Garik Mission");
-    //Window.setFramerateLimit(500);
+    Window.setFramerateLimit(120);
 
     // Создаем таймер игры
     sf::Clock GameClock;
@@ -19,11 +19,11 @@ int main()
     while (Window.isOpen())
     {
         // Задержка между кадрами для обеспечения одинаковой скорости на всех устройствах
-        sleep(sf::milliseconds(1));
-        
+        //sleep(sf::milliseconds(0.00001));
+
         // Получаем время прошедшее между кадрами
         float DeltaTime = GameClock.getElapsedTime().asSeconds();
-        
+
         // Сбрасываем таймер для следующего кадра
         GameClock.restart();
 
@@ -59,6 +59,6 @@ int main()
 
     // Освобождаем память, выделенную под игровое состояние
     delete Game;
-    
+
     return 0;
 }

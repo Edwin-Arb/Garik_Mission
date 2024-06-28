@@ -16,7 +16,7 @@ void AFpsManager::InitFpsText()
     FPSText.setFont(FPSFont);
 
     // Устанавливаем размер символов текста FPS
-    FPSText.setCharacterSize(20);
+    FPSText.setCharacterSize(7);
 
     // Устанавливаем начальную позицию текста FPS
     FPSText.setPosition(10.f, 10.f);

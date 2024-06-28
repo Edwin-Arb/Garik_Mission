@@ -15,7 +15,7 @@ public:
      * @param DesiredWidth Желаемая ширина спрайта.
      * @param DesiredHeight Желаемая высота спрайта.
      */
-    void SetSpriteSize(sf::Sprite& Sprite, float DesiredWidth, float DesiredHeight);
+    void SetSpriteSize(sf::Sprite& Sprite, const sf::Vector2f &DesiredSize);
 
     /**
      * @brief Устанавливает размер формы.

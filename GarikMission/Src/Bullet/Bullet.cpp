@@ -28,7 +28,8 @@ void ABullet::InitBullet(const bool NewVelocity, const sf::Vector2f& StartPositi
     // Инициализация переменных для текстуры пули
     const std::string BulletTexturePath = ASSETS_PATH + "MainTiles/Bullets.png";
     const sf::IntRect BulletRectTexture = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y));
-    const sf::Vector2f BulletSize = {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)};
+    //const sf::Vector2f BulletSize = {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)};
+    const sf::Vector2f BulletSize = {BULLET_SIZE.x, BULLET_SIZE.y};
     const sf::Vector2f BulletOrigin = {0.5f, 0.5f};
     
     // Установить направление, откуда начать движение

@@ -9,7 +9,7 @@
 APlayer::APlayer()
     : bIsMoveRight(true) // Персонаж смотрит вправо при инициализации
       , bIsOnLadder(false) // Персонаж не на лестнице при инициализации
-      , PlayerJumpSpeed(1500.f)
+      , PlayerJumpSpeed(200.f)
       , CurrentAnimation(nullptr)
 {
     // Персонаж может прыгать при инициализации
@@ -21,14 +21,14 @@ APlayer::APlayer()
     PawnCurrentHealth = PawnMaxHealth;
 
     // Скорость персонажа
-    PawnSpeed = PAWN_SPEED;
+    PawnSpeed = PLAYER_SPEED;
 
     // Скорость и направление персонажа
     ActorVelocity = {0.f, 0.f};
 
     // Прямоугольник персонажа с учетом масштабирования
     ActorCollisionRect = {
-        100.f, 400.f,
+        100.f, 600.f,
         PLAYER_SIZE.x * DRAW_SCALE.x,
         PLAYER_SIZE.y * DRAW_SCALE.y
     };
@@ -56,7 +56,7 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 
     // Инициализация переменных текстуры шкалы здоровья для персонажа
     const std::string PlayerTextureHealthBarPath = ASSETS_PATH + "MainTiles/HealthBarPlayer.png";
-    const sf::Vector2f HealthBarSize = sf::Vector2f(165.f, 25.f);
+    const sf::Vector2f HealthBarSize = sf::Vector2f(12.f, 2.f);
     const sf::Vector2f HealthBarScale = sf::Vector2f(0.2f, 0.2f);
     const sf::Color HealthBarFrontColor = sf::Color::Red;
     const sf::Color HealthBarBackgroundColor = sf::Color::Yellow;
@@ -71,16 +71,16 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     // Анимация ожидания(Idle)
     IdleAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
     IdleAnimation.FrameSpeed = 3.f;
-    
+
     IdleAnimation.FrameRect.emplace_back(sf::IntRect(3, 0, static_cast<int>(PLAYER_SIZE.x),
                                                      static_cast<int>(PLAYER_SIZE.y)));
     IdleAnimation.FrameRect.emplace_back(sf::IntRect(PlayerRectTexture));
 
-    // Анимация бега
+    // Анимация бега(Walk)
     WalkAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
 
     WalkAnimation.FrameSpeed = 10.f;
-    
+
     WalkAnimation.FrameRect.emplace_back(sf::IntRect(3, 16, static_cast<int>(PLAYER_SIZE.x),
                                                      static_cast<int>(PLAYER_SIZE.y)));
 
@@ -90,7 +90,8 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     WalkAnimation.FrameRect.emplace_back(sf::IntRect(35, 16, static_cast<int>(PLAYER_SIZE.x),
                                                      static_cast<int>(PLAYER_SIZE.y)));
 
-    // Анимация прыжка
+    // Анимация прыжка(Jump)
+    // Анимация прыжка, когда персонаж летит вверх
     JumpUpAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
 
     JumpUpAnimation.FrameSpeed = 0.f;
@@ -99,19 +100,17 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 
     // Анимация прыжка, когда персонаж уже прыгнул и летит вниз
     JumpDownAnimation.AnimTexture.loadFromFile(PlayerTexturePath);
-    
+
     JumpDownAnimation.FrameSpeed = 2.f;
-    
+
     JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(18, 33, static_cast<int>(PLAYER_SIZE.x),
-                                                     static_cast<int>(PLAYER_SIZE.y)));
+                                                         static_cast<int>(PLAYER_SIZE.y)));
 
     JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(35, 33, static_cast<int>(PLAYER_SIZE.x),
-                                                     static_cast<int>(PLAYER_SIZE.y)));
+                                                         static_cast<int>(PLAYER_SIZE.y)));
 
     JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(51, 33, static_cast<int>(PLAYER_SIZE.x),
-                                                     static_cast<int>(PLAYER_SIZE.y)));
-
-    //ActorSprite.setTexture(WalkAnimation.AnimTexture);
+                                                         static_cast<int>(PLAYER_SIZE.y)));
 }
 
 /**
@@ -136,8 +135,8 @@ void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASprit
     // Стрельба при нажатии левой кнопки мыши
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        const float SpawnBulletOffsetX = bIsMoveRight ? 90.f : 0.f;
-        constexpr float SpawnBulletOffsetY = 85.f;
+        const float SpawnBulletOffsetX = bIsMoveRight ? 12.f : 0.f;
+        constexpr float SpawnBulletOffsetY = 11.f;
 
         // Создание нового снаряда и добавление его в вектор снарядов
         BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtEnemy,
@@ -269,7 +268,7 @@ void APlayer::DrawActor(sf::RenderWindow& Window)
 
     // Отрисовка шкалы здоровья
     UpdatePawnHealthBar(PawnCurrentHealth, PawnMaxHealth,
-                        sf::Vector2f(ActorDrawPosition.x - 635.f, ActorDrawPosition.y - 360.f),
+                        sf::Vector2f(ActorDrawPosition.x - 0.f, ActorDrawPosition.y - 10.f),
                         sf::Vector2f(ActorDrawPosition.x - 760.f, ActorDrawPosition.y - 380.f));
 
     Window.draw(HealthBarSprite);

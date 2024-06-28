@@ -10,7 +10,6 @@
 #include "../Constants.h"
 #include "../Player/Player.h"
 
-
 /**
  * @brief Класс, представляющий игровую карту.
  */
@@ -88,21 +87,23 @@ public:
      */
     void DrawGameMap(sf::RenderWindow& Window) const;
 
+    std::vector<sf::Vector2f> SpawnBaseEnemyPosition;
+    std::vector<sf::Vector2f> SpawnBossEnemyPosition;
+
 private:
+    APlayer& PlayerRef; // Ссылка на объект персонажа
 
-    APlayer& PlayerRef;                                         // Ссылка на объект персонажа
+    tmx::Map GameMap; // Объект карты из tmx
 
-    tmx::Map GameMap;                                           // Объект карты из tmx
+    std::unordered_map<uint32_t, sf::Texture> TilesetTextures; // Карта для хранения текстур тайлсетов
 
-    std::unordered_map<uint32_t, sf::Texture> TilesetTextures;  // Карта для хранения текстур тайлсетов
+    std::vector<sf::RenderStates> RenderStatesVector; // Сохраняем RenderStates для каждого слоя
 
-    std::vector<sf::RenderStates> RenderStatesVector;           // Сохраняем RenderStates для каждого слоя
+    std::vector<sf::VertexArray> LayersVector; // Вектор вершин для отрисовки тайлов
 
-    std::vector<sf::VertexArray> LayersVector;                  // Вектор вершин для отрисовки тайлов
+    std::vector<sf::FloatRect> GameMapCollisionLayer; // Вектор прямоугольников коллизий
 
-    std::vector<sf::FloatRect> GameMapCollisionLayer;           // Вектор прямоугольников коллизий
-
-    std::vector<sf::FloatRect> LadderCollisionLayer;            // Вектор прямоугольников лестниц для коллизий
+    std::vector<sf::FloatRect> LadderCollisionLayer; // Вектор прямоугольников лестниц для коллизий
 };
 
 #endif GAMEMAP_HPP

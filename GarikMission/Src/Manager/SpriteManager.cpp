@@ -8,13 +8,13 @@
  * @param DesiredWidth Желаемая ширина спрайта.
  * @param DesiredHeight Желаемая высота спрайта.
  */
-void ASpriteManager::SetSpriteSize(sf::Sprite& Sprite, const float DesiredWidth, const float DesiredHeight)
+void ASpriteManager::SetSpriteSize(sf::Sprite& Sprite, const sf::Vector2f &DesiredSize)
 {
     // Получаем локальные границы спрайта
     const sf::FloatRect SpriteRect = Sprite.getLocalBounds();
 
     // Вычисляем масштаб по осям X и Y для достижения желаемых размеров
-    const sf::Vector2f Scale = { DesiredWidth / SpriteRect.width, DesiredHeight / SpriteRect.height };
+    const sf::Vector2f Scale = { DesiredSize.x / SpriteRect.width, DesiredSize.y / SpriteRect.height };
 
     // Устанавливаем масштаб спрайта
     Sprite.setScale(Scale);

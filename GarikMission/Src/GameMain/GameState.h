@@ -3,6 +3,7 @@
 #include "../Manager/FpsManager.h"
 
 
+
 /**
  * @brief Класс AGameState представляет текущее состояние игры.
  * Он управляет инициализацией игры, обновлением ввода, игрового процесса, камеры и отрисовкой.
@@ -50,19 +51,19 @@ public:
     void DrawGame(sf::RenderWindow& Window) const;
 
 private:
-    sf::FloatRect ScreenRect;                       // Для размеров окна игры
- 
-    APlayer* PlayerPtr;                             // Динамические классы для основы игры
-    AGameMap *GameMapPtr;
+    sf::FloatRect ScreenRect; // Для размеров окна игры
+
+    APlayer* PlayerPtr; // Динамические классы для основы игры
+    AGameMap* GameMapPtr;
     std::vector<AEnemy*> EnemyVectorPtr;
     std::vector<ABullet*> BulletsVectorPtr;
- 
-    ASpriteManager* SpriteManagerPtr;               // Для обработки страйта объектов
-    ACollisionManager* CollisionManagerPtr;         // Для проверок коллизии
-    AFpsManager *FpsManagerPtr;                     // Для отображения кадров в игре
- 
-    sf::Clock DelayShotTimerHandle;                 // Для создания интервала между выстрелами
-    sf::View ViewPlayer;                            // Камера, чтобы сфокусироваться на персонаже
+
+    ASpriteManager* SpriteManagerPtr; // Для обработки страйта объектов
+    ACollisionManager* CollisionManagerPtr; // Для проверок коллизии
+    AFpsManager* FpsManagerPtr; // Для отображения кадров в игре
+
+    sf::Clock DelayShotTimerHandle; // Для создания интервала между выстрелами
+    sf::View ViewPlayer; // Камера, чтобы сфокусироваться на персонаже
 
     // TODO: Тест абстрактного класс
 };
