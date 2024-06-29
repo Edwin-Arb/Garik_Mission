@@ -9,7 +9,7 @@ public:
     ~ABossEnemy() override = default;
 
     void InitEnemy(ASpriteManager& SpriteManager) override;
-    void EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) override;
+    void EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) override;
     //void CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef,
     //                                const sf::Vector2f& EnemySize,
     //                                const sf::Vector2f& DrawScale) override;

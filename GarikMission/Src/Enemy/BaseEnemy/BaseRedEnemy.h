@@ -1,11 +1,11 @@
 #pragma once
 #include "Enemy.h"
 
-class ABaseEnemy : public AEnemy
+class ABaseRedEnemy : public AEnemy
 {
 public:
-    ABaseEnemy(float MaxPatrolDistance, const sf::Vector2f& StartPosition);
-    ~ABaseEnemy() override = default;
+    ABaseRedEnemy(float MaxPatrolDistance, const sf::Vector2f& StartPosition);
+    ~ABaseRedEnemy() override = default;
     
     void InitEnemy(ASpriteManager& SpriteManager) override;
     //void EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) override;

@@ -25,6 +25,8 @@ ABossEnemy::ABossEnemy(float MaxPatrolDistance, const sf::Vector2f& StartPositio
         StartPosition.x, StartPosition.y,
         ActorSize.x, ActorSize.y
     };
+
+    EnemyHealthBarSize = sf::Vector2f(17.f, 3.f);
 }
 
 /**
@@ -58,11 +60,11 @@ void ABossEnemy::InitEnemy(ASpriteManager& SpriteManager)
     RectCollisionTest.setSize(ActorSize);
 
 
-    //WalkAnimation.AnimTexture.loadFromFile(BossTexturePath);
-    //WalkAnimation.FrameSpeed = 5.f;
-    //WalkAnimation.FrameRect.emplace_back(BossRectTexture);
-    //WalkAnimation.FrameRect.emplace_back(32, 33, static_cast<int>(ENEMY_SIZE.x), static_cast<int>(ENEMY_SIZE.y));
-    //
+    WalkAnimation.AnimTexture.loadFromFile(BossTexturePath);
+    WalkAnimation.FrameSpeed = 5.f;
+    WalkAnimation.FrameRect.emplace_back(BossRectTexture);
+    WalkAnimation.FrameRect.emplace_back(32, 33, static_cast<int>(ENEMY_SIZE.x), static_cast<int>(ENEMY_SIZE.y));
+    
     //SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
     //LineTraceDetectionArea.setFillColor(sf::Color(155, 0, 0, 128));
     //InitPawnHealthBar(sf::Vector2f(20.f, 4.f), sf::Vector2f(0.4f, 0.4f), sf::Color::Green, sf::Color::Red, SpriteManager);
@@ -71,12 +73,13 @@ void ABossEnemy::InitEnemy(ASpriteManager& SpriteManager)
 /**
  * @brief Босс открывает огонь в сторону персонажа.
  * 
+ * @param SpawnBulletOffsetY
  * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
  * @param SpriteManager Менеджер спрайтов для управления спрайтами.
  */
-void ABossEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager)
+void ABossEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager)
 {
-    AEnemy::EnemyShoot(BulletsVectorPtr, SpriteManager);
+    AEnemy::EnemyShoot(15.f, BulletsVectorPtr, SpriteManager);
     // Реализация специальной атаки босса
     if (CurrentSpecialAttackCooldown <= 0.f)
     {
@@ -84,12 +87,6 @@ void ABossEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteMana
         CurrentSpecialAttackCooldown = BossSpecialAttackCooldown;
     }
 }
-
-// void ABossEnemy::CalculateEnemyDrawPosition(const sf::FloatRect& EnemyRectRef, const sf::Vector2f& EnemySize,
-//     const sf::Vector2f& DrawScale)
-// {
-//     AEnemy::CalculateEnemyDrawPosition(EnemyRectRef, EnemySize, DrawScale);
-// }
 
 /**
  * @brief Специальная атака босса.
@@ -138,8 +135,8 @@ void ABossEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
 
 void ABossEnemy::DrawActor(sf::RenderWindow& Window)
 {
-    Window.draw(RectCollisionTest);
-    Window.draw(BossSprite);
+    //Window.draw(RectCollisionTest);
+    //Window.draw(BossSprite);
 
     AEnemy::DrawActor(Window);
 }
