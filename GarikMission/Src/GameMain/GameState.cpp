@@ -1,14 +1,11 @@
 ﻿#include "GameState.h"
 #include <iostream>
-
-#include "../Enemy/BaseEnemy.h"
-#include "../Enemy/BossEnemy.h"
-
+#include <random>
 
 /**
  * @brief Конструктор класса AGameState.
  * 
- * Инициализирует игровые объекты и менеджеров.
+ * Инициализирует игровые объекты и менеджеры.
  */
 AGameState::AGameState()
     : ScreenRect({0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}), // Инициализация экранной области игры
@@ -16,6 +13,7 @@ AGameState::AGameState()
       GameMapPtr(new AGameMap(*PlayerPtr)),
       SpriteManagerPtr(new ASpriteManager),
       CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr)),
+      ParticleSystemPtr(new AParticleSystemManager),
       FpsManagerPtr(new AFpsManager)
 {
 }
@@ -32,6 +30,7 @@ AGameState::~AGameState()
     delete GameMapPtr;
     delete SpriteManagerPtr;
     delete CollisionManagerPtr;
+    delete ParticleSystemPtr;
     delete FpsManagerPtr;
 
     // Очищаем вектор врагов
@@ -56,7 +55,6 @@ AGameState::~AGameState()
  */
 void AGameState::InitGame()
 {
-    // TODO: Изменить значение, когда игра будет завершена, на количество врагов
     constexpr int CapacityVectorEnemy = 30; // Вместимость вектора врагов
     constexpr int CapacityVectorBullet = 50; // Вместимость вектора пуль
 
@@ -64,24 +62,57 @@ void AGameState::InitGame()
     PlayerPtr->InitPlayer(*SpriteManagerPtr);
     FpsManagerPtr->InitFpsText();
 
-    // Инициализация врагов
+    // Резервирование места для врагов
     EnemyVectorPtr.reserve(CapacityVectorEnemy);
+
+    // Для случайного появления врагов из 3 видов
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(0, 2);
 
     for (const sf::Vector2f& EnemyPosition : GameMapPtr->SpawnBaseEnemyPosition)
     {
-        ABaseEnemy* BaseEnemy = new ABaseEnemy(80.f, EnemyPosition); // Указать начальную позицию врага
-        BaseEnemy->InitEnemy(*SpriteManagerPtr);
-        EnemyVectorPtr.push_back(BaseEnemy);
+        int EnemyType = dist(gen);
+        AEnemy* BaseEnemy = nullptr;
+
+        switch (EnemyType)
+        {
+        case 0:
+            // Зеленый враг
+            BaseEnemy = new ABaseGreenEnemy(80.f, EnemyPosition);
+            break;
+
+        case 1:
+            // Красный враг
+            BaseEnemy = new ABaseRedEnemy(80.f, EnemyPosition);
+            break;
+
+        case 2:
+            // Синий враг
+            BaseEnemy = new ABaseBlueEnemy(80.f, EnemyPosition);
+            break;
+
+        default:
+            BaseEnemy = nullptr;
+            break;
+        }
+
+        if (BaseEnemy)
+        {
+            BaseEnemy->InitEnemy(*SpriteManagerPtr);
+            EnemyVectorPtr.emplace_back(BaseEnemy);
+        }
     }
 
     for (const sf::Vector2f& BossPosition : GameMapPtr->SpawnBossEnemyPosition)
     {
-        ABossEnemy* Boss = new ABossEnemy(80.f, BossPosition); // Указать начальную позицию врага
+        AEnemy* Boss = new ABossEnemy(80.f, BossPosition); // Указать начальную позицию врага
         Boss->InitEnemy(*SpriteManagerPtr);
-        EnemyVectorPtr.push_back(Boss);
+        EnemyVectorPtr.emplace_back(Boss);
     }
 
-    BulletsVectorPtr.reserve(CapacityVectorBullet); // Резервирование места для пуль
+    // Резервирование места для пуль
+    BulletsVectorPtr.reserve(CapacityVectorBullet);
 }
 
 /**
@@ -104,7 +135,7 @@ void AGameState::UpdateInput(float DeltaTime)
         // Выстрел врага при обнаружении персонажа
         for (auto Enemy : EnemyVectorPtr)
         {
-            Enemy->EnemyShoot(BulletsVectorPtr, *SpriteManagerPtr);
+            Enemy->EnemyShoot(9.f, BulletsVectorPtr, *SpriteManagerPtr);
         }
 
         // Сброс таймера задержки между выстрелами
@@ -139,8 +170,10 @@ void AGameState::UpdateGameplay(float DeltaTime)
         Bullet->UpdateBulletPosition(DeltaTime);
     }
 
+    ParticleSystemPtr->InitParticleSystem();
+
     // Проверка столкновений пуль
-    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemyVectorPtr, *PlayerPtr);
+    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemyVectorPtr, *PlayerPtr, *ParticleSystemPtr);
 
     // Обновление отображения FPS
     FpsManagerPtr->UpdateFpsText(DeltaTime);

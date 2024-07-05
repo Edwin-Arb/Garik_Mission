@@ -1,9 +1,11 @@
 ﻿#include "Enemy.h"
 #include "../Manager/CollisionManager.h"
+#include "BossEnemy/BossEnemy.h"
 
 /**
  * @brief Конструктор врага.
  * 
+ * @param MaxPatrolDistance Максимальная дистанция, на которую может двигаться враг.
  * @param StartPosition Начальная позиция врага.
  */
 AEnemy::AEnemy(const float MaxPatrolDistance, const sf::Vector2f& StartPosition)
@@ -12,6 +14,9 @@ AEnemy::AEnemy(const float MaxPatrolDistance, const sf::Vector2f& StartPosition)
       , EnemyScale(1.f)
       , MinMoveDistance(0.f)
       , MaxMoveDistance(MaxPatrolDistance)
+      , EnemyTexturePath(ASSETS_PATH + "MainTiles/Enemy.png")
+      , EnemyOrigin(0.5f, 0.5f)
+      , EnemyHealthBarSize(10.f, 2.f)
       , EnemyStartPosition(StartPosition)
       , LineTraceDetectionArea(sf::Vector2f{200.f, 10.f}) // Ширина и высота detection area
 {
@@ -20,13 +25,12 @@ AEnemy::AEnemy(const float MaxPatrolDistance, const sf::Vector2f& StartPosition)
     PawnMaxHealth = ENEMY_MAX_HEALTH;
     PawnCurrentHealth = ENEMY_MAX_HEALTH;
 
-    //  ActorCollisionRect = {
-    //      StartPosition.x, StartPosition.y,
-    //      (ENEMY_SIZE.x * DRAW_SCALE.x),
-    //      (ENEMY_SIZE.y * DRAW_SCALE.y)
-    //  };
-    //
-    // ActorSize = {ENEMY_SIZE.x, ENEMY_SIZE.y};
+    ActorSize = {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y};
+
+    ActorCollisionRect = {
+        StartPosition.x, StartPosition.y,
+        ActorSize.x, ActorSize.y
+    };
 }
 
 /**
@@ -36,33 +40,16 @@ AEnemy::AEnemy(const float MaxPatrolDistance, const sf::Vector2f& StartPosition)
  */
 void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
-    // Инициализация переменных для текстуры врага
-    // const std::string EnemyTexturePath = ASSETS_PATH + "MainTiles/Enemy.png";
-    // const sf::IntRect EnemyRectTexture = sf::IntRect(4, 1, static_cast<int>(ENEMY_SIZE.x),
-    //                                                  static_cast<int>(ENEMY_SIZE.y));
-    // const sf::Vector2f EnemySize = {ENEMY_SIZE.x * DRAW_SCALE.x, ENEMY_SIZE.y * DRAW_SCALE.y};
-    // const sf::Vector2f EnemyOrigin = {0.5f, 0.5f};
-    //
-    // // Инициализировать текстуру для врага и создания спрайта для него.
-    // InitActorTexture(EnemyTexturePath, EnemyRectTexture, EnemySize, EnemyOrigin, SpriteManager);
-
-    // WalkAnimation.AnimTexture.loadFromFile(EnemyTexturePath);
-    // WalkAnimation.FrameSpeed = 5.f;
-    // WalkAnimation.FrameRect.emplace_back(EnemyRectTexture);
-    // WalkAnimation.FrameRect.emplace_back(20, 1, static_cast<int>(ENEMY_SIZE.x), static_cast<int>(ENEMY_SIZE.y));
-
-    // Установить центр спрайта и коллизии
+    // TODO: Установить центр спрайта и коллизии для ЛайнТрейса (отключить после проверки)
     SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
 
-    // Отрисовать прямоугольник коллизии для визуализации (отключить после проверки)
+    // TODO: Отрисовать прямоугольник коллизии для визуализации (отключить после проверки)
     LineTraceDetectionArea.setFillColor(sf::Color(155, 0, 0, 128));
 
-    // Инициализировать шкалу здоровья врага
-    InitPawnHealthBar(sf::Vector2f(10.f, 2.f), sf::Vector2f(0.2f, 0.2f),
-                      sf::Color::Green, sf::Color::Red,
+    // Инициализация шкалы здоровья врага
+    InitPawnHealthBar(EnemyHealthBarSize,
+                      sf::Color::Red, sf::Color(181, 184, 177),
                       SpriteManager);
-
-    //EnemyHealthBarPtr->InitHealthBar(TODO, sf::Color::Green, sf::Color::Red, SpriteManager);
 }
 
 /**
@@ -71,14 +58,46 @@ void AEnemy::InitEnemy(ASpriteManager& SpriteManager)
  * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
  * @param SpriteManager Менеджер спрайтов для управления спрайтами.
  */
-void AEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager)
+void AEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*>& BulletsVectorPtr,
+                        ASpriteManager& SpriteManager)
 {
+    // Определения текстуры для пули в зависимости от типа врага
+    sf::IntRect BulletTextureRect;
+
+    // if (dynamic_cast<ABaseGreenEnemy*>(this))
+    // {
+    //     BulletTextureRect = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y));
+    // }
+    // else if (dynamic_cast<ABaseRedEnemy*>(this))
+    // {
+    //     BulletTextureRect = sf::IntRect(4, 24, static_cast<int>(BULLET_SIZE.x) + 10,
+    //                                     static_cast<int>(BULLET_SIZE.y) + 2);
+    // }
+    // else if (dynamic_cast<ABaseBlueEnemy*>(this))
+    // {
+    //     BulletTextureRect = sf::IntRect(4, 56, static_cast<int>(BULLET_SIZE.x) + 9,
+    //                                     static_cast<int>(BULLET_SIZE.y) + 2);
+    // }
+    if (dynamic_cast<ABossEnemy*>(this))
+    {
+        BulletTextureRect = sf::IntRect(3, 7, static_cast<int>(BULLET_SIZE.x) + 8,
+                                        static_cast<int>(BULLET_SIZE.y) + 2);
+    }
+    else
+    {
+        BulletTextureRect = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x),
+                                        static_cast<int>(BULLET_SIZE.y));
+    }
+
     // Выстрел из оружия, если персонаж обнаружен
     if (bIsPlayerDetected)
     {
-        const float SpawnBulletOffsetX = bIsMoveRight ? 10.f : 0.f;
-        constexpr float SpawnBulletOffsetY = 9.f;
-        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtPlayer,
+        const float SpawnBulletOffsetX = bIsMoveRight ? ActorSize.x : 0.f;
+
+        // Добавляем пулю в вектор, если враг сделал выстрел
+        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight,
+                                                  BulletTextureRect,
+                                                  EBulletType::EBT_ShootAtPlayer,
                                                   sf::Vector2f(ActorCollisionRect.left + SpawnBulletOffsetX,
                                                                ActorCollisionRect.top + SpawnBulletOffsetY),
                                                   SpriteManager));
@@ -87,10 +106,6 @@ void AEnemy::EnemyShoot(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager&
 
 /**
  * @brief Вычисление позиции отрисовки врага.
- * 
- * @param EnemyRectRef Прямоугольник коллизии врага.
- * @param EnemySize Размеры врага.
- * @param DrawScale Масштаб отрисовки.
  */
 void AEnemy::CalculateEnemyDrawPosition()
 {
@@ -169,8 +184,8 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, APlayer& Player)
             ActorVelocity.x = -PawnSpeed * DeltaTime;
             ActorSprite.setScale(-EnemyScale * DRAW_SCALE.x, EnemyScale * DRAW_SCALE.y);
         }
-        //ActorSprite.setTextureRect(WalkAnimation.GetCurrentFrame());
-        //WalkAnimation.AnimationUpdate(DeltaTime);
+        ActorSprite.setTextureRect(WalkAnimation.GetCurrentFrame());
+        WalkAnimation.AnimationUpdate(DeltaTime);
     }
 }
 
@@ -181,8 +196,6 @@ void AEnemy::UpdatePosition()
 {
     ActorCollisionRect.left += ActorVelocity.x;
     ActorCollisionRect.top -= ActorVelocity.y;
-    // EnemyRect.width = EnemyRect.left + (ENEMY_SIZE.x * DRAW_SCALE.x);
-    // EnemyRect.height = EnemyRect.top + (ENEMY_SIZE.y * DRAW_SCALE.y);
 }
 
 /**
@@ -248,7 +261,9 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
 
     // TODO: test health
     // Устанавливаем положение шкалы здоровья чуть выше врага
-    UpdatePawnHealthBar(PawnCurrentHealth, PawnMaxHealth, sf::Vector2f(ActorDrawPosition - sf::Vector2f(0.f, 10.f)));
+    UpdatePawnHealthBar(PawnCurrentHealth, PawnMaxHealth,
+                        sf::Vector2f(ActorCollisionRect.left + (ActorSize.x / 2.f),
+                                     ActorCollisionRect.top - 4.f));
 }
 
 /**

@@ -5,16 +5,15 @@
  * @brief Устанавливает размер спрайта с заданными шириной и высотой.
  *
  * @param Sprite Ссылка на объект спрайта SFML.
- * @param DesiredWidth Желаемая ширина спрайта.
- * @param DesiredHeight Желаемая высота спрайта.
+ * @param DesiredSize Желаемый размер спрайта в виде вектора (ширина, высота).
  */
-void ASpriteManager::SetSpriteSize(sf::Sprite& Sprite, const sf::Vector2f &DesiredSize)
+void ASpriteManager::SetSpriteSize(sf::Sprite& Sprite, const sf::Vector2f& DesiredSize)
 {
     // Получаем локальные границы спрайта
     const sf::FloatRect SpriteRect = Sprite.getLocalBounds();
 
     // Вычисляем масштаб по осям X и Y для достижения желаемых размеров
-    const sf::Vector2f Scale = { DesiredSize.x / SpriteRect.width, DesiredSize.y / SpriteRect.height };
+    const sf::Vector2f Scale = {DesiredSize.x / SpriteRect.width, DesiredSize.y / SpriteRect.height};
 
     // Устанавливаем масштаб спрайта
     Sprite.setScale(Scale);
@@ -33,7 +32,7 @@ void ASpriteManager::SetShapeSize(sf::Shape& Shape, const float DesiredWidth, co
     const sf::FloatRect ShapeRect = Shape.getLocalBounds();
 
     // Вычисляем масштаб по осям X и Y для достижения желаемых размеров
-    const sf::Vector2f Scale = { DesiredWidth / ShapeRect.width, DesiredHeight / ShapeRect.height };
+    const sf::Vector2f Scale = {DesiredWidth / ShapeRect.width, DesiredHeight / ShapeRect.height};
 
     // Устанавливаем масштаб формы
     Shape.setScale(Scale);
@@ -43,8 +42,8 @@ void ASpriteManager::SetShapeSize(sf::Shape& Shape, const float DesiredWidth, co
  * @brief Устанавливает относительный центр происхождения спрайта.
  *
  * @param Sprite Ссылка на объект спрайта SFML.
- * @param OriginX Относительная координата X центра происхождения спрайта.
- * @param OriginY Относительная координата Y центра происхождения спрайта.
+ * @param OriginX Относительная координата X центра происхождения спрайта (0.0 - 1.0).
+ * @param OriginY Относительная координата Y центра происхождения спрайта (0.0 - 1.0).
  */
 void ASpriteManager::SetSpriteRelativeOrigin(sf::Sprite& Sprite, const float OriginX, const float OriginY)
 {
@@ -52,7 +51,7 @@ void ASpriteManager::SetSpriteRelativeOrigin(sf::Sprite& Sprite, const float Ori
     const sf::FloatRect SpriteRect = Sprite.getLocalBounds();
 
     // Вычисляем относительные координаты центра происхождения спрайта
-    const sf::Vector2f Origin = { OriginX * SpriteRect.width, OriginY * SpriteRect.height };
+    const sf::Vector2f Origin = {OriginX * SpriteRect.width, OriginY * SpriteRect.height};
 
     // Устанавливаем центр происхождения спрайта
     Sprite.setOrigin(Origin);
@@ -62,8 +61,8 @@ void ASpriteManager::SetSpriteRelativeOrigin(sf::Sprite& Sprite, const float Ori
  * @brief Устанавливает относительный центр происхождения формы.
  *
  * @param Shape Ссылка на объект формы SFML.
- * @param OriginX Относительная координата X центра происхождения формы.
- * @param OriginY Относительная координата Y центра происхождения формы.
+ * @param OriginX Относительная координата X центра происхождения формы (0.0 - 1.0).
+ * @param OriginY Относительная координата Y центра происхождения формы (0.0 - 1.0).
  */
 void ASpriteManager::SetShapeRelativeOrigin(sf::Shape& Shape, const float OriginX, const float OriginY)
 {
@@ -71,7 +70,7 @@ void ASpriteManager::SetShapeRelativeOrigin(sf::Shape& Shape, const float Origin
     const sf::FloatRect ShapeRect = Shape.getLocalBounds();
 
     // Вычисляем относительные координаты центра происхождения формы
-    const sf::Vector2f Origin = { OriginX * ShapeRect.width, OriginY * ShapeRect.height };
+    const sf::Vector2f Origin = {OriginX * ShapeRect.width, OriginY * ShapeRect.height};
 
     // Устанавливаем центр происхождения формы
     Shape.setOrigin(Origin);

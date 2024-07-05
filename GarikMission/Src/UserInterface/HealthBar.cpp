@@ -1,9 +1,7 @@
 ﻿#include "HealthBar.h"
 
-#include <tmxlite/FreeFuncs.hpp>
 
-
-void AHealthBar::InitHealthBar(const sf::Vector2f& Size,const sf::Color& FillColor, const sf::Color& BackgroundColor,
+void AHealthBar::InitHealthBar(const sf::Vector2f& Size, const sf::Color& FillColor, const sf::Color& BackgroundColor,
                                ASpriteManager& SpriteManager)
 {
     BackgroundBarRect.setSize(Size);
@@ -30,7 +28,7 @@ void AHealthBar::Update(float CurrentHealth, float MaxHealth)
 }
 
 void AHealthBar::Draw(sf::RenderWindow& Window) const
-{    
+{
     Window.draw(BackgroundBarRect);
     Window.draw(HealthBarRect);
 }

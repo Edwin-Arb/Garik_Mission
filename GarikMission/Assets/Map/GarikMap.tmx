@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="460" height="110" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="408">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="460" height="110" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="414">
  <tileset firstgid="1" source="TilesMap2.tsx"/>
  <tileset firstgid="43" source="TilesMap.tsx"/>
  <tileset firstgid="1067" source="TilesMap3.tsx"/>
@@ -324,16 +324,31 @@
   <object id="357" x="1692" y="504">
    <point/>
   </object>
-  <object id="399" x="243.333" y="523.333">
+  <object id="399" x="228.333" y="620.333">
    <point/>
   </object>
   <object id="403" x="739" y="627">
    <point/>
   </object>
-  <object id="406" x="361.333" y="621.333">
+  <object id="406" x="343.333" y="618.333">
    <point/>
   </object>
-  <object id="407" x="440" y="622.667">
+  <object id="407" x="443" y="620.667">
+   <point/>
+  </object>
+  <object id="408" x="286" y="612">
+   <point/>
+  </object>
+  <object id="409" x="363" y="611">
+   <point/>
+  </object>
+  <object id="410" x="410" y="614">
+   <point/>
+  </object>
+  <object id="411" x="476" y="614">
+   <point/>
+  </object>
+  <object id="412" x="325" y="624">
    <point/>
   </object>
  </objectgroup>

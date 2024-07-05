@@ -1,7 +1,13 @@
 ﻿#pragma once
 #include "../Manager/CollisionManager.h"
 #include "../Manager/FpsManager.h"
+#include "../Manager/ParticleSystemManager.h"
 
+// Подключение типов врагов
+#include "../Enemy/BossEnemy/BossEnemy.h"
+#include "../Enemy/BaseEnemy/BaseRedEnemy.h"
+#include "../Enemy/BaseEnemy/BaseBlueEnemy.h"
+#include "../Enemy/BaseEnemy/BaseGreenEnemy.h"
 
 
 /**
@@ -51,19 +57,19 @@ public:
     void DrawGame(sf::RenderWindow& Window) const;
 
 private:
-    sf::FloatRect ScreenRect; // Для размеров окна игры
+    // TODO: Если размер экрана не пригодиться в использование, то удалить
+    sf::FloatRect ScreenRect; // Прямоугольник экрана игры
 
-    APlayer* PlayerPtr; // Динамические классы для основы игры
-    AGameMap* GameMapPtr;
-    std::vector<AEnemy*> EnemyVectorPtr;
-    std::vector<ABullet*> BulletsVectorPtr;
+    APlayer* PlayerPtr; // Указатель на игрока
+    AGameMap* GameMapPtr; // Указатель на игровую карту
+    std::vector<AEnemy*> EnemyVectorPtr; // Вектор врагов
+    std::vector<ABullet*> BulletsVectorPtr; // Вектор пуль
 
-    ASpriteManager* SpriteManagerPtr; // Для обработки страйта объектов
-    ACollisionManager* CollisionManagerPtr; // Для проверок коллизии
-    AFpsManager* FpsManagerPtr; // Для отображения кадров в игре
+    ASpriteManager* SpriteManagerPtr; // Менеджер спрайтов
+    ACollisionManager* CollisionManagerPtr; // Менеджер коллизий
+    AParticleSystemManager* ParticleSystemPtr; // Менеджер частиц
+    AFpsManager* FpsManagerPtr; // Менеджер FPS
 
-    sf::Clock DelayShotTimerHandle; // Для создания интервала между выстрелами
-    sf::View ViewPlayer; // Камера, чтобы сфокусироваться на персонаже
-
-    // TODO: Тест абстрактного класс
+    sf::Clock DelayShotTimerHandle; // Таймер для задержки выстрелов
+    sf::View ViewPlayer; // Камера для отображения игрового мира
 };

@@ -1,7 +1,10 @@
 ﻿#include "APawn.h"
 #include <cassert>
 
-
+/**
+ * @brief Конструктор класса APawn.
+ * Инициализирует флаги и параметры здоровья, скорости, а также создает объекты для шкалы здоровья и её текстуры.
+ */
 APawn::APawn()
     : bIsPawnJump(false)
       , PawnMaxHealth(0)
@@ -12,17 +15,31 @@ APawn::APawn()
 {
 }
 
+/**
+ * @brief Деструктор класса APawn.
+ * Удаляет объекты для шкалы здоровья и её текстуры.
+ */
 APawn::~APawn()
 {
     delete PawnHealthBarPtr;
     delete PawnHealthBarTexturePtr;
 }
 
+/**
+ * @brief Инициализирует шкалу здоровья пешки с текстурой.
+ * 
+ * @param TexturePath Путь к текстуре шкалы здоровья.
+ * @param Size Размер шкалы здоровья.
+ * @param Scale Масштаб шкалы здоровья.
+ * @param FillColor Цвет заполнения шкалы здоровья.
+ * @param BackgroundColor Цвет фона шкалы здоровья.
+ * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
+ */
 void APawn::InitPawnHealthBar(const std::string& TexturePath, const sf::Vector2f& Size, const sf::Vector2f& Scale,
                               const sf::Color& FillColor, const sf::Color& BackgroundColor,
                               ASpriteManager& SpriteManager)
 {
-    // Загрузка текстур шкалы здоровья
+    // Загрузка текстуры шкалы здоровья
     assert(PawnHealthBarTexturePtr->loadFromFile(TexturePath));
 
     // Инициализация шкалы здоровья
@@ -31,29 +48,40 @@ void APawn::InitPawnHealthBar(const std::string& TexturePath, const sf::Vector2f
     HealthBarSprite.setScale(Scale);
 }
 
-void APawn::InitPawnHealthBar(const sf::Vector2f& Size, const sf::Vector2f& Scale,
+/**
+ * @brief Инициализирует шкалу здоровья пешки без текстуры.
+ * 
+ * @param Size Размер шкалы здоровья.
+ * @param FillColor Цвет заполнения шкалы здоровья.
+ * @param BackgroundColor Цвет фона шкалы здоровья.
+ * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
+ */
+void APawn::InitPawnHealthBar(const sf::Vector2f& Size,
                               const sf::Color& FillColor, const sf::Color& BackgroundColor,
                               ASpriteManager& SpriteManager)
 {
     // Инициализация шкалы здоровья
     PawnHealthBarPtr->InitHealthBar(Size, FillColor, BackgroundColor, SpriteManager);
     HealthBarSprite.setTexture(*PawnHealthBarTexturePtr);
-    HealthBarSprite.setScale(Scale);
 }
 
 /**
-* @brief Получить по ссылки данные о состояние прыжка пешки.
-* 
-* @return Текущие состояние прыжка пешки.
-*/
+ * @brief Получить по ссылке данные о состоянии прыжка пешки.
+ * 
+ * @return Текущее состояние прыжка пешки.
+ */
 bool& APawn::GetPawnCanJump()
 {
     return bIsPawnJump;
 }
 
 /**
- * @brief Обновление состояния шкалы здоровья персонажа.
- * Рассчитывает текущее состояние шкалы и её положение на экране.
+ * @brief Обновляет шкалу здоровья пешки с указанием позиции для отрисовки.
+ * 
+ * @param CurrentHealth Текущее здоровье.
+ * @param MaxHealth Максимальное здоровье.
+ * @param HealthBarPosition Позиция шкалы здоровья.
+ * @param DrawHealthBarPosition Позиция для отрисовки шкалы здоровья.
  */
 void APawn::UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
                                 const sf::Vector2f& HealthBarPosition,
@@ -71,6 +99,13 @@ void APawn::UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
     }
 }
 
+/**
+ * @brief Обновляет шкалу здоровья пешки без изменения позиции для отрисовки.
+ * 
+ * @param CurrentHealth Текущее здоровье.
+ * @param MaxHealth Максимальное здоровье.
+ * @param HealthBarPosition Позиция шкалы здоровья.
+ */
 void APawn::UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
                                 const sf::Vector2f& HealthBarPosition)
 {
@@ -86,31 +121,30 @@ void APawn::UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
 }
 
 /**
-* @brief Установить текущие здоровье пешки.
-* Используеться, для изменения шкалы здоровья.
-*
-* @param NewPawnCurrentHealth Новое текущие здоровье пешки.
-*/
+ * @brief Установить текущее здоровье пешки. Используется для изменения шкалы здоровья.
+ * 
+ * @param NewPawnCurrentHealth Новое текущее здоровье пешки.
+ */
 void APawn::SetPawnCurrentHealth(int NewPawnCurrentHealth)
 {
     PawnCurrentHealth -= NewPawnCurrentHealth;
 }
 
 /**
-* @brief Получение текущего здоровья пешки.
-*
-* @return Текущее здоровье пешки.
-*/
+ * @brief Получение текущего здоровья пешки.
+ * 
+ * @return Текущее здоровье пешки.
+ */
 float APawn::GetPawnCurrentHealth() const
 {
     return PawnCurrentHealth;
 }
 
 /**
-* @brief Получение текущего значения здоровья пешки.
-* 
-* @return Текущее значение здоровья пешки.
-*/
+ * @brief Получение максимального здоровья пешки.
+ * 
+ * @return Максимальное здоровье пешки.
+ */
 float APawn::GetPawnMaxHealth() const
 {
     return PawnMaxHealth;

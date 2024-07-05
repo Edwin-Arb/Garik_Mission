@@ -4,45 +4,62 @@
  * @brief Конструктор для инициализации пули.
  * 
  * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+ * @param BulletTextureRect Прямоугольник текстуры пули.
  * @param ShootAt Тип цели, на которую направлена пуля.
  * @param StartPosition Начальная позиция пули.
  * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
  */
-// TODO: Испраавить EBulletType &ShootAt название аргумента конструтора
-ABullet::ABullet(const bool NewVelocity, const EBulletType &ShootAt, const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager)
-    : BulletDamage(BULLET_DAMAGE)
-    , BulletType(ShootAt)
+ABullet::ABullet(const bool NewVelocity, const sf::IntRect& BulletTextureRect, const EBulletType& ShootAt,
+                 const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager)
+    : bIsDestroyed(false)
+      , BulletDamage(BULLET_DAMAGE)
+      , BulletType(ShootAt)
 {
-    InitBullet(NewVelocity, StartPosition, SpriteManager);
+    ABullet::InitBullet(NewVelocity, BulletTextureRect, StartPosition, SpriteManager);
 }
 
 /**
- * @brief Инициализирует текструру и создаёт спрайт для пули.
+ * @brief Инициализирует текстуру и создаёт спрайт для пули.
  * 
  * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+ * @param BulletTextureRect Прямоугольник текстуры пули.
  * @param StartPosition Начальная позиция пули.
  * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
  */
-void ABullet::InitBullet(const bool NewVelocity, const sf::Vector2f& StartPosition,  ASpriteManager &SpriteManager)
+void ABullet::InitBullet(const bool NewVelocity, const sf::IntRect& BulletTextureRect,
+                         const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager)
 {
     // Инициализация переменных для текстуры пули
     const std::string BulletTexturePath = ASSETS_PATH + "MainTiles/Bullets.png";
-    const sf::IntRect BulletRectTexture = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x), static_cast<int>(BULLET_SIZE.y));
-    //const sf::Vector2f BulletSize = {BULLET_SIZE.x * (DRAW_SCALE.x - 3),BULLET_SIZE.y * (DRAW_SCALE.y - 3)};
-    const sf::Vector2f BulletSize = {BULLET_SIZE.x, BULLET_SIZE.y};
+    const sf::Vector2f BulletSize = {
+        static_cast<float>(BulletTextureRect.getSize().x),
+        static_cast<float>(BulletTextureRect.getSize().y)
+    };
     const sf::Vector2f BulletOrigin = {0.5f, 0.5f};
-    
+
     // Установить направление, откуда начать движение
     ActorVelocity.x = NewVelocity ? BULLET_SPEED : -BULLET_SPEED;
 
     // Устанавливаем размер коллизии для пули
-    ActorCollisionRect = {StartPosition.x, StartPosition.y, BULLET_SIZE.x * DRAW_SCALE.x, BULLET_SIZE.y * DRAW_SCALE.y};
+    ActorCollisionRect = {StartPosition.x, StartPosition.y, BULLET_SIZE.x, BULLET_SIZE.y};
 
     // Инициализировать текстуру для пули и создать спрайт для неё
-    InitActorTexture(BulletTexturePath, BulletRectTexture, BulletSize, BulletOrigin, SpriteManager);
+    InitActorTexture(BulletTexturePath, BulletTextureRect, BulletSize, BulletOrigin, SpriteManager);
 
     // Задать стартовую позицию пули
-    ActorSprite.setPosition(StartPosition.x, StartPosition.y);
+    ActorSprite.setPosition(StartPosition);
+
+    sf::Vector2f ScaleBullet = NewVelocity ? sf::Vector2f(0.7f, 0.7f) : sf::Vector2f(-0.7f, 0.7f);
+    ActorSprite.setScale(ScaleBullet);
+
+    // TODO: Для тестирования разрушения анимации пули
+    // AnimBulletDestroy.AnimTexture.loadFromFile(BulletTexturePath);
+    // AnimBulletDestroy.FrameSpeed = 5.f;
+    // AnimBulletDestroy.FrameRect.emplace_back(BulletTextureRect);
+    // AnimBulletDestroy.FrameRect.emplace_back(22, 70, static_cast<int>(BULLET_SIZE.x) + 5,
+    //                                          static_cast<int>(BULLET_SIZE.y) + 5);
+    // AnimBulletDestroy.FrameRect.emplace_back(37, 71, static_cast<int>(BULLET_SIZE.x) + 5,
+    //                                          static_cast<int>(BULLET_SIZE.y) + 5);
 }
 
 /**
@@ -58,6 +75,26 @@ void ABullet::UpdateBulletPosition(float DeltaTime)
 
     // Устанавливаем положение спрайта с коллизией
     ActorSprite.setPosition(ActorCollisionRect.left, ActorCollisionRect.top);
+
+    // TODO: Для тестирования разрушения анимации пули
+    // if (bIsDestroyed)
+    // {
+    //     AnimBulletDestroy.AnimationUpdate(DeltaTime);
+    //     ActorSprite.setTextureRect(AnimBulletDestroy.GetCurrentFrame());
+    //
+    //     if (AnimBulletDestroy.GetCurrentFrameIndex() == 0)
+    //     {
+    //         // Удаляем пулю после завершения анимации
+    //         delete this;
+    //     }
+    // }
+    // else
+    // {
+    //     // Обновляем положение пули с учетом скорости и времени
+    //     ActorCollisionRect.left += ActorVelocity.x * DeltaTime;
+    //     ActorCollisionRect.top -= ActorVelocity.y * DeltaTime;
+    //     ActorSprite.setPosition(ActorCollisionRect.left, ActorCollisionRect.top);
+    // }
 }
 
 /**

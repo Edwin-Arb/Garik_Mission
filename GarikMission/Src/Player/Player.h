@@ -31,12 +31,12 @@ public:
     void InitPlayer(ASpriteManager& SpriteManager);
 
     /**
-     * @brief Получить по ссылки данные, если персонаж находить рядом с лестницей и может карабкаться по ней.
+     * @brief Получить по ссылке данные, если персонаж находится рядом с лестницей и может карабкаться по ней.
      * 
-     * @return Текущие состояние заимодействие с лестницей.
+     * @return Текущее состояние взаимодействия с лестницей.
      */
-    bool &GetIsOnLadder();
- 
+    bool& GetIsOnLadder();
+
     /**
      * @brief Обработка выстрелов персонажа.
      *
@@ -67,14 +67,14 @@ public:
     void DrawActor(sf::RenderWindow& Window) override;
 
 private:
-    bool bIsMoveRight;                   // Флаг, указывающий направление движения персонажа
-    bool bIsOnLadder;                    // Флаг, указывающий, находится ли игрок на лестнице
-    float PlayerJumpSpeed;               // Скорость прыжка персонажа
+    bool bIsMoveRight; // Флаг, указывающий направление движения персонажа
+    bool bIsOnLadder; // Флаг, указывающий, находится ли игрок на лестнице
+    float PlayerJumpSpeed; // Скорость прыжка персонажа
 
-    AAnimationManager IdleAnimation;
-    AAnimationManager WalkAnimation;
-    AAnimationManager JumpUpAnimation;
-    AAnimationManager JumpDownAnimation;
+    AAnimationManager IdleAnimation; // Анимация покоя
+    AAnimationManager WalkAnimation; // Анимация движения
+    AAnimationManager JumpUpAnimation; // Анимация прыжка вверх
+    AAnimationManager JumpDownAnimation; // Анимация прыжка вниз
 
-    AAnimationManager *CurrentAnimation;
+    AAnimationManager* CurrentAnimation; // Указатель на текущию анимацию персонажа
 };

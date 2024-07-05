@@ -1,8 +1,10 @@
 ﻿#include "AActor.h"
 #include <cassert>
 
+/**
+ * @brief Конструктор класса AActor.
+ */
 AActor::AActor()
-
 {
 }
 
@@ -27,6 +29,14 @@ void AActor::InitActorTexture(const std::string& TexturePath, const sf::IntRect&
     InitActorSprite(ActorTexturePtr, TextureRect, Size, Origin, SpriteManager);
 }
 
+/**
+ * @brief Инициализирует текстуру объекта.
+ * 
+ * @param TextureRect Прямоугольник, ограничивающий текстуру.
+ * @param Size Размер объекта.
+ * @param Origin Установить центр объекта.
+ * @param SpriteManager Менеджер спрайтов для обработки спрайтов объекта.
+ */
 void AActor::InitActorTexture(const sf::IntRect& TextureRect,
                               const sf::Vector2f& Size, const sf::Vector2f& Origin,
                               ASpriteManager& SpriteManager)
@@ -93,7 +103,17 @@ void AActor::SetActorCollisionRect(const sf::FloatRect& NewRect)
 }
 
 /**
- * @brief Получает по ссылки текущую скорость объекта.
+ * @brief Устанавливает спрайт объекта.
+ * 
+ * @param NewActorSprite Новый спрайт объекта.
+ */
+void AActor::SetActorSprite(const sf::Sprite& NewActorSprite)
+{
+    ActorSprite = NewActorSprite;
+}
+
+/**
+ * @brief Получает по ссылке текущую скорость объекта.
  *
  * @return Текущая скорость объекта.
  */
@@ -103,7 +123,7 @@ sf::Vector2f& AActor::GetActorVelocity()
 }
 
 /**
- * @brief Получает по ссылки текущую позицию объекта.
+ * @brief Получает по ссылке текущую позицию объекта.
  *
  * @return Текущая позиция объекта.
  */
@@ -113,11 +133,21 @@ sf::Vector2f& AActor::GetActorPosition()
 }
 
 /**
- * @brief Получает по ссылки прямоугольник, ограничивающий объект.
+ * @brief Получает по ссылке прямоугольник, ограничивающий объект.
  *
  * @return Прямоугольник, ограничивающий объект.
  */
 sf::FloatRect& AActor::GetActorCollisionRect()
 {
     return ActorCollisionRect;
+}
+
+/**
+ * @brief Получает текущий спрайт объекта.
+ *
+ * @return Текущий спрайт объекта.
+ */
+sf::Sprite AActor::GetActorSprite() const
+{
+    return ActorSprite;
 }

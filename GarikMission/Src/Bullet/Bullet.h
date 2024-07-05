@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../Abstract/AActor.h"
 #include "../Manager/SpriteManager.h"
+#include "../Manager/AnimationManager.h"
 
 /**
  * @brief Перечисление, определяющее различные типы пуль.
@@ -8,7 +9,7 @@
 enum class EBulletType
 {
     EBT_ShootAtPlayer, // Пуля направлена на игрока.
-    EBT_ShootAtEnemy   // Пуля направлена на врага.
+    EBT_ShootAtEnemy // Пуля направлена на врага.
 };
 
 /**
@@ -23,11 +24,12 @@ public:
      * @brief Конструктор для инициализации пули.
      * 
      * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+     * @param BulletTextureRect Прямоугольник текстуры пули.
      * @param ShootAt Тип цели, на которую направлена пуля.
      * @param StartPosition Начальная позиция пули.
      * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
      */
-    ABullet(const bool NewVelocity, const EBulletType& ShootAt,
+    ABullet(const bool NewVelocity, const sf::IntRect& BulletTextureRect, const EBulletType& ShootAt,
             const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager);
 
     /**
@@ -36,13 +38,15 @@ public:
     ~ABullet() override = default;
 
     /**
-     * @brief Инициализирует текструру и создаёт спрайт для пули.
+     * @brief Инициализирует текстуру и создаёт спрайт для пули.
      * 
      * @param NewVelocity Флаг, определяющий, имеет ли пуля новую скорость.
+     * @param BulletTextureRect Прямоугольник текстуры пули.
      * @param StartPosition Начальная позиция пули.
      * @param SpriteManager Ссылка на менеджер спрайтов для отрисовки.
      */
-    void InitBullet(bool NewVelocity, const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager);
+    virtual void InitBullet(const bool NewVelocity, const sf::IntRect& BulletTextureRect,
+                            const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager);
 
     /**
      * @brief Обновляет позицию пули на основе прошедшего времени.
@@ -73,6 +77,10 @@ public:
     void DrawActor(sf::RenderWindow& Window) override;
 
 private:
-    int BulletDamage;                 // Урон, наносимый пулей.
-    EBulletType BulletType;           // Тип пули (игрок или враг).
+    int BulletDamage; // Урон, наносимый пулей.
+    EBulletType BulletType; // Тип пули (игрок или враг).
+
+    // TODO: Для тестирования разрушения анимации пули
+    bool bIsDestroyed; // Флаг, показывающий, уничтожена ли пуля.
+    AAnimationManager AnimBulletDestroy; // Анимация уничтожения пули.
 };

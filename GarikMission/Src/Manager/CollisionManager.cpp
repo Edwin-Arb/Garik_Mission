@@ -2,7 +2,6 @@
 #include "CollisionManager.h"
 #include "iostream"
 
-
 /**
  * @brief Конструктор класса ACollisionManager.
  * 
@@ -11,8 +10,9 @@
  */
 ACollisionManager::ACollisionManager(APlayer& Player, AGameMap& GameMap)
     : PlayerRef(Player)
-    , GameMapRef(GameMap)
+      , GameMapRef(GameMap)
 {
+    // Конструктор инициализирует ссылки на персонажа и игровую карту.
 }
 
 /**
@@ -52,7 +52,6 @@ bool ACollisionManager::CheckBulletCollisionWithGameMap(AActor& Bullet) const
  * 
  * @param Bullet Пуля для проверки столкновения.
  * @param PawnRect Прямоугольник коллизии пешки.
- * 
  * @return true, если есть столкновение, иначе false.
  */
 bool ACollisionManager::CheckBulletCollisionWithPawn(AActor& Bullet, const sf::FloatRect& PawnRect) const
@@ -67,9 +66,12 @@ bool ACollisionManager::CheckBulletCollisionWithPawn(AActor& Bullet, const sf::F
  * @param BulletsVectorPtr Указатель на вектор пуль.
  * @param EnemyVectorPtr Указатель на вектор врагов.
  * @param Player Ссылка на персонажа.
+ * @param ParticleSystem Ссылка на менеджер частиц.  // TODO: Тест анимация частиц.
  */
 void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr,
-                                                 std::vector<AEnemy*>& EnemyVectorPtr, APlayer &Player) const
+                                                 std::vector<AEnemy*>& EnemyVectorPtr,
+                                                 APlayer& Player,
+                                                 AParticleSystemManager& ParticleSystem) const
 {
     // Векторы для хранения пуль и врагов для удаления из основных векторов
     std::vector<ABullet*> BulletsToRemove;
@@ -81,16 +83,16 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
         // Проверяем столкновение с игровой картой и её границами 
         if (CheckBulletCollisionWithGameMap(*Bullet))
         {
-            // Добавляем пулю для удаления
-            BulletsToRemove.emplace_back(Bullet); 
+            // Добавляем пулю на удаление
+            BulletsToRemove.emplace_back(Bullet);
         }
 
         // Проверяем столкновение с персонажем
         if (CheckBulletCollisionWithPawn(*Bullet, Player.GetActorCollisionRect()) &&
             Bullet->GetBulletType() == EBulletType::EBT_ShootAtPlayer)
         {
-            // Добавляем пулю для удаления
-            BulletsToRemove.emplace_back(Bullet); 
+            // Добавляем пулю на удаление
+            BulletsToRemove.emplace_back(Bullet);
 
             // TODO: Уменьшаем здоровье персонажа, пока он не умрет
             if (PlayerRef.GetPawnMaxHealth() > DEATH)
@@ -106,13 +108,13 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
             if (CheckBulletCollisionWithPawn(*Bullet, Enemy->GetActorCollisionRect()) &&
                 Bullet->GetBulletType() == EBulletType::EBT_ShootAtEnemy)
             {
-                // Добавляем пулю для удаления
+                // Добавляем пулю на удаление
                 BulletsToRemove.emplace_back(Bullet);
 
                 // Уменьшаем здоровье врага
                 Enemy->SetPawnCurrentHealth(Bullet->GetBulletDamage());
 
-                // Добавляем врага для удаления, если его здоровье меньше нуля
+                // Добавляем врага на удаление, если его здоровье меньше нуля
                 if (Enemy->GetPawnCurrentHealth() <= DEATH)
                 {
                     PawnsToRemove.emplace_back(Enemy);
@@ -149,8 +151,8 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
  * @param bCanJump Может ли персонаж прыгать.
  * @param bCanClimb Может ли персонаж карабкаться.
  */
-void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f &ObjectVelocity,
-                                                         bool& bCanJump, bool& bCanClimb) const
+void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
+                                                       bool& bCanJump, bool& bCanClimb) const
 {
     bCanClimb = false;
 

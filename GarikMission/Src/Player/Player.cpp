@@ -7,16 +7,16 @@
  * Инициализирует начальные значения членов класса.
  */
 APlayer::APlayer()
-    : bIsMoveRight(true) // Персонаж смотрит вправо при инициализации
-      , bIsOnLadder(false) // Персонаж не на лестнице при инициализации
-      , PlayerJumpSpeed(200.f)
-      , CurrentAnimation(nullptr)
+    : bIsMoveRight(true)        // Персонаж смотрит вправо при инициализации
+    , bIsOnLadder(false)        // Персонаж не на лестнице при инициализации
+    , PlayerJumpSpeed(200.f)    // Установка скорости прыжка персонажа
+    , CurrentAnimation(nullptr) // Инициализация указателя на текущую анимацию
 {
     // Персонаж может прыгать при инициализации
     bIsPawnJump = true;
 
     // Максимальное и текущие здоровья персонажа,
-    // чтобы использовать для ослеживания шкалы здоровья.
+    // чтобы использовать для отслеживания шкалы здоровья.
     PawnMaxHealth = 400.f;
     PawnCurrentHealth = PawnMaxHealth;
 
@@ -58,8 +58,8 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     const std::string PlayerTextureHealthBarPath = ASSETS_PATH + "MainTiles/HealthBarPlayer.png";
     const sf::Vector2f HealthBarSize = sf::Vector2f(12.f, 2.f);
     const sf::Vector2f HealthBarScale = sf::Vector2f(0.2f, 0.2f);
-    const sf::Color HealthBarFrontColor = sf::Color::Red;
-    const sf::Color HealthBarBackgroundColor = sf::Color::Yellow;
+    const sf::Color HealthBarFrontColor = sf::Color::Green;
+    const sf::Color HealthBarBackgroundColor = sf::Color(202, 196, 176);
 
     // Инициализация шкалы здоровья
     InitPawnHealthBar(PlayerTextureHealthBarPath, HealthBarSize, HealthBarScale,
@@ -114,7 +114,7 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 }
 
 /**
-* @brief Получить по ссылки данные, если персонаж находить рядом с лестницей и может карабкаться по ней.
+* @brief Получить по ссылке данные, если персонаж находить рядом с лестницей и может карабкаться по ней.
 * 
 * @return Текущие состояние заимодействие с лестницей.
 */
@@ -137,9 +137,11 @@ void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASprit
     {
         const float SpawnBulletOffsetX = bIsMoveRight ? 12.f : 0.f;
         constexpr float SpawnBulletOffsetY = 11.f;
+        const sf::IntRect BulletRectTexture = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x),
+                                                          static_cast<int>(BULLET_SIZE.y));
 
         // Создание нового снаряда и добавление его в вектор снарядов
-        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtEnemy,
+        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, BulletRectTexture, EBulletType::EBT_ShootAtEnemy,
                                                   sf::Vector2f(ActorCollisionRect.left + SpawnBulletOffsetX,
                                                                ActorCollisionRect.top + SpawnBulletOffsetY),
                                                   SpriteManager));

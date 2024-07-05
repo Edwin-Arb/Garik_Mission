@@ -1,6 +1,9 @@
 ﻿#include "GameMap.h"
 #include <iostream>
 
+#include <tmxlite/TileLayer.hpp>
+#include <tmxlite/Tileset.hpp>
+
 /**
  * @brief Конструктор класса AGameMap.
  *

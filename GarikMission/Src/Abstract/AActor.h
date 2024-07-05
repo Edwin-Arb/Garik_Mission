@@ -1,11 +1,22 @@
 ﻿#pragma once
+
 #include "../Constants.h"
 #include "../Manager/SpriteManager.h"
 
+/**
+ * @brief Базовый класс для всех игровых объектов.
+ */
 class AActor
 {
 public:
+    /**
+     * @brief Конструктор класса AActor.
+     */
     AActor();
+
+    /**
+     * @brief Виртуальный деструктор класса AActor.
+     */
     virtual ~AActor() = default;
 
     /**
@@ -66,7 +77,7 @@ public:
      * @param NewPosition Новая позиция объекта.
      */
     void SetActorPosition(const sf::Vector2f& NewPosition);
-    
+
     /**
      * @brief Устанавливает прямоугольник объекта.
      *
@@ -75,25 +86,39 @@ public:
     void SetActorCollisionRect(const sf::FloatRect& NewRect);
 
     /**
-     * @brief Получает по ссылки текущую скорость объекта.
+     * @brief Устанавливает новый спрайт объекта.
+     *
+     * @param NewActorSprite Новый спрайт объекта.
+     */
+    void SetActorSprite(const sf::Sprite& NewActorSprite);
+
+    /**
+     * @brief Получает по ссылке текущую скорость объекта.
      *
      * @return Текущая скорость объекта.
      */
-    sf::Vector2f &GetActorVelocity();
+    sf::Vector2f& GetActorVelocity();
 
     /**
-     * @brief Получает по ссылки текущую позицию объекта.
+     * @brief Получает по ссылке текущую позицию объекта.
      *
      * @return Текущая позиция объекта.
      */
-    sf::Vector2f &GetActorPosition();
+    sf::Vector2f& GetActorPosition();
 
     /**
-     * @brief Получает по ссылки прямоугольник, ограничивающий объект.
+     * @brief Получает по ссылке прямоугольник, ограничивающий объект.
      *
      * @return Прямоугольник, ограничивающий объект.
      */
-    sf::FloatRect &GetActorCollisionRect();
+    sf::FloatRect& GetActorCollisionRect();
+
+    /**
+     * @brief Получает текущий спрайт объекта.
+     *
+     * @return Текущий спрайт объекта.
+     */
+    sf::Sprite GetActorSprite() const;
 
     /**
      * @brief Отрисовывает объект на экране. Будет переопределён в классах-наследниках.
@@ -103,12 +128,12 @@ public:
     virtual void DrawActor(sf::RenderWindow& Window) = 0;
 
 protected:
-    sf::Vector2f ActorSize;                           // Размер объекта.
-    sf::Vector2f ActorVelocity;                       // Вектор скорости.
-    sf::FloatRect ActorCollisionRect;                 // Прямоугольник коллизии.
-    sf::Vector2f ActorDrawPosition;                   // Позиция отрисовки.
-    sf::Sprite ActorSprite;                           // Спрайт для установки текстуры.
+    sf::Vector2f ActorSize; // Размер объекта.
+    sf::Vector2f ActorVelocity; // Вектор скорости.
+    sf::FloatRect ActorCollisionRect; // Прямоугольник коллизии.
+    sf::Vector2f ActorDrawPosition; // Позиция отрисовки.
+    sf::Sprite ActorSprite; // Спрайт для установки текстуры.
 
 private:
-    std::unique_ptr<sf::Texture> ActorTexturePtr;     // Указатель на текстуру.
+    std::unique_ptr<sf::Texture> ActorTexturePtr; // Указатель на текстуру.
 };

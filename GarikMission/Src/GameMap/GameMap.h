@@ -1,11 +1,8 @@
-﻿#ifndef GAMEMAP_HPP
-#define GAMEMAP_HPP
+﻿#pragma once
 
 #include <vector>
 #include <tmxlite/Layer.hpp>
 #include <tmxlite/Map.hpp>
-#include <tmxlite/TileLayer.hpp>
-#include <tmxlite/Tileset.hpp>
 
 #include "../Constants.h"
 #include "../Player/Player.h"
@@ -105,5 +102,3 @@ private:
 
     std::vector<sf::FloatRect> LadderCollisionLayer; // Вектор прямоугольников лестниц для коллизий
 };
-
-#endif GAMEMAP_HPP

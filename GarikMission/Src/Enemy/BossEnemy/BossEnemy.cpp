@@ -1,10 +1,9 @@
 #include "BossEnemy.h"
 
-
 /**
- * @brief Конструктор босса.
+ * @brief Конструктор для инициализации босса.
  * 
- * @param MaxPatrolDistance Максимальная дистанция патрулирования.
+ * @param MaxPatrolDistance Максимальная дистанция патрулирования босса.
  * @param StartPosition Начальная позиция босса.
  */
 ABossEnemy::ABossEnemy(float MaxPatrolDistance, const sf::Vector2f& StartPosition)
@@ -12,7 +11,7 @@ ABossEnemy::ABossEnemy(float MaxPatrolDistance, const sf::Vector2f& StartPositio
       , BossSpecialAttackCooldown(3.f)
       , CurrentSpecialAttackCooldown(0.f)
 {
-    // Увеличение параметров босса
+    // Установка параметров босса
     PawnMaxHealth = ENEMY_MAX_HEALTH * 2.f;
     PawnCurrentHealth = PawnMaxHealth;
     PawnSpeed = ENEMY_SPEED;
@@ -30,56 +29,41 @@ ABossEnemy::ABossEnemy(float MaxPatrolDistance, const sf::Vector2f& StartPositio
 }
 
 /**
- * @brief Инициализация босса.
+ * @brief Инициализирует босса текстурами и анимациями.
  * 
  * @param SpriteManager Менеджер спрайтов для загрузки ресурсов.
  */
 void ABossEnemy::InitEnemy(ASpriteManager& SpriteManager)
 {
-    // Используем базовый метод для инициализации
+    // Инициализация базового класса
     AEnemy::InitEnemy(SpriteManager);
 
-    // Установка уникальной текстуры и анимаций для босса
-    const std::string BossTexturePath = ASSETS_PATH + "MainTiles/Enemy.png";
+    // Установка текстуры и анимации для босса
     const sf::IntRect BossRectTexture = sf::IntRect(48, 33, static_cast<int>(ENEMY_SIZE.x),
                                                     static_cast<int>(ENEMY_SIZE.y));
-    //const sf::Vector2f BossSize = {ActorSize.x * DRAW_SCALE.x, ActorSize.y * DRAW_SCALE.y};
-    const sf::Vector2f BossOrigin = {0.5f, 0.5f};
 
-    // Инициализировать текстуру для босса и создание спрайта для него.
-    InitActorTexture(BossTexturePath, BossRectTexture, ActorSize, BossOrigin, SpriteManager);
-    //ActorSprite.setScale(20.f, 20.f);
-
-    // BossTexture.loadFromFile(BossTexturePath);
-    // BossSprite.setTexture(BossTexture);
-    // BossSprite.setOrigin(BossOrigin);
-    // BossSprite.setTextureRect(BossRectTexture);
-    // SpriteManager.SetSpriteSize(BossSprite, ActorSize);
-
+    InitActorTexture(EnemyTexturePath, BossRectTexture, ActorSize, EnemyOrigin, SpriteManager);
 
     RectCollisionTest.setSize(ActorSize);
 
-
-    WalkAnimation.AnimTexture.loadFromFile(BossTexturePath);
+    WalkAnimation.AnimTexture.loadFromFile(EnemyTexturePath);
     WalkAnimation.FrameSpeed = 5.f;
     WalkAnimation.FrameRect.emplace_back(BossRectTexture);
     WalkAnimation.FrameRect.emplace_back(32, 33, static_cast<int>(ENEMY_SIZE.x), static_cast<int>(ENEMY_SIZE.y));
-    
-    //SpriteManager.SetShapeRelativeOrigin(LineTraceDetectionArea, 0.5f, 0.5f);
-    //LineTraceDetectionArea.setFillColor(sf::Color(155, 0, 0, 128));
-    //InitPawnHealthBar(sf::Vector2f(20.f, 4.f), sf::Vector2f(0.4f, 0.4f), sf::Color::Green, sf::Color::Red, SpriteManager);
 }
 
 /**
- * @brief Босс открывает огонь в сторону персонажа.
+ * @brief Выполняет выстрелы босса.
  * 
- * @param SpawnBulletOffsetY
+ * @param SpawnBulletOffsetY Смещение по оси Y для спавна пули.
  * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
  * @param SpriteManager Менеджер спрайтов для управления спрайтами.
  */
-void ABossEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager)
+void ABossEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*>& BulletsVectorPtr,
+                            ASpriteManager& SpriteManager)
 {
     AEnemy::EnemyShoot(15.f, BulletsVectorPtr, SpriteManager);
+
     // Реализация специальной атаки босса
     if (CurrentSpecialAttackCooldown <= 0.f)
     {
@@ -89,29 +73,31 @@ void ABossEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*
 }
 
 /**
- * @brief Специальная атака босса.
+ * @brief Выполняет специальную атаку босса.
  * 
  * @param BulletsVectorPtr Указатель на вектор пуль, в который добавляются выстрелы.
  * @param SpriteManager Менеджер спрайтов для управления спрайтами.
  */
 void ABossEnemy::SpecialAttack(std::vector<ABullet*>& BulletsVectorPtr, ASpriteManager& SpriteManager) const
 {
-    // TODO: Пример реализации специальной атаки: стрельба веером из нескольких пуль
-    for (int i = -2; i <= 2; ++i)
-    {
-        float OffsetX = (bIsMoveRight ? 10.f : 0.f) + i * 5.f;
-        BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, EBulletType::EBT_ShootAtPlayer,
-                                                  sf::Vector2f(ActorCollisionRect.left + OffsetX,
-                                                               ActorCollisionRect.top + 9.f),
-                                                  SpriteManager));
-    }
+    // TODO: Пример реализации специальной атаки босса
+    // Например, стрельба веером из нескольких пуль
+    // for (int i = -2; i <= 2; ++i)
+    // {
+    //     float OffsetX = (bIsMoveRight ? 10.f : 0.f) + i * 5.f;
+    //     BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight,
+    //                                               EBulletType::EBT_ShootAtPlayer,
+    //                                               sf::Vector2f(ActorCollisionRect.left + OffsetX,
+    //                                                            ActorCollisionRect.top + 9.f),
+    //                                               SpriteManager));
+    // }
 }
 
 /**
- * @brief Обновление движения босса.
+ * @brief Обновляет движение босса.
  * 
  * @param DeltaTime Время, прошедшее с последнего обновления.
- * @param Player Ссылка на объект персонажа.
+ * @param Player Ссылка на объект игрока.
  * @param GameMap Ссылка на объект игровой карты.
  * @param CollisionManager Менеджер коллизий.
  */
@@ -119,24 +105,15 @@ void ABossEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
                                  const AGameMap& GameMap,
                                  const ACollisionManager& CollisionManager)
 {
-    // Используем базовый метод для обновления движения
+    // Обновление движения базового класса
     AEnemy::UpdateEnemyMove(DeltaTime, Player, GameMap, CollisionManager);
 
     // TODO: Test collision
-    //RectCollisionTest.setPosition(ActorCollisionRect.left, ActorCollisionRect.top);
-    //BossSprite.setPosition(ActorCollisionRect.left, ActorCollisionRect.top);
+    // RectCollisionTest.setPosition(ActorCollisionRect.left, ActorCollisionRect.top);
 
-    // Обновление кулдауна специальной атаки
+    // Обновление времени до следующей специальной атаки
     if (CurrentSpecialAttackCooldown > 0.f)
     {
         CurrentSpecialAttackCooldown -= DeltaTime;
     }
-}
-
-void ABossEnemy::DrawActor(sf::RenderWindow& Window)
-{
-    //Window.draw(RectCollisionTest);
-    //Window.draw(BossSprite);
-
-    AEnemy::DrawActor(Window);
 }

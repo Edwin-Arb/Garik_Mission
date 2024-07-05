@@ -12,10 +12,9 @@ public:
      * @brief Устанавливает размер спрайта.
      * 
      * @param Sprite Ссылка на спрайт, размер которого нужно изменить.
-     * @param DesiredWidth Желаемая ширина спрайта.
-     * @param DesiredHeight Желаемая высота спрайта.
+     * @param DesiredSize Желаемый размер спрайта в виде вектора (ширина, высота).
      */
-    void SetSpriteSize(sf::Sprite& Sprite, const sf::Vector2f &DesiredSize);
+    void SetSpriteSize(sf::Sprite& Sprite, const sf::Vector2f& DesiredSize);
 
     /**
      * @brief Устанавливает размер формы.
