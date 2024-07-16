@@ -1,6 +1,5 @@
 ﻿// ReSharper disable CppMemberFunctionMayBeStatic
 #include "CollisionManager.h"
-#include "iostream"
 
 /**
  * @brief Конструктор класса ACollisionManager.
@@ -128,8 +127,8 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
     for (ABullet* BulletRemove : BulletsToRemove)
     {
         // TODO: Выводим информацию для тестирования, удалить позже
-        std::cout << "Delete a bullet at position: " << BulletRemove->GetActorCollisionRect().left << ", "
-            << BulletRemove->GetActorCollisionRect().top << std::endl;
+        //std::cout << "Delete a bullet at position: " << BulletRemove->GetActorCollisionRect().left << ", "
+        //<< BulletRemove->GetActorCollisionRect().top << std::endl;
 
         std::erase(BulletsVectorPtr, BulletRemove);
         delete BulletRemove;
@@ -144,18 +143,22 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
 }
 
 /**
- * @brief Обрабатывает столкновение персонажа с игровой картой.
+ * @brief Обрабатывает столкновение пешки с игровой картой.
  * 
  * @param PawnRect Прямоугольник коллизии персонажа.
  * @param ObjectVelocity Вектор скорости объекта персонажа.
+ * @param EnemyPtr Указатель на врага.
  * @param bCanJump Может ли персонаж прыгать.
  * @param bCanClimb Может ли персонаж карабкаться.
  */
-void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
-                                                       bool& bCanJump, bool& bCanClimb) const
+void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect,
+                                                       sf::Vector2f& ObjectVelocity,
+                                                       bool& bCanJump,
+                                                       bool& bCanClimb,
+                                                       AEnemy* EnemyPtr) const
 {
     bCanClimb = false;
-
+    
     // Проверяем столкнование персонажа с препятствиями игровой карты
     for (const auto& Obstacle : GameMapRef.GetGameMapCollisionVector())
     {
@@ -182,6 +185,11 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, 
                 PawnRect.left += FromLeft ? -OverlapLeft : OverlapRight;
                 // Останавливаем горизонтальное движение персонажа
                 ObjectVelocity.x = 0.f;
+
+                if (EnemyPtr)
+                {
+                    EnemyPtr->ChangeDirection();
+                }
             }
             else // В противном случае это вертикальное столкновение
             {
@@ -199,10 +207,24 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, 
         }
     }
 
-    // Проверяем, находится ли персонаж на лестнице
-    for (const auto& Ladder : GameMapRef.GetLadderCollisionVector())
+    // Проверяем, находится ли персонаж на участки карты, который наносит урон
+    for (const auto& DamageLayer : GameMapRef.GetDamageCollisionVector())
     {
-        if (PawnRect.intersects(Ladder))
+        if (PawnRect.intersects(DamageLayer))
+        {
+            // Устанавливаем флаг для персонажа(игрока) на "Умер", если пересекли коллизию с уроном
+            bool PlayerDeath = true;
+            PlayerRef.SetIsDeathPlayer(PlayerDeath);
+            
+            break;
+        }
+    }
+    
+
+    // Проверяем, находится ли персонаж на лестнице
+    for (const auto& LadderLayer : GameMapRef.GetLadderCollisionVector())
+    {
+        if (PawnRect.intersects(LadderLayer))
         {
             bCanClimb = true;
             break;

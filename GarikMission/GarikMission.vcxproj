@@ -538,6 +538,7 @@
             <LinkCompiled>true</LinkCompiled>
         </ClCompile>
         <ClCompile Include="Src\GameMap\GameMap.cpp"/>
+        <ClCompile Include="Src\GameMap\TileAnimator.cpp"/>
         <ClCompile Include="Src\Main.cpp">
             <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
             <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -616,7 +617,7 @@
         <ClCompile Include="Src\Manager\AnimationManager.cpp"/>
         <ClCompile Include="Src\Manager\CollisionManager.cpp"/>
         <ClCompile Include="Src\Manager\FpsManager.cpp"/>
-        <ClCompile Include="Src\Manager\ParticleSystemManager.cpp" />
+        <ClCompile Include="Src\Manager\ParticleSystemManager.cpp"/>
         <ClCompile Include="Src\Manager\SpriteManager.cpp">
             <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
             <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -794,10 +795,11 @@
         <ClInclude Include="Src\Enemy\Enemy.h"/>
         <ClInclude Include="Src\GameMain\GameState.h"/>
         <ClInclude Include="Src\GameMap\GameMap.h"/>
+        <ClInclude Include="Src\GameMap\TileAnimator.h"/>
         <ClInclude Include="Src\Manager\AnimationManager.h"/>
         <ClInclude Include="Src\Manager\CollisionManager.h"/>
         <ClInclude Include="Src\Manager\FpsManager.h"/>
-        <ClInclude Include="Src\Manager\ParticleSystemManager.h" />
+        <ClInclude Include="Src\Manager\ParticleSystemManager.h"/>
         <ClInclude Include="Src\Manager\SpriteManager.h"/>
         <ClInclude Include="Src\Player\Player.h"/>
         <ClInclude Include="Src\UserInterface\HealthBar.h"/>
@@ -808,6 +810,9 @@
     </ItemGroup>
     <ItemGroup>
         <Content Include="tmxlite\src\detail\pugixml.LICENSE"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Src\GameObjects\"/>
     </ItemGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
     <ImportGroup Label="ExtensionTargets">

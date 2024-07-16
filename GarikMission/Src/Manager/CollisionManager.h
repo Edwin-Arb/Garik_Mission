@@ -55,19 +55,25 @@ public:
      * @param Player Ссылка на персонажа.
      * @param ParticleSystem Ссылка на менеджер частиц. // TODO: Тест анимация частиц.
      */
-    void CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr, std::vector<AEnemy*>& EnemyVectorPtr,
-                                  APlayer& Player, AParticleSystemManager& ParticleSystem) const;
+    void CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr,
+                                  std::vector<AEnemy*>& EnemyVectorPtr,
+                                  APlayer& Player,
+                                  AParticleSystemManager& ParticleSystem) const;
 
     /**
-     * @brief Обрабатывает столкновение персонажа с игровой картой.
-     * 
-     * @param PawnRect Прямоугольник персонажа для проверки и обработки столкновений.
-     * @param ObjectVelocity Скорость объекта (персонажа).
-     * @param bCanJump Флаг, позволяющий персонажу прыгать.
-     * @param bCanClimb Флаг, позволяющий персонажу взбираться.
-     */
-    void HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect, sf::Vector2f& ObjectVelocity,
-                                        bool& bCanJump, bool& bCanClimb) const;
+   * @brief Обрабатывает столкновение пешки с игровой картой.
+   * 
+   * @param PawnRect Прямоугольник коллизии персонажа.
+   * @param ObjectVelocity Вектор скорости объекта персонажа.
+   * @param EnemyPtr Указатель на врага.
+   * @param bCanJump Может ли персонаж прыгать.
+   * @param bCanClimb Может ли персонаж карабкаться.
+   */
+    void HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect,
+                                        sf::Vector2f& ObjectVelocity,
+                                        bool& bCanJump,
+                                        bool& bCanClimb,
+                                        AEnemy* EnemyPtr = nullptr) const;
 
 private:
     APlayer& PlayerRef; // Ссылка на объект персонажа.

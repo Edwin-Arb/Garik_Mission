@@ -41,6 +41,11 @@ public:
                             std::vector<ABullet*>& BulletsVectorPtr,
                             ASpriteManager& SpriteManager);
 
+    /**
+     * @brief Изменения направления врага.
+     */
+    virtual void ChangeDirection();
+
 protected:
     /**
      * @brief Вычисление позиции отрисовки врага.

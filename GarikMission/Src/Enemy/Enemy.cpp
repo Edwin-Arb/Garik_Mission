@@ -12,8 +12,8 @@ AEnemy::AEnemy(const float MaxPatrolDistance, const sf::Vector2f& StartPosition)
     : bIsMoveRight(true)
       , bIsPlayerDetected(false)
       , EnemyScale(1.f)
-      , MinMoveDistance(0.f)
-      , MaxMoveDistance(MaxPatrolDistance)
+      , MinMoveDistance(MaxPatrolDistance / 2.f)
+      , MaxMoveDistance(MaxPatrolDistance / 2.f)
       , EnemyTexturePath(ASSETS_PATH + "MainTiles/Enemy.png")
       , EnemyOrigin(0.5f, 0.5f)
       , EnemyHealthBarSize(10.f, 2.f)
@@ -105,6 +105,15 @@ void AEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*>& B
 }
 
 /**
+ * @brief Изменения направления врага.
+ */
+void AEnemy::ChangeDirection()
+{
+    bIsMoveRight = !bIsMoveRight;
+    ActorVelocity.x = bIsMoveRight ? PawnSpeed : -PawnSpeed;
+}
+
+/**
  * @brief Вычисление позиции отрисовки врага.
  */
 void AEnemy::CalculateEnemyDrawPosition()
@@ -131,12 +140,20 @@ void AEnemy::DetectPlayer(APlayer& Player, const AGameMap& GameMap)
     if (LineTraceDetectionArea.getGlobalBounds().intersects(Player.GetActorCollisionRect()))
     {
         bIsPlayerDetected = true;
+        sf::FloatRect DetectionBounds = LineTraceDetectionArea.getGlobalBounds();
+        sf::FloatRect PlayerBounds = Player.GetActorCollisionRect();
+
+        // Проверка пересечения с препятствиями
         for (const auto& Obstacle : GameMap.GetGameMapCollisionVector())
         {
-            if (LineTraceDetectionArea.getGlobalBounds().intersects(Obstacle))
+            if (DetectionBounds.intersects(Obstacle))
             {
-                bIsPlayerDetected = false;
-                break;
+                // Проверка, блокирует ли препятствие линию видимости
+                if (Obstacle.intersects(PlayerBounds))
+                {
+                    bIsPlayerDetected = false;
+                    break;
+                }
             }
         }
     }
@@ -174,16 +191,11 @@ void AEnemy::UpdateDirectionAndVelocity(float DeltaTime, APlayer& Player)
     else
     {
         // Движение влево или вправо в зависимости от текущего направления    
-        if (bIsMoveRight)
-        {
-            ActorVelocity.x = PawnSpeed * DeltaTime;
-            ActorSprite.setScale(EnemyScale * DRAW_SCALE.x, EnemyScale * DRAW_SCALE.y);
-        }
-        else
-        {
-            ActorVelocity.x = -PawnSpeed * DeltaTime;
-            ActorSprite.setScale(-EnemyScale * DRAW_SCALE.x, EnemyScale * DRAW_SCALE.y);
-        }
+        ActorVelocity.x = bIsMoveRight ? PawnSpeed * DeltaTime : -PawnSpeed * DeltaTime;
+        ActorSprite.setScale(bIsMoveRight ? EnemyScale * DRAW_SCALE.x : -EnemyScale * DRAW_SCALE.x,
+                             EnemyScale * DRAW_SCALE.y);
+
+        // Обновляем анимацию спрайта врага
         ActorSprite.setTextureRect(WalkAnimation.GetCurrentFrame());
         WalkAnimation.AnimationUpdate(DeltaTime);
     }
@@ -227,7 +239,7 @@ void AEnemy::UpdateMoveDistance()
         // Меняем направление движения только если персонаж не обнаружен
         if (!bIsPlayerDetected)
         {
-            bIsMoveRight = !bIsMoveRight;
+            ChangeDirection();
         }
     }
 }
@@ -238,6 +250,7 @@ void AEnemy::UpdateMoveDistance()
  * @param DeltaTime Время, прошедшее с последнего обновления.
  * @param Player Ссылка на объект персонажа.
  * @param GameMap Ссылка на объект игровой карты.
+ * @param CollisionManager Mенеджер коллизий.
  */
 void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
                              const AGameMap& GameMap,
@@ -249,7 +262,12 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
     UpdateDetectionAreaPosition();
     UpdateMoveDistance();
 
-    CollisionManager.HandlePawnCollisionWithGameMap(ActorCollisionRect, ActorVelocity, bIsPawnJump, bIsPawnJump);
+    // Проверка столкновений врага с коллизиями карты
+    CollisionManager.HandlePawnCollisionWithGameMap(ActorCollisionRect,
+                                                    ActorVelocity,
+                                                    bIsPawnJump,
+                                                    bIsPawnJump,
+                                                    this);
 
     // TODO: Нужна, чтобы установить положение каждого врага отдельно.
     // TODO: Позже переместиться в постоянную обработку Геймплея игры

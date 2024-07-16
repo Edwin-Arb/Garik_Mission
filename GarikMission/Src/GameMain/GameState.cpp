@@ -150,13 +150,21 @@ void AGameState::UpdateInput(float DeltaTime)
  */
 void AGameState::UpdateGameplay(float DeltaTime)
 {
+    // Обновление анимаций тайлов на карте
+    GameMapPtr->UpdateAnimatedTiles(DeltaTime);
+
     // Обновление движения персонажа
     PlayerPtr->UpdatePlayerMove(DeltaTime);
 
+    if (!PlayerPtr->GetIsDeathPlayer())
+    {
     // Проверка столкновения персонажа с объектами, коллизиями карты
     CollisionManagerPtr->HandlePawnCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(),
                                                         PlayerPtr->GetActorVelocity(),
-                                                        PlayerPtr->GetPawnCanJump(), PlayerPtr->GetIsOnLadder());
+                                                        PlayerPtr->GetPawnCanJump(),
+                                                        PlayerPtr->GetIsOnLadder());
+        
+    }
 
     // Обновление движения врагов
     for (auto Enemy : EnemyVectorPtr)
@@ -170,7 +178,8 @@ void AGameState::UpdateGameplay(float DeltaTime)
         Bullet->UpdateBulletPosition(DeltaTime);
     }
 
-    ParticleSystemPtr->InitParticleSystem();
+    // TODO: Тест системы частиц. К концу проекта доделать реализацию.
+    //ParticleSystemPtr->InitParticleSystem();
 
     // Проверка столкновений пуль
     CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemyVectorPtr, *PlayerPtr, *ParticleSystemPtr);
@@ -186,16 +195,19 @@ void AGameState::UpdateGameplay(float DeltaTime)
  */
 void AGameState::UpdateCamera(sf::RenderWindow& Window)
 {
-    // Фокусировка камеры на игроке
-    ViewPlayer = Window.getView();
-    ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
-    ViewPlayer.setCenter(PlayerPtr->GetActorPosition());
+    if (!PlayerPtr->GetIsDeathPlayer())
+    {
+        // Фокусировка камеры на игроке
+        ViewPlayer = Window.getView();
+        ViewPlayer.setSize(Window.getDefaultView().getSize() * ZOOM_FACTOR);
+        ViewPlayer.setCenter(PlayerPtr->GetActorPosition());
 
-    // Установка позиции FPS текста относительно персонажа
-    FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
-                                                   ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) + 10.f));
+        // Установка позиции FPS текста относительно персонажа
+        FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
+                                                       ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) + 10.f));
 
-    Window.setView(ViewPlayer);
+        Window.setView(ViewPlayer);
+    }
 }
 
 /**

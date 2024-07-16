@@ -37,6 +37,10 @@ public:
      */
     bool& GetIsOnLadder();
 
+
+    // TODO: добавить документацию
+    bool GetIsDeathPlayer() const;
+
     /**
      * @brief Обработка выстрелов персонажа.
      *
@@ -59,6 +63,7 @@ public:
      */
     void UpdatePlayerMove(float DeltaTime);
 
+    void SetIsDeathPlayer(bool IsDeath);
     /**
      * @brief Отрисовка персонажа на экране.
      *
@@ -67,14 +72,22 @@ public:
     void DrawActor(sf::RenderWindow& Window) override;
 
 private:
-    bool bIsMoveRight; // Флаг, указывающий направление движения персонажа
-    bool bIsOnLadder; // Флаг, указывающий, находится ли игрок на лестнице
-    float PlayerJumpSpeed; // Скорость прыжка персонажа
+    bool bIsMoveRight;                           // Флаг, указывающий направление движения персонажа
+    bool bIsOnLadder;                            // Флаг, указывающий, находится ли игрок на лестнице
+    bool bIsDeath;                               // Флаг, указывающий, мёртв ли персонаж
+    float PlayerJumpSpeed;                       // Скорость прыжка персонажа
 
-    AAnimationManager IdleAnimation; // Анимация покоя
-    AAnimationManager WalkAnimation; // Анимация движения
-    AAnimationManager JumpUpAnimation; // Анимация прыжка вверх
-    AAnimationManager JumpDownAnimation; // Анимация прыжка вниз
+    AAnimationManager IdleAnimation;             // Анимация покоя
+    AAnimationManager WalkAnimation;             // Анимация движения
+    AAnimationManager JumpUpAnimation;           // Анимация прыжка вверх
+    AAnimationManager JumpDownAnimation;         // Анимация прыжка вниз
+ 
+    AAnimationManager DeathAnimation;            // Анимация смерти персонажа
 
-    AAnimationManager* CurrentAnimation; // Указатель на текущию анимацию персонажа
+    AAnimationManager* CurrentAnimation;         // Указатель на текущию анимацию персонажа
+
+
+
+
+
 };

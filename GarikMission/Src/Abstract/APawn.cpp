@@ -88,15 +88,19 @@ void APawn::UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
                                 const sf::Vector2f& DrawHealthBarPosition)
 {
     // Обновление значений шкалы здоровья
-    PawnHealthBarPtr->Update(CurrentHealth, MaxHealth);
+    if (PawnCurrentHealth >= DEATH)
+    {
+        PawnHealthBarPtr->Update(CurrentHealth, MaxHealth);
+    }
+    
     PawnHealthBarPtr->SetPosition(HealthBarPosition);
     HealthBarSprite.setPosition(DrawHealthBarPosition);
 
     // TODO: Временное восстановление здоровья для тестирования
-    if (CurrentHealth <= DEATH)
-    {
-        PawnCurrentHealth = 400;
-    }
+    // if (CurrentHealth <= DEATH)
+    // {
+    //     PawnCurrentHealth = 400;
+    // }
 }
 
 /**
@@ -114,10 +118,10 @@ void APawn::UpdatePawnHealthBar(float CurrentHealth, const float MaxHealth,
     PawnHealthBarPtr->SetPosition(HealthBarPosition);
 
     // TODO: Временное восстановление здоровья для тестирования
-    if (CurrentHealth <= DEATH)
-    {
-        PawnCurrentHealth = 400;
-    }
+    // if (CurrentHealth <= DEATH)
+    // {
+    //     PawnCurrentHealth = 400;
+    // }
 }
 
 /**

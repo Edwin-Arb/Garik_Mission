@@ -7,10 +7,11 @@
  * Инициализирует начальные значения членов класса.
  */
 APlayer::APlayer()
-    : bIsMoveRight(true)        // Персонаж смотрит вправо при инициализации
-    , bIsOnLadder(false)        // Персонаж не на лестнице при инициализации
-    , PlayerJumpSpeed(200.f)    // Установка скорости прыжка персонажа
-    , CurrentAnimation(nullptr) // Инициализация указателя на текущую анимацию
+    : bIsMoveRight(true) // Персонаж смотрит вправо при инициализации
+      , bIsOnLadder(false) // Персонаж не на лестнице при инициализации
+      , bIsDeath(false) // Персонаж живой при старте игры
+      , PlayerJumpSpeed(200.f) // Установка скорости прыжка персонажа
+      , CurrentAnimation(nullptr) // Инициализация указателя на текущую анимацию
 {
     // Персонаж может прыгать при инициализации
     bIsPawnJump = true;
@@ -21,7 +22,7 @@ APlayer::APlayer()
     PawnCurrentHealth = PawnMaxHealth;
 
     // Скорость персонажа
-    PawnSpeed = PLAYER_SPEED;
+    PawnSpeed = 300;
 
     // Скорость и направление персонажа
     ActorVelocity = {0.f, 0.f};
@@ -111,6 +112,10 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 
     JumpDownAnimation.FrameRect.emplace_back(sf::IntRect(51, 33, static_cast<int>(PLAYER_SIZE.x),
                                                          static_cast<int>(PLAYER_SIZE.y)));
+
+
+    // Анимация смерти персонажа
+    DeathAnimation.FrameRect.emplace_back(sf::IntRect(0, 50, 15, 60));
 }
 
 /**
@@ -121,6 +126,11 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
 bool& APlayer::GetIsOnLadder()
 {
     return bIsOnLadder;
+}
+
+bool APlayer::GetIsDeathPlayer() const
+{
+    return bIsDeath;
 }
 
 /**
@@ -159,46 +169,49 @@ void APlayer::HandlePlayerMove(float DeltaTime)
     // Сброс скорости по оси X
     ActorVelocity.x = 0.f;
 
-    // Движение влево
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if (!bIsDeath)
     {
-        bIsMoveRight = false;
-        ActorVelocity.x = -PawnSpeed * DeltaTime;
-        ActorSprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
-    }
-    // Движение вправо
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-    {
-        bIsMoveRight = true;
-        ActorVelocity.x = PawnSpeed * DeltaTime;
-        ActorSprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
-    }
-    // Движение вверх (подъем по лестнице)
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-    {
-        if (bIsOnLadder)
+        // Движение влево
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
-            ActorVelocity.y = PawnSpeed * DeltaTime;
+            bIsMoveRight = false;
+            ActorVelocity.x = -PawnSpeed * DeltaTime;
+            ActorSprite.setScale(-1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
         }
-    }
-
-    // TODO: Возможно придёться убрать, так как есть гравитация, и спуск по лестнице бесмысленный
-    // Движение вниз (спуск по лестнице)
-    // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    // {
-    //     if (bIsOnLadder)
-    //     {
-    //         PlayerVelocity.y = -PlayerSpeed * DeltaTime;
-    //     }
-    // }
-
-    // Прыжок
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    {
-        if (bIsPawnJump)
+        // Движение вправо
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         {
-            bIsPawnJump = false;
-            ActorVelocity.y = PlayerJumpSpeed * DeltaTime;
+            bIsMoveRight = true;
+            ActorVelocity.x = PawnSpeed * DeltaTime;
+            ActorSprite.setScale(1.f * DRAW_SCALE.x, 1.f * DRAW_SCALE.y);
+        }
+        // Движение вверх (подъем по лестнице)
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        {
+            if (bIsOnLadder)
+            {
+                ActorVelocity.y = PawnSpeed * DeltaTime;
+            }
+        }
+
+        // TODO: Возможно придёться убрать, так как есть гравитация, и спуск по лестнице бесмысленный
+        // Движение вниз (спуск по лестнице)
+        // else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        // {
+        //     if (bIsOnLadder)
+        //     {
+        //         PlayerVelocity.y = -PlayerSpeed * DeltaTime;
+        //     }
+        // }
+
+        // Прыжок
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            if (bIsPawnJump)
+            {
+                bIsPawnJump = false;
+                ActorVelocity.y = PlayerJumpSpeed * DeltaTime;
+            }
         }
     }
 }
@@ -224,7 +237,6 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
         ActorCollisionRect.top + (PLAYER_SIZE.y * DRAW_SCALE.y) / 2.f
     };
 
-
     // TODO: Test Animation
     if (bIsPawnJump)
     {
@@ -249,12 +261,31 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
         }
     }
 
+    // Если здоровье меньше или равно 0, то проигрываем анимацию смерти и меняем флаг на "Умер"
+    if (PawnCurrentHealth <= DEATH)
+    {
+        bIsDeath = true;
+        CurrentAnimation = &DeathAnimation;
+    }
+
+    // Если персонаж мёрт, то от текущего здоровья отнимаем текущее,
+    // чтобы всегда шкала здоровья при смерте равнялась 0
+    if (bIsDeath)
+    {
+        // Устанавливаем здоровье персонажу
+        SetPawnCurrentHealth(GetPawnCurrentHealth());
+    }
+
     ActorSprite.setTextureRect(CurrentAnimation->GetCurrentFrame());
     CurrentAnimation->AnimationUpdate(DeltaTime);
 
-
     // Установка позиции спрайта персонажа
     ActorSprite.setPosition(ActorDrawPosition);
+}
+
+void APlayer::SetIsDeathPlayer(bool IsDeath)
+{
+    bIsDeath = IsDeath;
 }
 
 /**

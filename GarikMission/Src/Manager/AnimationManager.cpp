@@ -33,7 +33,7 @@ void AAnimationManager::AnimationUpdate(float DeltaTime)
  */
 void AAnimationManager::SetCurrentFrame(const int Frame)
 {
-    CurrentFrameIndex = Frame;
+    CurrentFrameIndex = static_cast<float>(Frame);
 }
 
 /**
@@ -53,5 +53,5 @@ int AAnimationManager::GetCurrentFrameIndex() const
  */
 sf::IntRect AAnimationManager::GetCurrentFrame() const
 {
-    return FrameRect[CurrentFrameIndex];
+    return FrameRect[static_cast<uint16_t>(CurrentFrameIndex)];
 }

@@ -42,12 +42,12 @@ constexpr float ENEMY_SPEED = 50.f;
 /**
  * @brief Скорость движения пуль в игре.
  */
-constexpr float BULLET_SPEED = 100.f;
+constexpr float BULLET_SPEED = 140.f;
 
 /**
  * @brief Значение гравитации, влияющее на падение объектов в игре.
  */
-constexpr float GRAVITY = -5.f;
+constexpr float GRAVITY = -5.f; // TODO: после тесто поставить на -5
 
 /**
  * @brief Коэффициент масштабирования для различных элементов игры.
