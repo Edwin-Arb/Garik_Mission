@@ -11,8 +11,8 @@
  */
 ABullet::ABullet(const bool NewVelocity, const sf::IntRect& BulletTextureRect, const EBulletType& ShootAt,
                  const sf::Vector2f& StartPosition, ASpriteManager& SpriteManager)
-    : bIsDestroyed(false)
-      , BulletDamage(BULLET_DAMAGE)
+    : 
+       BulletDamage(BULLET_DAMAGE)
       , BulletType(ShootAt)
 {
     ABullet::InitBullet(NewVelocity, BulletTextureRect, StartPosition, SpriteManager);

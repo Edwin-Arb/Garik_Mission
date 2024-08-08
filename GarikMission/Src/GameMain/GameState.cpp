@@ -14,7 +14,9 @@ AGameState::AGameState()
       SpriteManagerPtr(new ASpriteManager),
       CollisionManagerPtr(new ACollisionManager(*PlayerPtr, *GameMapPtr)),
       ParticleSystemPtr(new AParticleSystemManager),
-      FpsManagerPtr(new AFpsManager)
+      FpsManagerPtr(new AFpsManager),
+      GameTextPtr(new AUIText)
+      //ChestPtr(new AChestObject)
 {
 }
 
@@ -32,20 +34,35 @@ AGameState::~AGameState()
     delete CollisionManagerPtr;
     delete ParticleSystemPtr;
     delete FpsManagerPtr;
+    delete GameTextPtr;
 
     // Очищаем вектор врагов
-    for (auto Enemy : EnemyVectorPtr)
+    for (auto& Enemy : EnemyVectorPtr)
     {
         delete Enemy;
     }
     EnemyVectorPtr.clear();
 
     // Очищаем вектор пуль
-    for (auto Bullet : BulletsVectorPtr)
+    for (auto& Bullet : BulletsVectorPtr)
     {
         delete Bullet;
     }
     BulletsVectorPtr.clear();
+
+    // Очищаем вектор ключей
+    for (auto& Key : KeysVectorPtr)
+    {
+        delete Key;
+    }
+    KeysVectorPtr.clear();
+
+    // Очищаем векток сундуков
+    for (auto& Chest : ChestVectorPtr)
+    {
+        delete Chest;
+    }
+    ChestVectorPtr.clear();
 }
 
 /**
@@ -57,10 +74,13 @@ void AGameState::InitGame()
 {
     constexpr int CapacityVectorEnemy = 30; // Вместимость вектора врагов
     constexpr int CapacityVectorBullet = 50; // Вместимость вектора пуль
+    constexpr int CapacityVectorKey = 3; // Вместимость вектора ключей
 
     GameMapPtr->InitGameMap();
     PlayerPtr->InitPlayer(*SpriteManagerPtr);
     FpsManagerPtr->InitFpsText();
+    GameTextPtr->InitGameText();
+    //ChestPtr->InitChest(*SpriteManagerPtr);
 
     // Резервирование места для врагов
     EnemyVectorPtr.reserve(CapacityVectorEnemy);
@@ -113,6 +133,23 @@ void AGameState::InitGame()
 
     // Резервирование места для пуль
     BulletsVectorPtr.reserve(CapacityVectorBullet);
+
+    // Резервирование места для ключей
+    KeysVectorPtr.reserve(CapacityVectorKey);
+    // for (const sf::Vector2f& KeyPosition : GameMapPtr->SpawnBossEnemyPosition)
+    // {
+    //     AKeyObject* Key = new AKeyObject(KeyPosition + ENEMY_SIZE / 2.f);
+    //     Key->InitKeys(*SpriteManagerPtr);
+    //     KeysVectorPtr.emplace_back(Key);
+    // }
+
+    for (const sf::Vector2f& ChestPosition : GameMapPtr->SpawnChestPosition)
+    {
+        AChestObject* Chest = new AChestObject(ChestPosition); // Указать начальную позицию сундука
+        Chest->InitChest(*SpriteManagerPtr);
+        ChestVectorPtr.emplace_back(Chest);
+        AChestObject::ChestCount++;
+    }
 }
 
 /**
@@ -158,12 +195,11 @@ void AGameState::UpdateGameplay(float DeltaTime)
 
     if (!PlayerPtr->GetIsDeathPlayer())
     {
-    // Проверка столкновения персонажа с объектами, коллизиями карты
-    CollisionManagerPtr->HandlePawnCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(),
-                                                        PlayerPtr->GetActorVelocity(),
-                                                        PlayerPtr->GetPawnCanJump(),
-                                                        PlayerPtr->GetIsOnLadder());
-        
+        // Проверка столкновения персонажа с объектами, коллизиями карты
+        CollisionManagerPtr->HandlePawnCollisionWithGameMap(PlayerPtr->GetActorCollisionRect(),
+                                                            PlayerPtr->GetActorVelocity(),
+                                                            PlayerPtr->GetPawnCanJump(),
+                                                            PlayerPtr->GetIsOnLadder());
     }
 
     // Обновление движения врагов
@@ -182,10 +218,36 @@ void AGameState::UpdateGameplay(float DeltaTime)
     //ParticleSystemPtr->InitParticleSystem();
 
     // Проверка столкновений пуль
-    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemyVectorPtr, *PlayerPtr, *ParticleSystemPtr);
+    CollisionManagerPtr->CheckAllBulletCollisions(BulletsVectorPtr, EnemyVectorPtr, KeysVectorPtr, *PlayerPtr,
+                                                  *SpriteManagerPtr, *ParticleSystemPtr);
+
+    // Проверка столкновения персонажа с ключами
+    CollisionManagerPtr->CheckCollisionWithKey(*PlayerPtr, KeysVectorPtr);
 
     // Обновление отображения FPS
     FpsManagerPtr->UpdateFpsText(DeltaTime);
+
+    // Обновление отображения текста миссий(заданий)
+    GameTextPtr->UpdateMissionText();
+
+    // Обновления гравитации и состояния ключа
+    for (auto& Key : KeysVectorPtr)
+    {
+        Key->UpdateMoveKey(DeltaTime);
+        CollisionManagerPtr->CheckCollisionWithGameMap(Key->GetActorCollisionRect(),
+                                                       Key->GetActorVelocity());
+    }
+
+    // Обновление анимации сундуков, когда персонаж с ними пересикается 
+    for (const auto& Chest : ChestVectorPtr)
+    {
+        // Проверка на взаимодействие персонажа с сундуком
+        if (CollisionManagerPtr->CheckCollision(PlayerPtr->GetActorCollisionRect(), Chest->GetActorCollisionRect()))
+        {
+            Chest->OpenChest(); // Открываем сундук
+        }
+        Chest->ChestUpdateAnimation(DeltaTime);
+    }
 }
 
 /**
@@ -206,6 +268,10 @@ void AGameState::UpdateCamera(sf::RenderWindow& Window)
         FpsManagerPtr->SetPositionFpsText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 10.f,
                                                        ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) + 10.f));
 
+        // Установка позиции GameText относительно персонажа
+        GameTextPtr->SetPositionGameText(sf::Vector2f(ViewPlayer.getCenter().x - (ViewPlayer.getSize().x / 2) + 192.f,
+                                                      ViewPlayer.getCenter().y - (ViewPlayer.getSize().y / 2) - 2.f));
+
         Window.setView(ViewPlayer);
     }
 }
@@ -219,6 +285,12 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
 {
     // Отрисовка карты
     GameMapPtr->DrawGameMap(Window);
+
+    // Отрисовка сундуков, с которыми заимодействует персонаж
+    for (const auto& Chest : ChestVectorPtr)
+    {
+        Chest->DrawActor(Window);
+    }
 
     // Отрисовка персонажа
     PlayerPtr->DrawActor(Window);
@@ -237,4 +309,13 @@ void AGameState::DrawGame(sf::RenderWindow& Window) const
 
     // Отрисовка FPS
     FpsManagerPtr->DrawFpsText(Window);
+
+    // Отрисовка миссий текста игры
+    GameTextPtr->DrawGameText(Window);
+
+    // Отрисовка ключей, которые выпадают с боссов
+    for (auto& Key : KeysVectorPtr)
+    {
+        Key->DrawActor(Window);
+    }
 }

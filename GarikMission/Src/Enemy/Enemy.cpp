@@ -284,6 +284,11 @@ void AEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
                                      ActorCollisionRect.top - 4.f));
 }
 
+void AEnemy::EnemyDeath()
+{
+    delete this;
+}
+
 /**
 * @brief Отрисовка врага на экране.
 * 

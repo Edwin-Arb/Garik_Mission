@@ -65,11 +65,11 @@ void ABossEnemy::EnemyShoot(const float SpawnBulletOffsetY, std::vector<ABullet*
     AEnemy::EnemyShoot(15.f, BulletsVectorPtr, SpriteManager);
 
     // Реализация специальной атаки босса
-    if (CurrentSpecialAttackCooldown <= 0.f)
-    {
-        SpecialAttack(BulletsVectorPtr, SpriteManager);
-        CurrentSpecialAttackCooldown = BossSpecialAttackCooldown;
-    }
+    // if (CurrentSpecialAttackCooldown <= 0.f)
+    // {
+    //     SpecialAttack(BulletsVectorPtr, SpriteManager);
+    //     CurrentSpecialAttackCooldown = BossSpecialAttackCooldown;
+    // }
 }
 
 /**
@@ -116,4 +116,13 @@ void ABossEnemy::UpdateEnemyMove(float DeltaTime, APlayer& Player,
     {
         CurrentSpecialAttackCooldown -= DeltaTime;
     }
+}
+
+void ABossEnemy::OnDeath(std::vector<AKeyObject*>& KeysVector, ASpriteManager &SpriteManager, const sf::Vector2f& BossPosition)
+{
+    // Создаем ключ на позиции босса
+    AKeyObject* NewKey = new AKeyObject(BossPosition);
+    NewKey->InitKeys(SpriteManager);
+    ++NewKey->KeysCountFound;
+    KeysVector.emplace_back(NewKey);
 }

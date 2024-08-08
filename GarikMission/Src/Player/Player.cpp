@@ -1,5 +1,4 @@
 ﻿#include "Player.h"
-#include "../Manager/CollisionManager.h"
 
 
 /**
@@ -51,9 +50,9 @@ void APlayer::InitPlayer(ASpriteManager& SpriteManager)
     const sf::Vector2f PlayerOrigin = {0.5f, 0.5f};
 
     // Инициализировать текстуру для персонажа и создать спрайт для него
-    InitActorTexture(PlayerTexturePath, PlayerRectTexture,
-                     PlayerSize, PlayerOrigin,
-                     SpriteManager);
+    AActor::InitActorTexture(PlayerTexturePath, PlayerRectTexture,
+                             PlayerSize, PlayerOrigin,
+                          SpriteManager);
 
     // Инициализация переменных текстуры шкалы здоровья для персонажа
     const std::string PlayerTextureHealthBarPath = ASSETS_PATH + "MainTiles/HealthBarPlayer.png";
@@ -148,7 +147,7 @@ void APlayer::HandlePlayerShoots(std::vector<ABullet*>& BulletsVectorPtr, ASprit
         const float SpawnBulletOffsetX = bIsMoveRight ? 12.f : 0.f;
         constexpr float SpawnBulletOffsetY = 11.f;
         const sf::IntRect BulletRectTexture = sf::IntRect(7, 72, static_cast<int>(BULLET_SIZE.x),
-                                                          static_cast<int>(BULLET_SIZE.y));
+                                                          static_cast<int>(BULLET_SIZE.y)); 
 
         // Создание нового снаряда и добавление его в вектор снарядов
         BulletsVectorPtr.emplace_back(new ABullet(bIsMoveRight, BulletRectTexture, EBulletType::EBT_ShootAtEnemy,
@@ -273,7 +272,7 @@ void APlayer::UpdatePlayerMove(float DeltaTime)
     if (bIsDeath)
     {
         // Устанавливаем здоровье персонажу
-        SetPawnCurrentHealth(GetPawnCurrentHealth());
+        SetPawnCurrentHealth(static_cast<int>(GetPawnCurrentHealth()));
     }
 
     ActorSprite.setTextureRect(CurrentAnimation->GetCurrentFrame());

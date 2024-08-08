@@ -24,6 +24,10 @@ public:
      */
     ~AAnimationManager() = default;
 
+    // TODO: добавить документацию
+    // Проверяет, завершена ли анимация
+    bool IsAnimationFinished() const;
+
     /**
      * @brief Обновляет текущий кадр анимации на основе прошедшего времени.
      * 
@@ -39,6 +43,13 @@ public:
     void SetCurrentFrame(const int Frame);
 
     /**
+     * @brief Устанавливает флаг для остановки на последнем кадре.
+     * 
+     * @param bStop Флаг, указывающий, нужно ли остановить анимацию на последнем кадре.
+     */
+    void SetStopAtLastFrame(bool bStop);
+
+    /**
      * @brief Получает текущий индекс кадра анимации.
      * 
      * @return int Текущий индекс кадра анимации.
@@ -51,6 +62,10 @@ public:
      * @return sf::IntRect Прямоугольник текущего кадра анимации.
      */
     sf::IntRect GetCurrentFrame() const;
+
+private:
+    bool bIsAnimationFinished; // Флаг завершения анимации
+    bool bStopAtLastFrame; // Флаг для остановки анимации на последнем кадре
 
 public:
     float FrameSpeed; // Скорость смены кадров анимации.

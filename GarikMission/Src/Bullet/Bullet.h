@@ -81,6 +81,6 @@ private:
     EBulletType BulletType; // Тип пули (игрок или враг).
 
     // TODO: Для тестирования разрушения анимации пули
-    bool bIsDestroyed; // Флаг, показывающий, уничтожена ли пуля.
-    AAnimationManager AnimBulletDestroy; // Анимация уничтожения пули.
+    // bool bIsDestroyed; // Флаг, показывающий, уничтожена ли пуля.
+    // AAnimationManager AnimBulletDestroy; // Анимация уничтожения пули.
 };

@@ -27,7 +27,7 @@ constexpr int DEATH = 0;
 /**
  * @brief Значение здоровья врагов.
  */
-constexpr int ENEMY_MAX_HEALTH = 100;
+constexpr int ENEMY_MAX_HEALTH = 10;
 
 /**
  * @brief Скорость движения персонажа.
@@ -47,12 +47,12 @@ constexpr float BULLET_SPEED = 140.f;
 /**
  * @brief Значение гравитации, влияющее на падение объектов в игре.
  */
-constexpr float GRAVITY = -5.f; // TODO: после тесто поставить на -5
+constexpr float GRAVITY = -5.f; // TODO: после тесто поставить на -5.f
 
 /**
  * @brief Коэффициент масштабирования для различных элементов игры.
  */
-constexpr float ZOOM_FACTOR = 0.2f;
+constexpr float ZOOM_FACTOR = 0.2f; // TODO: после тестов поставить 0.2f
 
 /**
  * @brief Размер игрового персонажа (игрока).

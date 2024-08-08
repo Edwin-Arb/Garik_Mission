@@ -38,6 +38,7 @@ public:
 
     std::vector<sf::Vector2f> SpawnBaseEnemyPosition; // Вектор позиций базовых врагов
     std::vector<sf::Vector2f> SpawnBossEnemyPosition; // Вектор позиций босса врагов
+    std::vector<sf::Vector2f> SpawnChestPosition;     // Вектор позиций сундуков
 private:
     APlayer& PlayerRef; // Ссылка на игрока
     ATileAnimator TileAnimator; // Аниматор тайлов

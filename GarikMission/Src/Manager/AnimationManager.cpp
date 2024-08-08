@@ -6,8 +6,16 @@
  * Инициализирует скорость смены кадров и текущий индекс кадра.
  */
 AAnimationManager::AAnimationManager()
-    : FrameSpeed(0.1f), CurrentFrameIndex(0)
+    : bIsAnimationFinished(false),
+      bStopAtLastFrame(false),
+      FrameSpeed(0.1f),
+      CurrentFrameIndex(0)
 {
+}
+
+bool AAnimationManager::IsAnimationFinished() const
+{
+    return bIsAnimationFinished;
 }
 
 /**
@@ -17,12 +25,29 @@ AAnimationManager::AAnimationManager()
  */
 void AAnimationManager::AnimationUpdate(float DeltaTime)
 {
+    // Проверяем, если анимация уже завершена, то ничего не делаем
+    if (bIsAnimationFinished)
+    {
+        return;
+    }
+
+    // Увеличиваем время с учётом скорости анимации
     CurrentFrameIndex += FrameSpeed * DeltaTime;
 
     // Если текущий индекс превысил количество кадров, начинаем сначала
     if (CurrentFrameIndex >= FrameRect.size())
     {
-        CurrentFrameIndex = 0;
+        if (bStopAtLastFrame)
+        {
+            // Устанавливаем индекс на последний кадр
+            CurrentFrameIndex = FrameRect.size() - 1;
+            bIsAnimationFinished = true;
+        }
+        else
+        {
+            // Если анимация должна зацикливаться, начинаем сначала
+            CurrentFrameIndex = 0;
+        }
     }
 }
 
@@ -34,6 +59,17 @@ void AAnimationManager::AnimationUpdate(float DeltaTime)
 void AAnimationManager::SetCurrentFrame(const int Frame)
 {
     CurrentFrameIndex = static_cast<float>(Frame);
+    bIsAnimationFinished = false;
+}
+
+/**
+ * @brief Устанавливает флаг для остановки на последнем кадре.
+ * 
+ * @param bStop Флаг, указывающий, нужно ли остановить анимацию на последнем кадре.
+ */
+void AAnimationManager::SetStopAtLastFrame(bool bStop)
+{
+    bStopAtLastFrame = bStop;
 }
 
 /**

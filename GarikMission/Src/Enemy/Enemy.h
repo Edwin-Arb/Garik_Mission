@@ -97,6 +97,8 @@ public:
                                  const AGameMap& GameMap,
                                  const ACollisionManager& CollisionManager);
 
+    void EnemyDeath();
+
     /**
      * @brief Отрисовка врага на экране.
      * 

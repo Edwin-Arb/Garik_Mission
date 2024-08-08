@@ -15,6 +15,18 @@ ACollisionManager::ACollisionManager(APlayer& Player, AGameMap& GameMap)
 }
 
 /**
+* @brief Проверяет пересечение двух прямоугольников.
+* 
+* @param Rect1 Первый прямоугольник.
+* @param Rect2 Второй прямоугольник.
+* @return true, если прямоугольники пересекаются, иначе false.
+*/
+bool ACollisionManager::CheckCollision(const sf::FloatRect& Rect1, const sf::FloatRect& Rect2)
+{
+    return Rect1.intersects(Rect2);
+}
+
+/**
  * @brief Проверяет столкновение пули с игровой картой.
  * 
  * @param Bullet Пуля для проверки столкновения.
@@ -69,12 +81,14 @@ bool ACollisionManager::CheckBulletCollisionWithPawn(AActor& Bullet, const sf::F
  */
 void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsVectorPtr,
                                                  std::vector<AEnemy*>& EnemyVectorPtr,
+                                                 std::vector<AKeyObject*>& KeysVectorPtr,
                                                  APlayer& Player,
+                                                 ASpriteManager& SpriteManagerPtr,
                                                  AParticleSystemManager& ParticleSystem) const
 {
     // Векторы для хранения пуль и врагов для удаления из основных векторов
     std::vector<ABullet*> BulletsToRemove;
-    std::vector<APawn*> PawnsToRemove;
+    std::vector<APawn*> EnemyToRemove;
 
     // Перебираем все пули
     for (ABullet* Bullet : BulletsVectorPtr)
@@ -116,7 +130,7 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
                 // Добавляем врага на удаление, если его здоровье меньше нуля
                 if (Enemy->GetPawnCurrentHealth() <= DEATH)
                 {
-                    PawnsToRemove.emplace_back(Enemy);
+                    EnemyToRemove.emplace_back(Enemy);
                 }
                 break;
             }
@@ -135,10 +149,17 @@ void ACollisionManager::CheckAllBulletCollisions(std::vector<ABullet*>& BulletsV
     }
 
     // Удаляем врагов, которых убили пули
-    for (APawn* PawnRemove : PawnsToRemove)
+    for (APawn* EnemyRemove : EnemyToRemove)
     {
-        std::erase(EnemyVectorPtr, PawnRemove);
-        delete PawnRemove;
+        // Проверка, является ли враг боссом
+        ABossEnemy* BossEnemy = dynamic_cast<ABossEnemy*>(EnemyRemove);
+        if (BossEnemy && BossEnemy->GetPawnCurrentHealth() <= DEATH)
+        {
+            BossEnemy->OnDeath(KeysVectorPtr, SpriteManagerPtr, BossEnemy->GetActorPosition());
+        }
+
+        std::erase(EnemyVectorPtr, EnemyRemove);
+        delete EnemyRemove;
     }
 }
 
@@ -158,7 +179,7 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect,
                                                        AEnemy* EnemyPtr) const
 {
     bCanClimb = false;
-    
+
     // Проверяем столкнование персонажа с препятствиями игровой карты
     for (const auto& Obstacle : GameMapRef.GetGameMapCollisionVector())
     {
@@ -215,11 +236,11 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect,
             // Устанавливаем флаг для персонажа(игрока) на "Умер", если пересекли коллизию с уроном
             bool PlayerDeath = true;
             PlayerRef.SetIsDeathPlayer(PlayerDeath);
-            
+
             break;
         }
     }
-    
+
 
     // Проверяем, находится ли персонаж на лестнице
     for (const auto& LadderLayer : GameMapRef.GetLadderCollisionVector())
@@ -228,6 +249,103 @@ void ACollisionManager::HandlePawnCollisionWithGameMap(sf::FloatRect& PawnRect,
         {
             bCanClimb = true;
             break;
+        }
+    }
+}
+
+// TODO: добавить документацию
+void ACollisionManager::CheckCollisionWithKey(APlayer& Player, std::vector<AKeyObject*>& KeysVectorPtr)
+{
+    // Перебираем все ключи на игровой карте
+    for (auto it = KeysVectorPtr.begin(); it != KeysVectorPtr.end();)
+    {
+        AKeyObject* Key = *it;
+
+        // Проверка на столкновение
+        if (Player.GetActorCollisionRect().intersects(Key->GetActorCollisionRect()))
+        {
+            //Key->SetKeyFound(++);
+
+            // Удаление ключа из памяти и вектора
+            delete Key;
+
+            // erase возвращает следующий допустимый итератор
+            it = KeysVectorPtr.erase(it);
+        }
+        else
+        {
+            // Переход к следующему элементу, если не было удаления
+            ++it;
+        }
+    }
+}
+
+// void ACollisionManager::CheckCollisionWithChest(APlayer& Player, std::vector<AChestObject*>& ChestVectorPtr)
+// {
+//     // Перебираем все ключи на игровой карте
+//     for (auto it = ChestVectorPtr.begin(); it != ChestVectorPtr.end();)
+//     {
+//         AChestObject* Chest = *it;
+//
+//         // Проверка на столкновение
+//         if (Player.GetActorCollisionRect().intersects(Chest->GetActorCollisionRect()))
+//         {
+//             //Key->SetKeyFound(++);
+//
+//             // Удаление ключа из памяти и вектора
+//             delete Chest;
+//
+//             // erase возвращает следующий допустимый итератор
+//             it = ChestVectorPtr.erase(it);
+//         }
+//         else
+//         {
+//             // Переход к следующему элементу, если не было удаления
+//             ++it;
+//         }
+//     }
+// }
+
+// TODO: добавить документацию
+void ACollisionManager::CheckCollisionWithGameMap(sf::FloatRect& ActorRect,
+                                                  sf::Vector2f& ObjectVelocity) const
+{
+    // Проверяем столкнование с препятствиями игровой карты
+    for (const auto& Obstacle : GameMapRef.GetGameMapCollisionVector())
+    {
+        if (ActorRect.intersects(Obstacle))
+        {
+            // Рассчитываем перекрытие по всем сторонам препятствия
+            float OverlapLeft = (ActorRect.left + ActorRect.width) - Obstacle.left;
+            float OverlapRight = (Obstacle.left + Obstacle.width) - ActorRect.left;
+            float OverlapTop = (ActorRect.top + ActorRect.height) - Obstacle.top;
+            float OverlapBottom = (Obstacle.top + Obstacle.height) - ActorRect.top;
+
+            // Определяем направление, откуда пришло столкновение
+            bool FromLeft = std::abs(OverlapLeft) < std::abs(OverlapRight);
+            bool FromTop = std::abs(OverlapTop) < std::abs(OverlapBottom);
+
+            // Выбираем минимальное перекрытие по X и Y
+            float MinOverlapX = FromLeft ? OverlapLeft : OverlapRight;
+            float MinOverlapY = FromTop ? OverlapTop : OverlapBottom;
+
+            // Если перекрытие по X меньше, чем по Y, это горизонтальное столкновение
+            if (std::abs(MinOverlapX) < std::abs(MinOverlapY))
+            {
+                // Корректируем положение по X
+                ActorRect.left += FromLeft ? -OverlapLeft : OverlapRight;
+
+                // Останавливаем горизонтальное движение
+                ObjectVelocity.x = 0.f;
+            }
+            else // В противном случае это вертикальное столкновение
+            {
+                // Корректируем положение по Y
+                ActorRect.top += FromTop ? -OverlapTop : OverlapBottom;
+
+                // Останавливаем вертикальное движение
+                ObjectVelocity.y = 0.f;
+            }
         }
     }
 }

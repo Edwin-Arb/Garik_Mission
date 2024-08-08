@@ -1,6 +1,10 @@
 #pragma once
 
 #include "../Enemy.h"
+#include "../../GameObjects/KeyObject.h"
+
+// TODO: Предварительное объявление
+class AKeyObject;
 
 /**
  * @brief Класс ABossEnemy представляет собой босса в игре.
@@ -48,6 +52,9 @@ public:
      */
     void UpdateEnemyMove(float DeltaTime, APlayer& Player, const AGameMap& GameMap,
                          const ACollisionManager& CollisionManager) override;
+
+    // TODO: Добавить документацию к фукнции 
+    void OnDeath(std::vector<AKeyObject*>& KeysVector, ASpriteManager& SpriteManager, const sf::Vector2f& BossPosition);
 
 private:
     /**

@@ -539,6 +539,8 @@
         </ClCompile>
         <ClCompile Include="Src\GameMap\GameMap.cpp"/>
         <ClCompile Include="Src\GameMap\TileAnimator.cpp"/>
+        <ClCompile Include="Src\GameObjects\ChestObject.cpp" />
+        <ClCompile Include="Src\GameObjects\KeyObject.cpp" />
         <ClCompile Include="Src\Main.cpp">
             <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
             <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -770,6 +772,7 @@
             <AdditionalIncludeDirectories>D:\VS_Works\GarikMission\GarikMission\SFML\include; D:\VS_Works\GarikMission\GarikMission\tmxlite\include;</AdditionalIncludeDirectories>
             <LinkCompiled>true</LinkCompiled>
         </ClCompile>
+        <ClCompile Include="Src\UserInterface\UIText.cpp"/>
         <ClCompile Include="tmxlite\src\detail\pugixml.cpp"/>
         <ClCompile Include="tmxlite\src\FreeFuncs.cpp"/>
         <ClCompile Include="tmxlite\src\ImageLayer.cpp"/>
@@ -796,6 +799,8 @@
         <ClInclude Include="Src\GameMain\GameState.h"/>
         <ClInclude Include="Src\GameMap\GameMap.h"/>
         <ClInclude Include="Src\GameMap\TileAnimator.h"/>
+        <ClInclude Include="Src\GameObjects\ChestObject.h" />
+        <ClInclude Include="Src\GameObjects\KeyObject.h" />
         <ClInclude Include="Src\Manager\AnimationManager.h"/>
         <ClInclude Include="Src\Manager\CollisionManager.h"/>
         <ClInclude Include="Src\Manager\FpsManager.h"/>
@@ -804,15 +809,13 @@
         <ClInclude Include="Src\Player\Player.h"/>
         <ClInclude Include="Src\UserInterface\HealthBar.h"/>
         <ClInclude Include="Src\UserInterface\Test.h"/>
+        <ClInclude Include="Src\UserInterface\UIText.h"/>
         <ClInclude Include="tmxlite\src\detail\pugiconfig.hpp"/>
         <ClInclude Include="tmxlite\src\detail\pugixml.hpp"/>
         <ClInclude Include="tmxlite\src\miniz.h"/>
     </ItemGroup>
     <ItemGroup>
         <Content Include="tmxlite\src\detail\pugixml.LICENSE"/>
-    </ItemGroup>
-    <ItemGroup>
-        <Folder Include="Src\GameObjects\"/>
     </ItemGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
     <ImportGroup Label="ExtensionTargets">

@@ -185,6 +185,7 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
     {
         if (Layer->getType() == tmx::Layer::Type::Object)
         {
+            // Получить где расположены коллизии объектов игровой карты
             const auto* ObjectLayer = dynamic_cast<const tmx::ObjectGroup*>(Layer.get());
             if (ObjectLayer && ObjectLayer->getName() == "Obstacles")
             {
@@ -194,6 +195,7 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
                     GameMapCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height);
                 }
             }
+            // Получить где расположены коллизии, которые наносят урон(лава, шипы и т.д)
             else if (ObjectLayer && ObjectLayer->getName() == "DamageCollision")
             {
                 for (const auto& Object : ObjectLayer->getObjects())
@@ -202,6 +204,7 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
                     DamageCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height);
                 }
             }
+            // Получить где расположены коллизии лестниц
             else if (ObjectLayer && ObjectLayer->getName() == "Ladders")
             {
                 for (const auto& Object : ObjectLayer->getObjects())
@@ -210,18 +213,35 @@ void AGameMap::ProcessCollisionLayers(const tmx::Map& GameMap)
                     LadderCollisionLayer.emplace_back(TmxRect.left, TmxRect.top, TmxRect.width, TmxRect.height);
                 }
             }
+            // Задать позицию, где заспавнить врагов
             else if (ObjectLayer && ObjectLayer->getName() == "SpawnEnemy")
             {
                 for (const auto& Object : ObjectLayer->getObjects())
                 {
                     sf::Vector2f TmxRect = {Object.getPosition().x, Object.getPosition().y};
-                    if (Object.getUID() == 399)
+                    if (Object.getUID() == 399 || Object.getUID() == 420 || Object.getUID() == 421)
                     {
                         SpawnBossEnemyPosition.emplace_back(TmxRect);
                     }
                     else
                     {
                         SpawnBaseEnemyPosition.emplace_back(TmxRect);
+                    }
+                }
+            }
+            // Задать позицию, где заспавнить сундуки
+            else if (ObjectLayer && ObjectLayer->getName() == "SpawnChest")
+            {
+                for (const auto& Object : ObjectLayer->getObjects())
+                {
+                    sf::Vector2f TmxRect = {Object.getPosition().x, Object.getPosition().y};
+                    if (Object.getUID() == 634 || Object.getUID() == 635 || Object.getUID() == 636)
+                    {
+                        SpawnChestPosition.emplace_back(TmxRect);
+                    }
+                    else
+                    {
+                        SpawnChestPosition.emplace_back(TmxRect);
                     }
                 }
             }

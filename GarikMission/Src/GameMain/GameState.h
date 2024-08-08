@@ -3,6 +3,10 @@
 #include "../Manager/FpsManager.h"
 #include "../Manager/ParticleSystemManager.h"
 
+#include "../UserInterface/UIText.h"
+#include "../GameObjects/KeyObject.h"
+#include "../GameObjects/ChestObject.h"
+
 // Подключение типов врагов
 #include "../Enemy/BossEnemy/BossEnemy.h"
 #include "../Enemy/BaseEnemy/BaseRedEnemy.h"
@@ -69,6 +73,9 @@ private:
     ACollisionManager* CollisionManagerPtr; // Менеджер коллизий
     AParticleSystemManager* ParticleSystemPtr; // Менеджер частиц
     AFpsManager* FpsManagerPtr; // Менеджер FPS
+    AUIText* GameTextPtr; // Текст для игры
+    std::vector<AKeyObject*> KeysVectorPtr; // Вектор указателей на ключи, для выполения миссии в игре
+    std::vector<AChestObject*> ChestVectorPtr; // Вектор указателей на сундуки, для выполения миссии в игре
 
     sf::Clock DelayShotTimerHandle; // Таймер для задержки выстрелов
     sf::View ViewPlayer; // Камера для отображения игрового мира
